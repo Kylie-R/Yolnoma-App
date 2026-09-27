@@ -43,6 +43,7 @@ url = "2"
 tokio = { version = "1", features = ["full"] }
 # rustls avoids OpenSSL cross-compilation issues on Android targets.
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+x509-parser = "0.16"
 sysinfo = "0.30"
 regex = "1"
 steamlocate = "2"

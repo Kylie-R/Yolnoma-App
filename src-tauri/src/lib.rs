@@ -7,6 +7,8 @@ mod app_state;
 #[cfg(not(target_os = "android"))]
 mod commands;
 mod deep_link;
+#[path = "domains/dns_ssl.rs"]
+mod dns_ssl;
 #[cfg(not(target_os = "android"))]
 mod domains;
 #[cfg(target_os = "android")]
@@ -280,6 +282,8 @@ pub fn run() {
             // ── Port Scanner ──
             domains::network::scan_ports,
             domains::network::get_common_ports,
+            // ── DNS + SSL Audit ──
+            dns_ssl::audit_dns_ssl,
             // ── Archive Explorer ──
             domains::archive::list_archive_entries,
             domains::archive::read_archive_entry_content,
@@ -333,6 +337,7 @@ pub fn run() {
             mobile_backend::get_api_key,
             mobile_backend::set_api_key,
             mobile_backend::clear_api_key,
+            dns_ssl::audit_dns_ssl,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Android application");
