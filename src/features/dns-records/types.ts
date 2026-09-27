@@ -60,3 +60,28 @@ export interface DnsProviderInfo {
   description: string;
   endpoint: string;
 }
+
+export type SubdomainCategory =
+  "api" | "auth" | "mail" | "dev" | "content" | "cloud" | "other";
+
+export interface SubdomainItem {
+  id: string;
+  subdomain: string;
+  fullDomain: string;
+  ip?: string;
+  cname?: string;
+  status: "live" | "unresolved" | "checking";
+  category: SubdomainCategory;
+  source: "ct_log" | "wordlist";
+}
+
+export interface SubdomainScanResult {
+  domain: string;
+  subdomains: SubdomainItem[];
+  totalFound: number;
+  liveCount: number;
+  scanDurationMs: number;
+  timestamp: number;
+}
+
+export type SubdomainViewMode = "tree" | "graph" | "grid";
