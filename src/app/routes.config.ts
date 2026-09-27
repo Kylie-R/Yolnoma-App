@@ -12,8 +12,10 @@ import {
   Globe,
   ImageIcon,
   GitBranch,
+  LockKeyhole,
   Radar,
   Sparkles,
+  ArrowRight,
   Wrench,
   WandSparkles,
   Palette,
@@ -148,6 +150,18 @@ const JsonViewerPage = lazyPage(
 );
 const DnsRecordsPage = lazyPage(
   () => import("@/features/dns-records/pages/DnsRecordsPage"),
+);
+const ApiTestingStudioPage = lazyPage(
+  () => import("@/features/api-testing/pages/ApiTestingStudioPage"),
+);
+const DnsSslAuditPage = lazyPage(
+  () => import("@/features/dns-ssl/pages/DnsSslAuditPage"),
+);
+const GitWorkflowDashboardPage = lazyPage(
+  () => import("@/features/git-workflow/pages/GitWorkflowDashboardPage"),
+);
+const ColorPaletteExtractorPage = lazyPage(
+  () => import("@/features/color-palette/pages/ColorPaletteExtractorPage"),
 );
 
 const roleGuard = (page: string, message: string): RouteRoleGuard => ({
@@ -453,12 +467,52 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     pinnable: true,
   },
   {
+    id: "api-testing-studio",
+    path: "/tools/api-testing-studio",
+    component: ApiTestingStudioPage,
+    label: "API Testing Studio",
+    description: "Send HTTP requests and inspect responses",
+    icon: ArrowRight,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
     id: "dns-records",
     path: "/tools/dns-records",
     component: DnsRecordsPage,
     label: "DNS Records",
     description: "Inspect domains, hosts, and provider clues",
     icon: Globe,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
+    id: "dns-ssl-audit",
+    path: "/tools/dns-ssl-audit",
+    component: DnsSslAuditPage,
+    label: "DNS + SSL Audit",
+    description: "Check DNS health and certificate status",
+    icon: LockKeyhole,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
+    id: "git-workflow-dashboard",
+    path: "/tools/git-workflow-dashboard",
+    component: GitWorkflowDashboardPage,
+    label: "Git Workflow Dashboard",
+    description: "Monitor branch health and recent release flow",
+    icon: GitBranch,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
+    id: "color-palette-extractor",
+    path: "/tools/color-palette-extractor",
+    component: ColorPaletteExtractorPage,
+    label: "Color Palette Extractor",
+    description: "Pull swatches from brand or reference images",
+    icon: Palette,
     navGroup: "tools",
     pinnable: true,
   },
