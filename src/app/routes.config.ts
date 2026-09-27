@@ -12,6 +12,7 @@ import {
   ImageIcon,
   GitBranch,
   Radar,
+  Network,
   Sparkles,
   Wrench,
   WandSparkles,
@@ -116,6 +117,9 @@ const CrosshairPage = lazyPage(
 const ImagePage = lazyPage(() => import("@/features/image/pages/ImagePage"));
 const PortScannerPage = lazyPage(
   () => import("@/features/port-scanner/pages/PortScannerPage"),
+);
+const DnsRecordsPage = lazyPage(
+  () => import("@/features/dns-records/pages/DnsRecordsPage"),
 );
 const ArchiveExplorerPage = lazyPage(
   () => import("@/features/archive-explorer/pages/ArchiveExplorerPage"),
@@ -330,6 +334,17 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     label: "Port Scanner",
     description: "Inspect local network ports",
     icon: Radar,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
+    id: "dns-records",
+    path: "/tools/dns-records",
+    component: DnsRecordsPage,
+    mobile: true,
+    label: "DNS Records",
+    description: "Lookup & inspect domain DNS records",
+    icon: Network,
     navGroup: "tools",
     pinnable: true,
   },
