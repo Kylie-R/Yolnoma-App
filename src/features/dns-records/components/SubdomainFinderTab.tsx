@@ -34,6 +34,7 @@ import { toast } from "@/shared/ui/Toast";
 const PRESET_DOMAINS = [
   "github.com",
   "cloudflare.com",
+  "yolnoma.uz",
   "spotify.com",
   "discord.com",
   "openai.com",

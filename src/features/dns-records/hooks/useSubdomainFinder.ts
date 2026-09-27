@@ -18,7 +18,7 @@ export function useSubdomainFinder(initialDomain = "github.com") {
   );
   const [error, setError] = useState<string | null>(null);
 
-  const [viewMode, setViewMode] = useState<SubdomainViewMode>("tree");
+  const [viewMode, setViewMode] = useState<SubdomainViewMode>("relationship");
   const [selectedCategory, setSelectedCategory] = useState<
     SubdomainCategory | "all"
   >("all");

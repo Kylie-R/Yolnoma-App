@@ -28,6 +28,17 @@ import { DnsSummaryCards } from "./DnsSummaryCards";
 import { DnsRecordCard } from "./DnsRecordCard";
 import { DnsPresets } from "./DnsPresets";
 import { toast } from "@/shared/ui/Toast";
+import { SelectMenu } from "@/shared/ui";
+
+const RECORD_TYPE_OPTIONS = [
+  { value: "ALL", label: "ALL Records" },
+  ...DNS_RECORD_TYPES.map((t) => ({ value: t, label: t })),
+];
+
+const DNS_RESOLVER_OPTIONS = DNS_PROVIDERS.map((p) => ({
+  value: p.id,
+  label: `${p.name} (${p.ip})`,
+}));
 
 export const DnsLookupTab: React.FC = () => {
   const {
@@ -125,21 +136,13 @@ export const DnsLookupTab: React.FC = () => {
             <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Record Type
             </label>
-            <select
+            <SelectMenu
               value={queryType}
-              onChange={(e) => setQueryType(e.target.value as DnsQueryType)}
+              options={RECORD_TYPE_OPTIONS}
+              onChange={(val) => setQueryType(val as DnsQueryType)}
+              ariaLabel="Select Record Type"
               disabled={loading}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-[var(--border)] text-sm focus:outline-none focus:ring-2 focus:ring-[#D97757]/40 focus:border-[#D97757]/50 transition-all font-mono"
-            >
-              <option value="ALL" className="bg-[#1b1917] text-white">
-                ALL Records
-              </option>
-              {DNS_RECORD_TYPES.map((t) => (
-                <option key={t} value={t} className="bg-[#1b1917] text-white">
-                  {t}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           {/* Provider Select */}
@@ -147,22 +150,13 @@ export const DnsLookupTab: React.FC = () => {
             <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               DNS Resolver
             </label>
-            <select
+            <SelectMenu
               value={provider}
-              onChange={(e) => setProvider(e.target.value as DnsProvider)}
+              options={DNS_RESOLVER_OPTIONS}
+              onChange={(val) => setProvider(val as DnsProvider)}
+              ariaLabel="Select DNS Resolver"
               disabled={loading}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-[var(--border)] text-sm focus:outline-none focus:ring-2 focus:ring-[#D97757]/40 focus:border-[#D97757]/50 transition-all font-mono"
-            >
-              {DNS_PROVIDERS.map((p) => (
-                <option
-                  key={p.id}
-                  value={p.id}
-                  className="bg-[#1b1917] text-white"
-                >
-                  {p.name} ({p.ip})
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           {/* Search Button */}

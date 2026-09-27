@@ -10,6 +10,7 @@ interface DnsPresetsProps {
 const PRESET_DOMAINS = [
   { domain: "google.com", label: "google.com" },
   { domain: "cloudflare.com", label: "cloudflare.com" },
+  { domain: "yolnoma.uz", label: "yolnoma.uz" },
   { domain: "github.com", label: "github.com" },
   { domain: "wikipedia.org", label: "wikipedia.org" },
   { domain: "openai.com", label: "openai.com" },
