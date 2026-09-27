@@ -9,6 +9,7 @@ import {
   Download,
   Gamepad,
   Gamepad2,
+  Globe,
   ImageIcon,
   GitBranch,
   Radar,
@@ -144,6 +145,9 @@ const FeedbackPage = lazyPage(
 );
 const JsonViewerPage = lazyPage(
   () => import("@/features/json-viewer/pages/JsonViewerPage"),
+);
+const DnsRecordsPage = lazyPage(
+  () => import("@/features/dns-records/pages/DnsRecordsPage"),
 );
 
 const roleGuard = (page: string, message: string): RouteRoleGuard => ({
@@ -445,6 +449,16 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     label: "CSS Tools",
     description: "Gradients, scrollbars & minify",
     icon: Palette,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
+    id: "dns-records",
+    path: "/tools/dns-records",
+    component: DnsRecordsPage,
+    label: "DNS Records",
+    description: "Inspect domains, hosts, and provider clues",
+    icon: Globe,
     navGroup: "tools",
     pinnable: true,
   },
