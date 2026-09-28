@@ -126,9 +126,6 @@ const ArchiveExplorerPage = lazyPage(
 );
 const AiChatPage = lazyPage(() => import("@/features/ai/pages/AiChatPage"));
 const AiAgentPage = lazyPage(() => import("@/features/ai/pages/AiAgentPage"));
-const CodebaseAgentPage = lazyPage(
-  () => import("@/features/ai/pages/CodebaseAgentPage"),
-);
 const ViCountdown = lazyPage(() => import("@/features/vi/pages/ViCountdown"));
 const World3DPage = lazyPage(
   () => import("@/features/world3d/pages/World3DPage"),
@@ -177,11 +174,7 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
   {
     id: "codebase-agent",
     path: "/codebase-agent",
-    component: CodebaseAgentPage,
-    status: "dev",
-    label: "Codebase Agent",
-    icon: Bot,
-    navGroup: "home",
+    component: AiAgentPage,
   },
   {
     id: "performances",

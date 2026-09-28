@@ -1,43 +1,31 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { GitBranch, GitCommitHorizontal, History } from "lucide-react";
 import ToolNavigation from "@/shared/ui/ToolNavigation";
+import { useHashTab } from "@/shared/hooks/useHashTab";
 import CommitGenerator from "../components/CommitGenerator";
 import CommitHistoryGraph from "../components/CommitHistoryGraph";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "@/shared/ui/Toast";
+import type { GitChange } from "../types";
 
 type Tab = "commit-generator" | "history-graph";
 type TabDefinition = [Tab, string, LucideIcon];
-type GitChange = { path: string; status: string; diff: string };
+
 const tabs: TabDefinition[] = [
   ["commit-generator", "Commit Generator", GitBranch],
   ["history-graph", "History Graph", History],
 ];
-const tabIds = new Set<Tab>(tabs.map(([id]) => id));
-function readTabFromUrl(): Tab {
-  const query = window.location.hash.split("?")[1];
-  const value = query ? new URLSearchParams(query).get("tab") : null;
-  return value && tabIds.has(value as Tab)
-    ? (value as Tab)
-    : "commit-generator";
-}
+const tabIds = tabs.map(([id]) => id);
 
 export default function GitPage() {
-  const [tab, setTab] = useState<Tab>(readTabFromUrl);
+  const [tab, selectTab] = useHashTab(
+    tabIds,
+    "commit-generator",
+    "#/tools/git",
+  );
   const [folderPath, setFolderPath] = useState("");
   const [changes, setChanges] = useState<GitChange[]>([]);
-
-  useEffect(() => {
-    const onHashChange = () => setTab(readTabFromUrl());
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
-
-  const selectTab = (next: Tab) => {
-    setTab(next);
-    window.location.hash = `#/tools/git?tab=${next}`;
-  };
 
   const refreshChanges = async (path = folderPath) => {
     if (!path) return;

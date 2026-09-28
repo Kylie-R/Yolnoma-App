@@ -48,6 +48,7 @@ import {
   requestOpenRouter,
 } from "../api/openRouterApi";
 import SideBySideDiffViewer from "../components/SideBySideDiffViewer";
+import type { GitChange } from "@/features/git/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,8 +75,6 @@ type DiffTab = {
 };
 
 type EditorTab = FileTab | DiffTab;
-
-type GitChange = { path: string; status: string; diff: string };
 
 type ChatMessage = {
   role: "system" | "user" | "assistant" | "tool";
@@ -420,7 +419,7 @@ export default function AiAgentPage() {
         "You are Yolnoma Agent, an expert coding assistant inside a desktop IDE.",
         "Answer in the same language as the user. Work only inside the selected project root.",
         "Use read_file ONLY for files directly needed to answer. Avoid reading many files at once — this wastes tokens.",
-        'When user says "readme ni takomillashtir" or similar: ONLY read README.md, then write_file to propose improvements. Do not read other files.',
+        'When user says "UPGRADE README.md" or similar: ONLY read README.md, then write_file to propose improvements. Do not read other files.',
         "Use search_in_project to locate symbols, functions, or strings across the codebase.",
         "When modifying code, use write_file with the complete file content. User approves before writing.",
         `Selected project: ${rootPath || "none"}`,
@@ -1523,13 +1522,12 @@ export default function AiAgentPage() {
                     <br />
                     Auto-switches model on token limit
                     <br />
-                    "readme ni takomillashtir" → only reads README
+                    "UPGRADE README.md" → only reads README
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
                   {messages.map((msg, i) => (
-                     
                     <div
                       key={`${msg.role}-${i}`}
                       className="border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs leading-relaxed text-white/60"
@@ -1545,7 +1543,6 @@ export default function AiAgentPage() {
                 </div>
               )}
               {activity.slice(0, 4).map((item, i) => (
-                 
                 <p
                   key={`${item}-${i}`}
                   className="mt-1.5 text-[10px] text-white/20"

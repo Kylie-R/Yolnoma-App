@@ -38,7 +38,8 @@ import {
   removeRecentGitFolder,
 } from "../storage/recentFolders";
 
-type GitChange = { path: string; status: string; diff: string };
+import type { GitChange } from "../types";
+
 type CommitVariant = { title: string; message: string };
 
 const MAX_CONTEXT_CHARS = 100_000;
