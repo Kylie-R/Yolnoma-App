@@ -13,8 +13,7 @@
 
 **Yolnoma-App** brings practical developer tools, network inspection, media utilities, image workflows, AI workspaces, and Steam-related tools into one native desktop application. Instead of switching between many small browser utilities, you can keep frequently used workflows together in a single [Tauri](https://tauri.app/)-powered workspace.
 
-
->Yolnoma-App is an independent project by Jasurbek Haydarov under JK Software. It is not affiliated with, endorsed by, or sponsored by Valve Corporation or Steam.
+> Yolnoma-App is an independent project by Jasurbek Haydarov under JK Software. It is not affiliated with, endorsed by, or sponsored by Valve Corporation or Steam.
 
 # Why Yolnoma?
 
@@ -32,91 +31,27 @@ Most utility workflows are fragmented across browser tabs, standalone scripts, a
 
 # What you can do
 
-## 1) Developer workspace
-
-### A collection of focused utilities for everyday development and debugging:
-
-- Format and inspect JSON.
-
-- Decode JWTs and work with Base64, UUID, bcrypt, URL encoding, and regular expressions.
-
-- Create QR codes and Markdown content.
-
-- Convert cURL requests into JavaScript, Axios, Python, or Rust examples.
-
-- Compare text with a diff checker.
-- Inspect IP information and work with CSS gradients, scrollbars, and minification.
-- Work with Git through commit generation and history visualization.
-
-
-## 2) Network and domain workspace
-
-### Inspect domains and network targets from a desktop interface:
-
-- Query DNS records through DNS-over-HTTPS providers.
-
-- Explore discovered subdomains and domain relationships.
-
-- Inspect HTTP response headers and security-header scores.
-
-- Review SSL-related audit information exposed by the current implementation.
-
-- Scan selected ports on authorized network targets.
-
-Use network and scanning features only on systems and domains you are authorized to inspect.
-
-
-## 3) Desktop utility workspace
-
-- Clean selected caches and temporary files.
-
-- Monitor system resources.
-
-- Convert currencies and view currency charts.
-
-- Configure a desktop crosshair overlay.
-
-- Explore Yolnoma World, the application's interactive 3D desktop environment.
-
-
-## 4) AI workspace
-
-- Chat with configured OpenRouter models using your own provider key.
-
-- Generate database schemas and relationship diagrams.
-
-- Create project README content with an AI-assisted workspace.
-
-- Explore project context and code-oriented workflows in the AI agent area.
-
-AI prompts and selected context may be sent to the configured provider to generate a response. Do not send passwords, private keys, access tokens, or confidential source code unless you have reviewed the provider's terms and privacy practices.
-
-
-## 5) Steam and gaming workspace
-
-- Idle selected Steam games.
-
-- Work with Steam achievements through the SAM integration.
-
-- Review Steam game information.
-
-- Track game-related workflows from dedicated pages.
-
-Steam-related features are intended for accounts and systems you own or are authorized to use. See the third-party notices for attribution information about derived components.
+| Workspace             | What you can do                                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Developer tools**   | Format JSON, decode JWTs, convert cURL requests, compare text, work with Git, and use encoding utilities.                              |
+| **Network & domains** | Inspect DNS records, subdomains, HTTP headers, SSL-related information, and selected ports on authorized targets.                      |
+| **Desktop utilities** | Clean selected caches, monitor system resources, convert currencies, configure a crosshair overlay, and explore Yolnoma World.         |
+| **AI workspace**      | Chat with configured OpenRouter models, generate database diagrams, and assist with project documentation and code-oriented workflows. |
+| **Steam & gaming**    | Use selected Steam-related utilities, review game information, and access achievement-related integrations.                            |
 
 ---
 
 ## Technology
 
-| Layer | Technology |
-| --- | --- |
-| Desktop shell | [Tauri v2](https://tauri.app/) |
-| Frontend | React, TypeScript, Vite |
-| Styling | Tailwind CSS |
-| Native layer | Rust |
-| State and data | Zustand, TanStack Query, local application storage |
-| Package manager | [Bun](https://bun.sh/) |
-| Testing | Vitest and Testing Library |
+| Layer           | Technology                                         |
+| --------------- | -------------------------------------------------- |
+| Desktop shell   | [Tauri v2](https://tauri.app/)                     |
+| Frontend        | React, TypeScript, Vite                            |
+| Styling         | Tailwind CSS                                       |
+| Native layer    | Rust                                               |
+| State and data  | Zustand, TanStack Query, local application storage |
+| Package manager | [Bun](https://bun.sh/)                             |
+| Testing         | Vitest and Testing Library                         |
 
 The high-level architecture is documented in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -178,16 +113,16 @@ bun run tauri dev
 
 ## Available scripts
 
-| Command | Purpose |
-| --- | --- |
-| `bun run td` | Start the Tauri desktop app in development mode. |
-| `bun run dev` | Start the Vite frontend development server. |
-| `bun run typecheck` | Run TypeScript checks. |
-| `bun run lint` | Run ESLint. |
-| `bun run test` | Run the Vitest test suite. |
-| `bun run build` | Build the frontend bundle. |
-| `bun run tb` | Build the desktop application. |
-| `bun run check` | Run the project's combined validation commands. |
+| Command             | Purpose                                          |
+| ------------------- | ------------------------------------------------ |
+| `bun run td`        | Start the Tauri desktop app in development mode. |
+| `bun run dev`       | Start the Vite frontend development server.      |
+| `bun run typecheck` | Run TypeScript checks.                           |
+| `bun run lint`      | Run ESLint.                                      |
+| `bun run test`      | Run the Vitest test suite.                       |
+| `bun run build`     | Build the frontend bundle.                       |
+| `bun run tb`        | Build the desktop application.                   |
+| `bun run check`     | Run the project's combined validation commands.  |
 
 The release workflow creates signed updater artifacts. The Tauri updater private
 key must stay **outside** the repository and be supplied through the
@@ -203,8 +138,6 @@ Windows desktop releases are built through GitHub Actions when a v* tag is pushe
 - [Read the release guide](docs/RELEASES.md)
 
 Android builds are currently test releases and may not include the complete desktop feature set.
-
-
 
 ## Configuration and secrets
 
@@ -282,7 +215,7 @@ Before contributing:
 
 If Yolnoma is useful to you, consider starring the repository, opening an issue with feedback, or sharing a workflow that you would like to see supported.
 
-## License and notices
+## License
 
 Original Yolnoma-App code is source-available under the **Elastic License 2.0**, Copyright (c) 2026 Jasurbek Haydarov and contributors. This is not an OSI-approved open-source license; review its restrictions before redistributing or offering the software as a hosted service.
 
@@ -295,4 +228,3 @@ Jasurbek Haydarov — founder and developer of Yolnoma-App.
 - GitHub: [@hexjasur](https://github.com/hexjasur)
 
 - Project: [hexjasur/Yolnoma-App](https://github.com/hexjasur/Yolnoma-App)
-
