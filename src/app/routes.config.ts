@@ -363,6 +363,17 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     pinnable: true,
   },
   {
+    id: "ai-chat-2b-model",
+    path: "/tools/ai-chat-2b-model",
+    component: AiChatPage,
+    mobile: true,
+    label: "AI Chat: 2B_MODEL",
+    description: "Chat with text and image vision input",
+    icon: Bot,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
     id: "cleaner",
     path: "/tools/cleaner",
     component: CleanerPage,
