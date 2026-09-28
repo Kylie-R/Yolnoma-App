@@ -24,7 +24,7 @@ This project has additional instructions for the Manus AI agent.
 
 - **Name:** Yolnoma
 - **Stack:** React + TypeScript (TSX) + Tauri v2 (desktop app)
-- **Core features:** AI Chat (OpenRouter), Codebase Agent, Database Gen, Profile, Image Converter, Cleaner, Crosshair, Steam tools, Archive Explorer, Port Scanner, Currency Converter, Video Downloader
+- **Core features:** AI Chat (OpenRouter), Yolnoma Agent (Codebase IDE), Database Gen, Profile, Image Converter, Cleaner, Crosshair, Steam tools, Archive Explorer, Port Scanner, Currency Converter, Video Downloader
 
 ## Core principles
 
@@ -51,7 +51,6 @@ This project has additional instructions for the Manus AI agent.
 
 - Always write in TypeScript strict mode — avoid `any`.
 - Follow the state management pattern already used in the project; don't introduce a new pattern.
-- Tauri API calls (`invoke`, filesystem, dialogs, etc.) go through wrapper functions in `src/lib/tauri/` (or similar) — never call them directly inside a component.
 - After adding or changing a function/component, check every place that imports it to make sure no stale/duplicate version is left behind.
 - Extract side effects and API calls into custom hooks (`useXxx.ts`) — keep components as a "view" layer, not a "smart" layer.
 - Never silently swallow errors — every async operation and tool call must have proper error handling.
