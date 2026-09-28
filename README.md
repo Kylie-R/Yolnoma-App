@@ -90,10 +90,24 @@ The high-level architecture is documented in [ARCHITECTURE.md](docs/ARCHITECTURE
 
 ## Requirements
 
-- **Windows 10** or later for the full desktop feature set.
-- **[Bun](https://bun.sh/) 1.4+** for frontend development and dependency management.
-- **Rust** and the [Tauri prerequisites](https://tauri.app/start/prerequisites/) for desktop builds.
-- A **Steam account** for Steam-related features.
+Before running or building Yolnoma-App locally, ensure your system meets the following requirements:
+
+### Operating System
+
+- **Windows 10 / 11** (64-bit) recommended for full desktop feature support.
+
+### Development Toolchain
+
+1. **[Bun](https://bun.sh/) (v1.4+)** or **Node.js (v18+)**:
+   - Used for frontend dependency management and running development scripts.
+2. **[Rust Toolchain](https://www.rust-lang.org/tools/install)** (`rustc`, `cargo`):
+   - Tauri v2 requires Rust to compile the native backend (`stable` channel recommended).
+   - Install via `rustup`:
+     ```bash
+     rustup default stable
+     ```
+3. **[Tauri v2 Prerequisites](https://v2.tauri.app/start/prerequisites/)**:
+   - **Windows:** Requires **Microsoft Visual Studio C++ Build Tools** (include "Desktop development with C++" workload) and **WebView2 Runtime**.
 
 Some integrations require their own API credentials (see
 [Configuration and secrets](#configuration-and-secrets)).
