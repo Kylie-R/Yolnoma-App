@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { GitBranch, GitCommitHorizontal, History } from "lucide-react";
-import ToolNavigation from "@/features/developer-tools/components/ToolNavigation";
+import ToolNavigation from "@/shared/ui/ToolNavigation";
 import CommitGenerator from "../components/CommitGenerator";
 import CommitHistoryGraph from "../components/CommitHistoryGraph";
 import { invoke } from "@tauri-apps/api/core";

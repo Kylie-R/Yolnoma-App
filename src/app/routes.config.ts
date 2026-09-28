@@ -88,10 +88,10 @@ const PerformancePage = lazyPage(
   () => import("@/features/performance/pages/PerformancePage"),
 );
 const SteamIdlerPage = lazyPage(
-  () => import("@/features/steam-idler/pages/SteamIdlerPage"),
+  () => import("@/features/steam/idler/pages/SteamIdlerPage"),
 );
 const SteamSamPage = lazyPage(
-  () => import("@/features/steam-sam/pages/SteamSamPage"),
+  () => import("@/features/steam/sam/pages/SteamSamPage"),
 );
 const UsersPage = lazyPage(() => import("@/features/users/pages/UsersPage"));
 const VideoDetailPage = lazyPage(
@@ -102,7 +102,7 @@ const CleanerPage = lazyPage(
   () => import("@/features/cleaner/pages/CleanerPage"),
 );
 const VideoDownloader = lazyPage(() =>
-  import("@/features/yt-video-downloader/pages/YTVideoDownloader").then(
+  import("@/features/videos/downloader/YTVideoDownloader").then(
     ({ VideoDownloader }) => ({
       default: VideoDownloader,
     }),
@@ -137,7 +137,7 @@ const DeveloperToolsPage = lazyPage(
   () => import("@/features/developer-tools/pages/DeveloperToolsPage"),
 );
 const AiToolsPage = lazyPage(
-  () => import("@/features/ai-tools/pages/AiToolsPage"),
+  () => import("@/features/ai/tools/pages/AiToolsPage"),
 );
 const CssToolsPage = lazyPage(
   () => import("@/features/css-tools/pages/CssToolsPage"),

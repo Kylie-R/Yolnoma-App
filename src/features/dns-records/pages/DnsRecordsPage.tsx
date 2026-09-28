@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Network, ListTree, ShieldCheck } from "lucide-react";
-import ToolNavigation from "@/features/developer-tools/components/ToolNavigation";
+import ToolNavigation from "@/shared/ui/ToolNavigation";
 import { useHashTab } from "@/shared/hooks/useHashTab";
 import { DnsLookupTab } from "../components/DnsLookupTab";
 import { SubdomainFinderTab } from "../components/SubdomainFinderTab";
