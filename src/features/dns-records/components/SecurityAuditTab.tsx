@@ -41,11 +41,15 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
     null,
   );
   const [sslInfo, setSslInfo] = useState<SslCertificateInfo | null>(null);
+  const [auditError, setAuditError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const runAudit = async (host = targetHost) => {
     if (!host.trim()) return;
     setLoading(true);
+    setAuditError(null);
+    setHeadersResult(null);
+    setSslInfo(null);
     try {
       const clean = host
         .trim()
@@ -64,18 +68,21 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
       );
       setSslInfo(ssl);
       toast.success(`Security & HTTP audit completed for ${clean}`);
-    } catch {
-      toast.error("Audit failed for this host.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Audit failed for this host.";
+      setAuditError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (targetHost) {
-      void runAudit(targetHost);
-    }
-  }, [targetHost]);
+    void runAudit(targetHost);
+    // Run once for the initial host; subsequent audits are explicit button actions.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCopyHeaders = () => {
     if (!headersResult) return;
@@ -137,6 +144,12 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
             </button>
           </div>
         </div>
+
+        {auditError && (
+          <div className="rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2 text-[11px] text-red-300">
+            {auditError}
+          </div>
+        )}
 
         {/* Quick subdomains switcher */}
         {availableSubdomains.length > 0 && (
@@ -204,20 +217,22 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
               <Lock size={13} className="text-emerald-400" /> SSL Health Score
             </span>
             <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-xs font-bold text-emerald-400">
-              {sslInfo?.grade || "A+"}
+              {sslInfo?.grade || "—"}
             </span>
           </div>
           <div className="mt-3">
             <p className="text-3xl font-extrabold text-emerald-400">
-              {sslInfo?.score || 95}{" "}
+              {sslInfo?.score ?? "—"}{" "}
               <span className="text-sm font-normal text-white/50">/ 100</span>
             </p>
             <div className="mt-2 space-y-1 text-[11px] text-[var(--text-muted)]">
               <p className="truncate">
-                CA: {sslInfo?.issuer || "Let's Encrypt Authority"}
+                CA: {sslInfo?.issuer || "Not available"}
               </p>
               <p className="text-emerald-400">
-                {sslInfo?.daysRemaining || 68} days remaining
+                {sslInfo
+                  ? `${sslInfo.daysRemaining} days remaining`
+                  : "Not available"}
               </p>
             </div>
           </div>
@@ -231,18 +246,18 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
               Score
             </span>
             <span className="rounded bg-purple-500/15 px-2 py-0.5 text-xs font-bold text-purple-400">
-              Grade {headersResult?.grade || "B"}
+              Grade {headersResult?.grade || "—"}
             </span>
           </div>
           <div className="mt-3">
             <p className="text-3xl font-extrabold text-purple-400">
-              {headersResult?.score || 75}{" "}
+              {headersResult?.score ?? "—"}{" "}
               <span className="text-sm font-normal text-white/50">/ 100</span>
             </p>
             <div className="mt-2 space-y-1 text-[11px] text-[var(--text-muted)]">
-              <p>Server: {headersResult?.server || "Cloudflare / Nginx"}</p>
+              <p>Server: {headersResult?.server || "Not available"}</p>
               <p className="text-emerald-400">
-                Status: {headersResult?.statusText || "200 OK"}
+                Status: {headersResult?.statusText || "Not available"}
               </p>
             </div>
           </div>
@@ -298,10 +313,10 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
           {[
             {
               name: "Strict-Transport-Security (HSTS)",
-              present: headersResult?.securityHeaders?.hsts ?? true,
+              present: headersResult?.securityHeaders?.hsts ?? false,
               value:
                 headersResult?.headers["strict-transport-security"] ||
-                "max-age=31536000; includeSubDomains",
+                "Not detected",
               desc: "Enforces encrypted HTTPS connections.",
             },
             {
@@ -314,29 +329,27 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
             },
             {
               name: "X-Frame-Options",
-              present:
-                Boolean(headersResult?.securityHeaders?.xFrameOptions) || true,
+              present: Boolean(headersResult?.securityHeaders?.xFrameOptions),
               value:
-                headersResult?.securityHeaders?.xFrameOptions || "SAMEORIGIN",
+                headersResult?.securityHeaders?.xFrameOptions || "Not detected",
               desc: "Protects against clickjacking attacks.",
             },
             {
               name: "X-Content-Type-Options",
-              present:
-                Boolean(headersResult?.securityHeaders?.xContentTypeOptions) ||
-                true,
+              present: Boolean(
+                headersResult?.securityHeaders?.xContentTypeOptions,
+              ),
               value:
                 headersResult?.securityHeaders?.xContentTypeOptions ||
-                "nosniff",
+                "Not detected",
               desc: "Prevents MIME-sniffing vulnerabilities.",
             },
             {
               name: "Referrer-Policy",
-              present:
-                Boolean(headersResult?.securityHeaders?.referrerPolicy) || true,
+              present: Boolean(headersResult?.securityHeaders?.referrerPolicy),
               value:
                 headersResult?.securityHeaders?.referrerPolicy ||
-                "strict-origin-when-cross-origin",
+                "Not detected",
               desc: "Controls referrer data in outbound requests.",
             },
             {
@@ -346,7 +359,7 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
                 false,
               value:
                 headersResult?.securityHeaders?.permissionsPolicy ||
-                "camera=(), microphone=()",
+                "Not detected",
               desc: "Controls browser features and sensor access.",
             },
           ].map((item) => (

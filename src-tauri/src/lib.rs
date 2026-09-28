@@ -228,6 +228,7 @@ pub fn run() {
             domains::account::clear_api_key,
             commands::proxy::proxy_request,
             commands::proxy::proxy_ep,
+            commands::proxy::inspect_http_headers,
             commands::windows::open_in_new_window,
             commands::windows::open_agent_window,
             // ── YouTube Video Downloader ──

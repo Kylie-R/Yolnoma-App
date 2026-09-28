@@ -3,6 +3,7 @@ import type {
   SslCertificateInfo,
   DnsTransportInfo,
 } from "../types";
+import { invoke } from "@tauri-apps/api/core";
 
 const IP_PROVIDER_MAP: Array<{ prefix: string; provider: string }> = [
   { prefix: "216.24.57.", provider: "Render" },
@@ -119,24 +120,24 @@ export function calculateSslScore(
 export async function inspectHttpHeaders(
   targetHost: string,
 ): Promise<HttpHeadersResult> {
-  const url = `https://${targetHost}`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 6000);
+  const normalizedHost = targetHost.trim().toLowerCase();
+  if (
+    !normalizedHost ||
+    /[^a-z0-9.-]/.test(normalizedHost) ||
+    normalizedHost.startsWith(".") ||
+    normalizedHost.endsWith(".")
+  ) {
+    throw new Error("Enter a valid domain or subdomain.");
+  }
 
   try {
-    const res = await fetch(url, {
-      method: "GET",
-      signal: controller.signal,
-      headers: {
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-    });
+    const response = await invoke<{
+      status: number;
+      statusText: string;
+      headers: Record<string, string>;
+    }>("inspect_http_headers", { targetHost: normalizedHost });
 
-    const headers: Record<string, string> = {};
-    res.headers.forEach((val, key) => {
-      headers[key.toLowerCase()] = val;
-    });
+    const headers = response.headers;
 
     const hsts = Boolean(headers["strict-transport-security"]);
     const csp = Boolean(headers["content-security-policy"]);
@@ -161,8 +162,8 @@ export async function inspectHttpHeaders(
     else if (score >= 50) grade = "C";
 
     return {
-      statusCode: res.status,
-      statusText: res.statusText || `${res.status}`,
+      statusCode: response.status,
+      statusText: response.statusText || `${response.status}`,
       server: headers["server"],
       contentType: headers["content-type"],
       contentLength: headers["content-length"],
@@ -178,35 +179,10 @@ export async function inspectHttpHeaders(
       score,
       grade,
     };
-  } catch {
-    // If client fetch is blocked by CORS, provide estimated standard security headers based on host
-    return {
-      statusCode: 200,
-      statusText: "Active / TLS Protected",
-      server: targetHost.includes("render")
-        ? "Render Gateway"
-        : "Cloudflare / Nginx",
-      contentType: "text/html; charset=UTF-8",
-      headers: {
-        "strict-transport-security":
-          "max-age=31536000; includeSubDomains; preload",
-        "x-content-type-options": "nosniff",
-        "x-frame-options": "SAMEORIGIN",
-        "referrer-policy": "strict-origin-when-cross-origin",
-        server: "cloudflare",
-      },
-      securityHeaders: {
-        hsts: true,
-        csp: false,
-        xFrameOptions: "SAMEORIGIN",
-        xContentTypeOptions: "nosniff",
-        referrerPolicy: "strict-origin-when-cross-origin",
-      },
-      score: 75,
-      grade: "B",
-    };
-  } finally {
-    clearTimeout(timer);
+  } catch (error) {
+    const reason =
+      error instanceof Error ? error.message : "Network request failed";
+    throw new Error(`Unable to inspect https://${normalizedHost}: ${reason}`);
   }
 }
 

@@ -69,6 +69,60 @@ pub struct ProxyResponse {
     pub body: serde_json::Value,
 }
 
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HttpHeadersResponse {
+    pub status: u16,
+    pub status_text: String,
+    pub headers: std::collections::HashMap<String, String>,
+}
+
+#[tauri::command]
+pub async fn inspect_http_headers(target_host: String) -> Result<HttpHeadersResponse, String> {
+    let host = target_host.trim().to_lowercase();
+    if host.is_empty()
+        || host.starts_with('.')
+        || host.ends_with('.')
+        || host.chars().any(|character| {
+            !(character.is_ascii_alphanumeric() || character == '-' || character == '.')
+        })
+    {
+        return Err("Enter a valid domain or subdomain.".to_string());
+    }
+
+    let url = format!("https://{}", host);
+    validate_proxy_url(&url)?;
+    let client = reqwest::Client::builder()
+        .user_agent("Yolnoma SSL Headers Inspector")
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|error| format!("Client build error: {}", error))?;
+    let response = client
+        .get(&url)
+        .header(
+            "Accept",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        )
+        .send()
+        .await
+        .map_err(|error| format!("Unable to inspect https://{}: {}", host, error))?;
+
+    let status = response.status();
+    let status_text = status.canonical_reason().unwrap_or("").to_string();
+    let mut headers = std::collections::HashMap::new();
+    for (name, value) in response.headers() {
+        if let Ok(value) = value.to_str() {
+            headers.insert(name.as_str().to_lowercase(), value.to_string());
+        }
+    }
+
+    Ok(HttpHeadersResponse {
+        status: status.as_u16(),
+        status_text,
+        headers,
+    })
+}
+
 #[tauri::command]
 pub async fn proxy_request(
     method: String,
