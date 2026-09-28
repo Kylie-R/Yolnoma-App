@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
-import { readFile } from "@tauri-apps/plugin-fs";
 import {
   Bot,
   KeyRound,
@@ -93,6 +91,7 @@ export default function AiChatPage() {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
 
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hydratedMessagesRef = useRef<string | null>(null);
 
@@ -325,19 +324,13 @@ export default function AiChatPage() {
     setSelectedModels((current) => (current[0] === id ? current : [id]));
   };
 
-  const attachImage = async () => {
-    if (loading || imageLoading) return;
+  const handleImageSelection = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || loading || imageLoading) return;
     setImageLoading(true);
     try {
-      const selected = await open({
-        directory: false,
-        multiple: false,
-        filters: [
-          { name: "Images", extensions: ["png", "jpg", "jpeg", "webp"] },
-        ],
-      });
-      if (!selected || Array.isArray(selected)) return;
-      const name = selected.split(/[\\/]/).pop() || "attached-image";
+      const name = file.name || "attached-image";
       const extension = name.split(".").pop()?.toLowerCase() ?? "";
       const mimeType =
         extension === "png"
@@ -345,20 +338,20 @@ export default function AiChatPage() {
           : extension === "webp"
             ? "image/webp"
             : "image/jpeg";
-      const bytes = await readFile(selected);
-      validateVisionImage(name, mimeType, bytes.byteLength);
+      validateVisionImage(name, mimeType, file.size);
+      const bytes = new Uint8Array(await file.arrayBuffer());
       setAttachedImage({
         name,
         mimeType,
         dataUrl: bytesToDataUrl(bytes, mimeType),
-        size: bytes.byteLength,
+        size: file.size,
       });
       setError("");
     } catch (attachmentError) {
       setError(
         attachmentError instanceof Error
           ? attachmentError.message
-          : "Could not read that image.",
+          : "Could not read that image. Choose a valid PNG, JPG, JPEG, or WEBP file.",
       );
     } finally {
       setImageLoading(false);
@@ -686,8 +679,16 @@ export default function AiChatPage() {
           onSubmit={sendMessage}
           image={attachedImage}
           imageLoading={imageLoading}
-          onAttachImage={() => void attachImage()}
+          onAttachImage={() => imageInputRef.current?.click()}
           onRemoveImage={() => setAttachedImage(null)}
+        />
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={(event) => void handleImageSelection(event)}
+          className="hidden"
+          aria-label="Choose an image for AI Chat"
         />
       </main>
 
