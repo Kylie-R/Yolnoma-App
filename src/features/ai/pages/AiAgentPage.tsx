@@ -1,29 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readDir } from "@tauri-apps/plugin-fs";
 import {
   Bot,
-  Check,
   ChevronDown,
-  ChevronRight,
   Clock,
-  FileCode2,
   FileDiff,
   FileText,
-  Files,
   Folder,
   FolderOpen,
-  GitBranch,
   History,
-  Loader2,
-  MessageSquare,
-  RefreshCw,
   Save,
-  Send,
-  Sparkles,
   X,
-  XCircle,
 } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -49,16 +38,19 @@ import {
 } from "../api/openRouterApi";
 import SideBySideDiffViewer from "../components/SideBySideDiffViewer";
 import type { GitChange } from "@/features/git/types";
+import AgentActivityBar, {
+  type SidebarPanel,
+} from "../components/AgentActivityBar";
+import AgentExplorerPanel, {
+  type TreeNode,
+} from "../components/AgentExplorerPanel";
+import AgentSourceControlPanel from "../components/AgentSourceControlPanel";
+import AgentChatPanel from "../components/AgentChatPanel";
+import AgentEditApprovalModal, {
+  type PendingEdit,
+} from "../components/AgentEditApprovalModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-type TreeNode = {
-  name: string;
-  absPath: string;
-  rel: string; // forward-slash relative, e.g. "src/app/page.tsx"
-  kind: "file" | "directory";
-  depth: number;
-};
 
 type FileTab = {
   kind: "file";
@@ -83,9 +75,6 @@ type ChatMessage = {
   tool_call_id?: string;
 };
 
-type PendingEdit = { call: ToolCall; path: string; content: string };
-type SidebarPanel = "explorer" | "source-control";
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const IGNORED_DIRS = new Set([
@@ -105,29 +94,9 @@ const TEXT_EXT =
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
-/** Join using forward-slash (works cross-platform in Tauri) */
 function fwd(base: string, name: string): string {
   const b = base.replace(/\\/g, "/");
   return b.endsWith("/") ? `${b}${name}` : `${b}/${name}`;
-}
-
-function gitStatusColor(s: string) {
-  if (s === "??" || s === "A") return "text-emerald-400";
-  if (s === "D") return "text-red-400";
-  if (s === "R") return "text-blue-400";
-  return "text-amber-300";
-}
-function gitStatusLabel(s: string) {
-  return (
-    ({ "??": "U", A: "A", D: "D", M: "M", R: "R" } as Record<string, string>)[
-      s
-    ] ??
-    s[0] ??
-    "?"
-  );
-}
-function fileIcon(name: string) {
-  return TEXT_EXT.test(name) ? <FileCode2 size={13} /> : <FileText size={13} />;
 }
 
 // ─── Lazy folder reader ───────────────────────────────────────────────────────
@@ -261,7 +230,6 @@ async function callWithFallback(
   messages: ChatMessage[],
   onSwitch: (idx: number, msg: string) => void,
 ): Promise<{ body: OpenRouterResponse; modelIdx: number }> {
-  // If context too large, trim to last 8 turns + system
   function trim(msgs: ChatMessage[]): ChatMessage[] {
     const system = msgs.find((m) => m.role === "system");
     const rest = msgs.filter((m) => m.role !== "system").slice(-16);
@@ -349,13 +317,12 @@ export default function AiAgentPage() {
   const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
   const [showRecentsMenu, setShowRecentsMenu] = useState(false);
 
-  // Lazy tree: Map<folderRel, children[]>
-  // '' (empty string) = root-level children
+  // Lazy tree
   const [dirMap, setDirMap] = useState<Map<string, TreeNode[]>>(new Map());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [loadingDir, setLoadingDir] = useState<Set<string>>(new Set());
 
-  // Full entry list for AI search (background scan)
+  // Search context
   const [allEntries, setAllEntries] = useState<TreeNode[]>([]);
 
   // Tabs
@@ -389,8 +356,6 @@ export default function AiAgentPage() {
   const [pendingEdit, setPendingEdit] = useState<PendingEdit | null>(null);
   const [activity, setActivity] = useState<string[]>([]);
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const recentsMenuRef = useRef<HTMLDivElement>(null);
   const activeTab = tabs[activeTabIdx] ?? null;
 
   const projectName = useMemo(() => {
@@ -434,7 +399,7 @@ export default function AiAgentPage() {
     [flatTree, rootPath],
   );
 
-  // ── Project loader by path (with auto-persistence & recent update) ──────────
+  // ── Project loader by path (auto-persistence & recent update) ──────────────
 
   const loadProjectByPath = useCallback(async (folderPath: string) => {
     if (!folderPath) return;
@@ -477,22 +442,6 @@ export default function AiAgentPage() {
     }
   }, [loadProjectByPath]);
 
-  // Click outside recents dropdown to close
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (
-        recentsMenuRef.current &&
-        !recentsMenuRef.current.contains(e.target as Node)
-      ) {
-        setShowRecentsMenu(false);
-      }
-    };
-    if (showRecentsMenu) {
-      document.addEventListener("mousedown", handleOutsideClick);
-    }
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [showRecentsMenu]);
-
   useEffect(() => {
     void getApiKey(user?.id ?? "").then((k) => {
       setApiKey(k ?? "");
@@ -512,6 +461,30 @@ export default function AiAgentPage() {
       .catch(() => undefined);
   }, [apiKey]);
 
+  const saveActiveTab = useCallback(async () => {
+    if (!activeTab || activeTab.kind !== "file" || saving) return;
+    setSaving(true);
+    try {
+      await invoke("write_codebase_file", {
+        rootPath,
+        relativePath: activeTab.node.rel,
+        content: activeTab.content,
+      });
+      setTabs((cur) =>
+        cur.map((t, i) =>
+          i === activeTabIdx && t.kind === "file"
+            ? { ...t, savedContent: t.content, isPreview: false }
+            : t,
+        ),
+      );
+      setActivity((c) => [`saved ${activeTab.node.rel}`, ...c]);
+    } catch (err) {
+      setAgentError(err instanceof Error ? err.message : "Save failed.");
+    } finally {
+      setSaving(false);
+    }
+  }, [activeTab, activeTabIdx, rootPath, saving]);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "b") {
@@ -525,12 +498,7 @@ export default function AiAgentPage() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTabIdx, tabs, saving]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [saveActiveTab]);
 
   const loadGitChanges = useCallback(() => {
     if (!rootPath) return;
@@ -545,19 +513,6 @@ export default function AiAgentPage() {
   useEffect(() => {
     if (sidebarPanel === "source-control") loadGitChanges();
   }, [sidebarPanel, loadGitChanges]);
-
-  // ── Activity bar toggle ──────────────────────────────────────────────────────
-
-  const togglePanel = (panel: SidebarPanel) => {
-    setSidebarPanel((cur) => {
-      if (cur === panel) {
-        setSidebarVisible((v) => !v);
-        return cur;
-      }
-      setSidebarVisible(true);
-      return panel;
-    });
-  };
 
   // ── Open project via file dialog ─────────────────────────────────────────────
 
@@ -580,12 +535,10 @@ export default function AiAgentPage() {
       });
       return;
     }
-    // Load children if not cached
     if (!dirMap.has(rel)) {
       setLoadingDir((cur) => new Set(cur).add(rel));
       const children = await readFolderChildren(absPath, rel, node.depth + 1);
       setDirMap((cur) => new Map(cur).set(rel, children));
-      // Also add to allEntries for search
       setAllEntries((cur) => {
         const existing = new Set(cur.map((e) => e.rel));
         const newOnes = children.filter((c) => !existing.has(c.rel));
@@ -638,19 +591,16 @@ export default function AiAgentPage() {
       };
 
       setTabs((cur) => {
-        // VS Code preview tab logic: if there is an unedited preview tab, replace it!
         const previewIdx = cur.findIndex(
           (t) =>
             t.isPreview && (t.kind === "diff" || t.content === t.savedContent),
         );
-
         if (previewIdx !== -1 && !forcePin) {
           const next = [...cur];
           next[previewIdx] = newTab;
           setActiveTabIdx(previewIdx);
           return next;
         }
-
         setActiveTabIdx(cur.length);
         return [...cur, newTab];
       });
@@ -715,7 +665,6 @@ export default function AiAgentPage() {
   };
 
   const updateTabContent = (content: string) => {
-    // When a user makes edits, the tab automatically becomes pinned (permanent)!
     setTabs((cur) =>
       cur.map((t, i) =>
         i === activeTabIdx && t.kind === "file"
@@ -723,30 +672,6 @@ export default function AiAgentPage() {
           : t,
       ),
     );
-  };
-
-  const saveActiveTab = async () => {
-    if (!activeTab || activeTab.kind !== "file" || saving) return;
-    setSaving(true);
-    try {
-      await invoke("write_codebase_file", {
-        rootPath,
-        relativePath: activeTab.node.rel,
-        content: activeTab.content,
-      });
-      setTabs((cur) =>
-        cur.map((t, i) =>
-          i === activeTabIdx && t.kind === "file"
-            ? { ...t, savedContent: t.content, isPreview: false }
-            : t,
-        ),
-      );
-      setActivity((c) => [`saved ${activeTab.node.rel}`, ...c]);
-    } catch (err) {
-      setAgentError(err instanceof Error ? err.message : "Save failed.");
-    } finally {
-      setSaving(false);
-    }
   };
 
   // ── Agent edit approval ──────────────────────────────────────────────────────
@@ -770,7 +695,6 @@ export default function AiAgentPage() {
         content: edit.content,
       });
       setActivity((c) => [`saved ${edit.path}`, ...c]);
-      // Refresh open tab if affected
       setTabs((cur) =>
         cur.map((t) =>
           t.kind === "file" && t.node.rel === edit.path
@@ -976,8 +900,8 @@ export default function AiAgentPage() {
             </span>
           )}
 
-          {/* Recent projects dropdown in top bar */}
-          <div className="relative" ref={recentsMenuRef}>
+          {/* Recent projects dropdown */}
+          <div className="relative">
             <button
               type="button"
               onClick={() => setShowRecentsMenu((v) => !v)}
@@ -1088,7 +1012,6 @@ export default function AiAgentPage() {
               </button>
             </div>
 
-            {/* Recent projects list on empty state */}
             {recentProjects.length > 0 && (
               <div className="mt-7 border-t border-white/[0.08] pt-5 text-left">
                 <div className="flex items-center justify-between mb-2.5 px-1">
@@ -1156,170 +1079,52 @@ export default function AiAgentPage() {
         </section>
       ) : (
         <div className="flex min-h-0 flex-1">
-          {/* ── Activity Bar ── */}
-          <nav className="flex w-10 shrink-0 flex-col border-r border-white/[0.08] bg-[#0f0e0b] pt-1">
-            <button
-              type="button"
-              title="Explorer (Ctrl+B)"
-              onClick={() => togglePanel("explorer")}
-              className={`flex h-10 w-full items-center justify-center border-l-2 transition-colors ${sidebarVisible && sidebarPanel === "explorer" ? "border-[var(--accent)] text-[var(--accent)]" : "border-transparent text-white/35 hover:text-white"}`}
-            >
-              <Files size={18} />
-            </button>
-            <button
-              type="button"
-              title="Source Control"
-              onClick={() => togglePanel("source-control")}
-              className={`relative flex h-10 w-full items-center justify-center border-l-2 transition-colors ${sidebarVisible && sidebarPanel === "source-control" ? "border-[var(--accent)] text-[var(--accent)]" : "border-transparent text-white/35 hover:text-white"}`}
-            >
-              <GitBranch size={18} />
-              {gitChanges.length > 0 && (
-                <span className="absolute right-1.5 top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-amber-400 text-[8px] font-bold text-black">
-                  {Math.min(gitChanges.length, 9)}
-                  {gitChanges.length > 9 ? "+" : ""}
-                </span>
-              )}
-            </button>
-          </nav>
+          {/* ── Activity Bar (Modular component) ── */}
+          <AgentActivityBar
+            sidebarVisible={sidebarVisible}
+            sidebarPanel={sidebarPanel}
+            gitChangesCount={gitChanges.length}
+            onTogglePanel={(panel) => {
+              if (sidebarPanel === panel) {
+                setSidebarVisible((v) => !v);
+              } else {
+                setSidebarPanel(panel);
+                setSidebarVisible(true);
+              }
+            }}
+          />
 
-          {/* ── Sidebar ── */}
-          {sidebarVisible && (
-            <aside className="flex w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/[0.08] bg-[#11100d]">
-              {/* Panel title */}
-              <div className="flex h-8 items-center justify-between border-b border-white/[0.07] px-3">
-                <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/30">
-                  {sidebarPanel === "explorer" ? "Explorer" : "Source Control"}
-                </span>
-                {sidebarPanel === "explorer" && (
-                  <button
-                    type="button"
-                    onClick={openProject}
-                    title="Change folder"
-                    className="text-white/25 hover:text-white"
-                  >
-                    <FolderOpen size={12} />
-                  </button>
-                )}
-                {sidebarPanel === "source-control" && (
-                  <button
-                    type="button"
-                    onClick={loadGitChanges}
-                    title="Refresh"
-                    className="text-white/25 hover:text-white"
-                  >
-                    <RefreshCw size={12} />
-                  </button>
-                )}
-              </div>
-
-              {/* ── Explorer panel ── */}
-              {sidebarPanel === "explorer" && (
-                <div className="min-h-0 flex-1 overflow-y-auto py-0.5">
-                  {loadingProject ? (
-                    <div className="flex items-center gap-2 px-3 py-3 text-xs text-white/40">
-                      <Loader2 size={12} className="animate-spin" /> Scanning…
-                    </div>
-                  ) : flatTree.length === 0 ? (
-                    <p className="px-3 py-3 text-xs text-white/25">
-                      No files found.
-                    </p>
-                  ) : (
-                    flatTree.map((node) => {
-                      const isDir = node.kind === "directory";
-                      const isExpanded = expanded.has(node.rel);
-                      const isLoading = loadingDir.has(node.rel);
-                      const activeFileTab =
-                        activeTab?.kind === "file" &&
-                        activeTab.node.rel === node.rel;
-                      return (
-                        <button
-                          key={node.rel}
-                          type="button"
-                          onClick={() =>
-                            void (isDir
-                              ? toggleFolder(node)
-                              : openFileTab(node, false))
-                          }
-                          onDoubleClick={() =>
-                            void (!isDir && openFileTab(node, true))
-                          }
-                          className={`flex w-full items-center gap-1 py-[3px] text-left text-[12px] hover:bg-white/[0.05] ${activeFileTab ? "bg-[var(--accent-dim)] text-white" : "text-white/55"}`}
-                          style={{ paddingLeft: `${6 + node.depth * 14}px` }}
-                        >
-                          {isDir ? (
-                            <span className="flex w-4 shrink-0 items-center text-white/35">
-                              {isLoading ? (
-                                <Loader2 size={11} className="animate-spin" />
-                              ) : isExpanded ? (
-                                <ChevronDown size={11} />
-                              ) : (
-                                <ChevronRight size={11} />
-                              )}
-                            </span>
-                          ) : (
-                            <span className="w-4 shrink-0" />
-                          )}
-                          {isDir ? (
-                            <Folder
-                              size={12}
-                              className="shrink-0 text-amber-300/60"
-                            />
-                          ) : (
-                            <span className="shrink-0 text-[var(--accent)]/60">
-                              {fileIcon(node.name)}
-                            </span>
-                          )}
-                          <span className="truncate">{node.name}</span>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              )}
-
-              {/* ── Source Control panel ── */}
-              {sidebarPanel === "source-control" && (
-                <div className="min-h-0 flex-1 overflow-y-auto p-1.5">
-                  {gitLoading && (
-                    <div className="flex items-center gap-2 px-2 py-3 text-xs text-white/40">
-                      <Loader2 size={12} className="animate-spin" /> Loading…
-                    </div>
-                  )}
-                  {gitError && (
-                    <p className="rounded bg-red-400/10 p-2 text-[11px] text-red-300">
-                      {gitError}
-                    </p>
-                  )}
-                  {!gitLoading && !gitError && gitChanges.length === 0 && (
-                    <p className="px-2 py-3 text-xs text-white/25">
-                      No changes detected.
-                    </p>
-                  )}
-                  {gitChanges.map((change) => (
-                    <button
-                      key={change.path}
-                      type="button"
-                      onClick={() => openDiffTab(change, false)}
-                      onDoubleClick={() => openDiffTab(change, true)}
-                      className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-white/[0.05] ${activeTab?.kind === "diff" && activeTab.change.path === change.path ? "bg-[var(--accent-dim)]" : ""}`}
-                    >
-                      <FileDiff size={12} className="shrink-0 text-white/30" />
-                      <span className="min-w-0 flex-1 truncate text-[11px] text-white/60">
-                        {change.path}
-                      </span>
-                      <span
-                        className={`shrink-0 text-[10px] font-bold ${gitStatusColor(change.status)}`}
-                      >
-                        {gitStatusLabel(change.status)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </aside>
+          {/* ── Explorer Panel (Modular component) ── */}
+          {sidebarVisible && sidebarPanel === "explorer" && (
+            <AgentExplorerPanel
+              flatTree={flatTree}
+              expanded={expanded}
+              loadingDir={loadingDir}
+              loadingProject={loadingProject}
+              activeRel={
+                activeTab?.kind === "file" ? activeTab.node.rel : undefined
+              }
+              onToggleFolder={toggleFolder}
+              onOpenFileTab={openFileTab}
+              onOpenProject={openProject}
+            />
           )}
 
-          {/* ── Editor ── */}
+          {/* ── Source Control Panel (Modular component) ── */}
+          {sidebarVisible && sidebarPanel === "source-control" && (
+            <AgentSourceControlPanel
+              gitChanges={gitChanges}
+              gitLoading={gitLoading}
+              gitError={gitError}
+              activePath={
+                activeTab?.kind === "diff" ? activeTab.change.path : undefined
+              }
+              onOpenDiffTab={openDiffTab}
+              onRefresh={loadGitChanges}
+            />
+          )}
+
+          {/* ── Editor Tabs & Content ── */}
           <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#15130f]">
             {/* Tab bar */}
             <div className="flex h-9 shrink-0 items-end overflow-x-auto border-b border-white/[0.07] bg-[#0f0e0b]">
@@ -1343,7 +1148,7 @@ export default function AiAgentPage() {
                       <span className="h-2 w-2 shrink-0 rounded-full bg-white/50" />
                     ) : (
                       <span className="text-[var(--accent)]/50">
-                        {fileIcon(tab.node.name)}
+                        <FileText size={11} />
                       </span>
                     );
                   return (
@@ -1368,7 +1173,11 @@ export default function AiAgentPage() {
                     >
                       {icon}
                       <span
-                        className={`max-w-[130px] truncate ${tab.isPreview ? "italic opacity-90" : "not-italic font-medium"}`}
+                        className={`max-w-[130px] truncate ${
+                          tab.isPreview
+                            ? "italic opacity-90"
+                            : "not-italic font-medium"
+                        }`}
                       >
                         {label}
                       </span>
@@ -1423,7 +1232,7 @@ export default function AiAgentPage() {
             <div className="min-h-0 flex-1 overflow-hidden flex flex-col">
               {loadingFile ? (
                 <div className="flex items-center gap-2 p-5 text-xs text-white/40">
-                  <Loader2 size={13} className="animate-spin" /> Reading…
+                  <span className="animate-spin text-xs">⟳</span> Reading…
                 </div>
               ) : !activeTab ? (
                 <div className="flex h-full items-center justify-center text-white/15">
@@ -1458,183 +1267,31 @@ export default function AiAgentPage() {
             )}
           </section>
 
-          {/* ── Agent panel ── */}
-          <aside className="flex w-[340px] shrink-0 flex-col border-l border-white/[0.08] bg-[#11100d]">
-            <div className="flex h-8 shrink-0 items-center justify-between border-b border-white/[0.07] px-3">
-              <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-white/30">
-                <Sparkles size={11} className="text-[var(--accent)]" /> Agent
-              </span>
-            </div>
-
-            {/* API key + model */}
-            <div className="shrink-0 border-b border-white/[0.07] p-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[9px] uppercase tracking-wider text-white/25">
-                  OpenRouter
-                </span>
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${apiKey ? "bg-emerald-400" : "bg-amber-300"}`}
-                />
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={draftKey}
-                  onChange={(e) => setDraftKey(e.target.value)}
-                  placeholder="API key"
-                  className="min-w-0 flex-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[11px] text-white outline-none focus:border-[var(--accent-border)]"
-                />
-                <button
-                  type="button"
-                  onClick={() => void saveKey()}
-                  className="rounded border border-white/10 px-2 text-[11px] text-white/50 hover:text-white"
-                >
-                  Save
-                </button>
-              </div>
-              <select
-                value={modelList[currentModelIdx] ?? ""}
-                onChange={(e) => {
-                  const idx = modelList.indexOf(e.target.value);
-                  if (idx !== -1) setCurrentModelIdx(idx);
-                }}
-                className="mt-2 w-full rounded border border-white/10 bg-[#181410] px-2 py-1.5 text-[11px] text-white outline-none"
-              >
-                {modelNames.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {getShortModelName(m)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Chat */}
-            <div className="min-h-0 flex-1 overflow-y-auto p-3">
-              {messages.length === 0 ? (
-                <div className="mt-6 text-center">
-                  <MessageSquare
-                    className="mx-auto mb-3 text-[var(--accent)]/40"
-                    size={20}
-                  />
-                  <p className="text-xs text-white/50">Ask Yolnoma Agent</p>
-                  <p className="mt-2 text-[10px] leading-relaxed text-white/25">
-                    Reads files · searches codebase · writes edits
-                    <br />
-                    Auto-switches model on token limit
-                    <br />
-                    "UPGRADE README.md" → only reads README
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2.5">
-                  {messages.map((msg, i) => (
-                    <div
-                      key={`${msg.role}-${i}`}
-                      className="border border-white/[0.06] bg-white/[0.02] p-2.5 text-xs leading-relaxed text-white/60"
-                    >
-                      <span className="mb-1 block text-[9px] font-bold uppercase tracking-wider text-[var(--accent)]">
-                        {msg.role === "user" ? "You" : "Agent"}
-                      </span>
-                      <pre className="whitespace-pre-wrap font-sans">
-                        {msg.content}
-                      </pre>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {activity.slice(0, 4).map((item, i) => (
-                <p
-                  key={`${item}-${i}`}
-                  className="mt-1.5 text-[10px] text-white/20"
-                >
-                  {item}
-                </p>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Prompt */}
-            <div className="shrink-0 border-t border-white/[0.08] p-2.5">
-              <div className="rounded border border-white/10 bg-white/[0.03] focus-within:border-[var(--accent-border)]">
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void sendPrompt();
-                    }
-                  }}
-                  placeholder="Ask about or edit this project…"
-                  rows={3}
-                  className="w-full resize-none bg-transparent px-3 py-2.5 text-[11px] leading-relaxed text-white outline-none placeholder:text-white/20"
-                />
-                <div className="flex items-center justify-between border-t border-white/[0.07] px-3 py-2">
-                  <span className="text-[10px] text-white/20">
-                    {agentLoading ? "Working…" : "Enter to send"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => void sendPrompt()}
-                    disabled={agentLoading || !prompt.trim()}
-                    className="flex h-6 w-6 items-center justify-center rounded bg-[var(--accent)] text-[#1b120e] disabled:opacity-30"
-                  >
-                    {agentLoading ? (
-                      <Loader2 size={11} className="animate-spin" />
-                    ) : (
-                      <Send size={11} />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </aside>
+          {/* ── Agent Chat Panel (Modular component) ── */}
+          <AgentChatPanel
+            messages={messages}
+            activity={activity}
+            prompt={prompt}
+            agentLoading={agentLoading}
+            apiKey={apiKey}
+            draftKey={draftKey}
+            modelList={modelList}
+            modelNames={modelNames}
+            currentModelIdx={currentModelIdx}
+            onDraftKeyChange={setDraftKey}
+            onSaveKey={() => void saveKey()}
+            onModelChange={setCurrentModelIdx}
+            onPromptChange={setPrompt}
+            onSendPrompt={() => void sendPrompt()}
+          />
         </div>
       )}
 
-      {/* Edit approval modal */}
-      {pendingEdit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-5">
-          <div className="w-full max-w-2xl rounded-lg border border-white/10 bg-[#181410] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--accent)]">
-                  Agent edit approval
-                </p>
-                <h2 className="mt-0.5 text-sm font-semibold text-white">
-                  Write {pendingEdit.path}?
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => void approveEdit(false)}
-                className="text-white/40 hover:text-white"
-              >
-                <XCircle size={16} />
-              </button>
-            </div>
-            <pre className="max-h-[55vh] overflow-auto whitespace-pre-wrap p-5 font-mono text-xs leading-5 text-white/55">
-              {pendingEdit.content}
-            </pre>
-            <div className="flex justify-end gap-2 border-t border-white/10 px-5 py-3">
-              <button
-                type="button"
-                onClick={() => void approveEdit(false)}
-                className="rounded border border-white/10 px-3 py-2 text-xs text-white/60 hover:text-white"
-              >
-                Deny
-              </button>
-              <button
-                type="button"
-                onClick={() => void approveEdit(true)}
-                className="inline-flex items-center gap-2 rounded bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-[#1b120e]"
-              >
-                <Check size={12} /> Approve and save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Edit approval modal (Modular component) ── */}
+      <AgentEditApprovalModal
+        pendingEdit={pendingEdit}
+        onApprove={(allow) => void approveEdit(allow)}
+      />
     </main>
   );
 }
