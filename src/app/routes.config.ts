@@ -514,10 +514,13 @@ export const getNavigationRoutes = () =>
   ROUTE_CONFIG.filter(
     (route) => visibleOnCurrentPlatform(route) && route.label && route.navGroup,
   );
+
 export const getToolRoutes = () =>
   ROUTE_CONFIG.filter(
     (route) =>
       visibleOnCurrentPlatform(route) &&
-      route.navGroup === "tools" &&
+      (route.navGroup === "tools" ||
+        route.navGroup === "steam" ||
+        route.pinnable) &&
       route.description,
   );

@@ -133,7 +133,7 @@ export default function StartUpAppsPage() {
     <div className="mx-auto w-full max-w-6xl space-y-5">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-(--main-color)">
             Windows utility
           </p>
           <h1 className="font-serif text-3xl text-white">Startup Apps</h1>
@@ -160,8 +160,8 @@ export default function StartUpAppsPage() {
         </div>
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1b1d1d] shadow-2xl shadow-black/10">
-        <div className="flex flex-col gap-4 border-b border-white/[0.07] bg-[#202222] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <section className="overflow-hidden select-none">
+        <div className="flex flex-col gap-4  px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-sm font-semibold text-white">Startup apps</h2>
             <p className="mt-1 text-xs text-white/40">

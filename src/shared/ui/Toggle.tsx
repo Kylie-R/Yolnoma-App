@@ -31,7 +31,7 @@ export const Toggle: React.FC<ToggleProps> = ({
         <div
           className={`block h-6 w-12 rounded-full border transition-colors duration-200 ${
             checked
-              ? "border-[var(--accent)] bg-[var(--accent)]"
+              ? "border-(--main-color) bg-(--main-color)"
               : "border-white/45 bg-transparent"
           }`}
         />
