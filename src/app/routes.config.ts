@@ -18,6 +18,7 @@ import {
   WandSparkles,
   Palette,
   Trees,
+  Rocket,
 } from "lucide-react";
 import ViIcon from "@/assets/VI.svg";
 import { isAndroidApp } from "@/shared/lib/platform";
@@ -140,6 +141,9 @@ const CssToolsPage = lazyPage(
   () => import("@/features/css-tools/pages/CssToolsPage"),
 );
 const GitPage = lazyPage(() => import("@/features/git/pages/GitPage"));
+const StartupPage = lazyPage(
+  () => import("@/features/startup/pages/StartUpAppsPage"),
+);
 const FeedbackPage = lazyPage(
   () => import("@/features/feedback/pages/FeedbackPage"),
 );
@@ -351,17 +355,17 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     navGroup: "tools",
     pinnable: true,
   },
-  {
-    id: "ai-chat",
-    path: "/tools/ai-chat",
-    component: AiChatPage,
-    mobile: true,
-    label: "AI Chat",
-    description: "Chat with OpenRouter models",
-    icon: Bot,
-    navGroup: "tools",
-    pinnable: true,
-  },
+  // {
+  //   id: "ai-chat",
+  //   path: "/tools/ai-chat",
+  //   component: AiChatPage,
+  //   mobile: true,
+  //   label: "AI Chat",
+  //   description: "Chat with OpenRouter models",
+  //   icon: Bot,
+  //   navGroup: "tools",
+  //   pinnable: true,
+  // },
   {
     id: "ai-chat-2b-model",
     path: "/tools/ai-chat-2b-model",
@@ -474,6 +478,16 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     label: "Git",
     description: "Generate best-practice commits",
     icon: GitBranch,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
+    id: "start-up-apps",
+    path: "/tools/startup",
+    component: StartupPage,
+    label: "Start Up Apps",
+    description: "Manage programs that run at system startup.",
+    icon: Rocket,
     navGroup: "tools",
     pinnable: true,
   },
