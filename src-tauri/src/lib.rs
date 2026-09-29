@@ -247,6 +247,9 @@ pub fn run() {
             commands::plugins::read_plugin_source,
             // ── System Monitoring ──
             domains::system::get_system_stats,
+            // ── Windows Startup Apps ──
+            domains::startup::list_startup_apps,
+            domains::startup::set_startup_app_enabled,
             // ── Cleaner ──
             domains::cleaner::run_cleaner,
             // ── Crosshair Overlay ──
