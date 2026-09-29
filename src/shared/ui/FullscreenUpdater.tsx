@@ -27,7 +27,7 @@ export default function FullscreenUpdater() {
 
   return (
     <div
-      className="updater-screen fixed inset-0 z-[110] flex min-h-screen items-center justify-center overflow-hidden bg-[#090a0f] px-6 py-10 text-white"
+      className="updater-screen fixed inset-0 z-[110] flex min-h-screen items-center justify-center overflow-hidden bg-[#090a0f] px-6 py-10 text-white select-none"
       role="dialog"
       aria-modal="true"
       aria-label="Yolnoma updater"

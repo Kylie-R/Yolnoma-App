@@ -176,11 +176,6 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     navGroup: "home",
   },
   {
-    id: "codebase-agent",
-    path: "/codebase-agent",
-    component: AiAgentPage,
-  },
-  {
     id: "performances",
     path: "/performances",
     component: PerformancePage,
