@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Check, Code2, Copy } from "lucide-react";
 import { Button } from "@/shared/ui";
+import styles from "../pages/CleanerPage.module.css";
 
 const COMMANDS = new Set([
   "Clear-RecycleBin",
@@ -47,7 +48,10 @@ function highlightLine(line: string): ReactNode[] {
               : "";
     parts.push(
       style ? (
-        <span className={style} key={`${start}-${token}`}>
+        <span
+          className={style ? styles[style] : undefined}
+          key={`${start}-${token}`}
+        >
           {token}
         </span>
       ) : (
@@ -59,7 +63,7 @@ function highlightLine(line: string): ReactNode[] {
   if (cursor < source.length) parts.push(source.slice(cursor));
   if (comment)
     parts.push(
-      <span className="syntax-comment" key="comment">
+      <span className={styles["syntax-comment"]} key="comment">
         {comment}
       </span>,
     );
@@ -81,14 +85,14 @@ export function ScriptPreview({ script }: { script: string }) {
   };
 
   return (
-    <details className="cleaner-preview">
+    <details className={styles["cleaner-preview"]}>
       <summary>
         <span>
           <Code2 size={16} /> View selected machine script
         </span>
         <span>{lines.length} lines</span>
       </summary>
-      <div className="preview-toolbar">
+      <div className={styles["preview-toolbar"]}>
         <span>PowerShell · Same as the executable code</span>
         <Button
           variant="ghost"
@@ -103,8 +107,8 @@ export function ScriptPreview({ script }: { script: string }) {
       <pre aria-label="PowerShell script preview">
         <code>
           {lines.map((line, index) => (
-            <span className="code-line" key={`${index}-${line}`}>
-              <span className="code-line-number" aria-hidden="true">
+            <span className={styles["code-line"]} key={`${index}-${line}`}>
+              <span className={styles["code-line-number"]} aria-hidden="true">
                 {index + 1}
               </span>
               <span>{highlightLine(line)}</span>

@@ -38,7 +38,7 @@
   }
 }
 
-.anim-shine::after {
+.animShine::after {
   content: "";
   position: absolute;
   top: 0;
@@ -54,12 +54,12 @@
   animation: shine-sweep 2.8s ease-in-out infinite;
   pointer-events: none;
 }
-.anim-aura {
+.animAura {
   animation: aura-drift 7s ease-in-out infinite;
 }
-.anim-rise {
+.animRise {
   animation: rise-in 0.25s ease-out both;
 }
-.anim-orb {
+.animOrb {
   animation: orb-pulse 2.4s ease-out infinite;
 }

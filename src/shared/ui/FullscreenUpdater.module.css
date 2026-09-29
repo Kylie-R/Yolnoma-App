@@ -26,7 +26,7 @@
   }
 }
 
-.updater-grid {
+.grid {
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
@@ -34,7 +34,7 @@
   mask-image: radial-gradient(ellipse at center, black, transparent 76%);
 }
 
-.updater-orb {
+.orb {
   height: 22rem;
   width: 22rem;
   border-radius: 999px;
@@ -43,16 +43,16 @@
   animation: updater-orb-float 12s ease-in-out infinite;
 }
 
-.updater-orb-one {
+.orbOne {
   background: #d97757;
 }
 
-.updater-orb-two {
+.orbTwo {
   background: #5b5bd6;
   animation-delay: -5s;
 }
 
-.updater-lines span {
+.lines span {
   position: absolute;
   left: -12%;
   width: 124%;
@@ -68,29 +68,29 @@
   animation: updater-line-drift 12s ease-in-out infinite alternate;
 }
 
-.updater-lines span:nth-child(1) {
+.lines span:nth-child(1) {
   top: 22%;
   animation-delay: -2s;
 }
 
-.updater-lines span:nth-child(2) {
+.lines span:nth-child(2) {
   top: 42%;
   animation-duration: 16s;
 }
 
-.updater-lines span:nth-child(3) {
+.lines span:nth-child(3) {
   top: 64%;
   animation-delay: -7s;
   animation-duration: 14s;
 }
 
-.updater-lines span:nth-child(4) {
+.lines span:nth-child(4) {
   top: 80%;
   animation-delay: -4s;
   animation-duration: 18s;
 }
 
-.updater-mark {
+.mark {
   display: flex;
   height: 5rem;
   width: 5rem;
@@ -107,11 +107,11 @@
   box-shadow: 0 0 80px rgba(217, 119, 87, 0.2);
 }
 
-.updater-mark-active {
+.markActive {
   animation: updater-orb-float 4s ease-in-out infinite;
 }
 
-.updater-progress-track {
+.progressTrack {
   height: 0.45rem;
   overflow: hidden;
   border-radius: 999px;
@@ -119,7 +119,7 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-.updater-progress-value {
+.progressValue {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #d97757, #f3b39c, #7373e8);
@@ -128,9 +128,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .updater-orb,
-  .updater-lines span,
-  .updater-mark-active {
+  .orb,
+  .lines span,
+  .markActive {
     animation: none;
   }
 }

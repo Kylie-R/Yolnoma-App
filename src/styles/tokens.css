@@ -1,0 +1,46 @@
+/* Global styles: tokens.css */
+
+/* ─── Design Tokens ──────────────────────────────────────────── */
+:root {
+  --bg-base: #14110e;
+  --bg-elevated: #181410;
+  --bg-card: #1b1713;
+  --bg-hover: #1e1a15;
+
+  --accent: #d97757;
+  --accent-dim: rgba(217, 119, 87, 0.18);
+  --accent-border: rgba(217, 119, 87, 0.28);
+  --accent-hover: rgba(217, 119, 87, 0.45);
+  --accent-glow: rgba(217, 119, 87, 0.08);
+
+  --text-primary: #f2ede6;
+  --text-muted: rgba(242, 237, 230, 0.55);
+  --text-faint: rgba(242, 237, 230, 0.3);
+
+  --border: rgba(242, 237, 230, 0.08);
+  --border-hover: rgba(242, 237, 230, 0.14);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  --font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: "Georgia", "Iowan Old Style", serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+}
+
+/* ── Tailwind Theme Extensions ──────────────────────────────── */
+@theme {
+  --main-color: var(--accent);
+}

@@ -1,6 +1,7 @@
 import { AlertCircle, X } from "lucide-react";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import Button from "./Button";
+import styles from "./FullscreenUpdater.module.css";
 
 export default function FullscreenUpdater() {
   const {
@@ -31,11 +32,15 @@ export default function FullscreenUpdater() {
       aria-modal="true"
       aria-label="Yolnoma updater"
     >
-      <div className="updater-grid pointer-events-none absolute inset-0" />
-      <div className="updater-orb updater-orb-one pointer-events-none absolute left-[12%] top-[8%]" />
-      <div className="updater-orb updater-orb-two pointer-events-none absolute bottom-[8%] right-[12%]" />
+      <div className={`${styles.grid} pointer-events-none absolute inset-0`} />
       <div
-        className="updater-lines pointer-events-none absolute inset-0"
+        className={`${styles.orb} ${styles.orbOne} pointer-events-none absolute left-[12%] top-[8%]`}
+      />
+      <div
+        className={`${styles.orb} ${styles.orbTwo} pointer-events-none absolute bottom-[8%] right-[12%]`}
+      />
+      <div
+        className={`${styles.lines} pointer-events-none absolute inset-0`}
         aria-hidden="true"
       >
         <span />
@@ -67,9 +72,9 @@ export default function FullscreenUpdater() {
         </h1>
 
         <div className="mt-14 w-full max-w-xl">
-          <div className="updater-progress-track" aria-label="Update progress">
+          <div className={styles.progressTrack} aria-label="Update progress">
             <div
-              className="updater-progress-value"
+              className={styles.progressValue}
               style={{ width: `${progressWidth}%` }}
             />
           </div>

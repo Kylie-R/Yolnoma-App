@@ -19,7 +19,7 @@ import { DEFAULT_MODELS } from "@/features/ai/types";
 import { useAuth } from "@/features/auth/AuthContext";
 import { requestOpenRouter } from "@/features/ai/api/openRouterApi";
 import SelectMenu from "@/shared/ui/SelectMenu";
-import "../css/styles.css";
+import styles from "./DatabaseGenWorkspace.module.css";
 import { downloadBlob, downloadText } from "@/shared/lib/files";
 import ApiKeyModal from "@/features/ai/components/ApiKeyModal";
 
@@ -436,7 +436,7 @@ export default function DatabaseGenWorkspace() {
 
           <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/[0.08] px-2.5 py-1 text-[10px] font-medium text-emerald-200/90">
             <span
-              className="anim-orb h-1.5 w-1.5 rounded-full bg-emerald-400"
+              className={`${styles.animOrb} h-1.5 w-1.5 rounded-full bg-emerald-400`}
               style={{ boxShadow: "0 0 0 0 rgba(52,211,153,.5)" }}
             />
             OpenRouter
@@ -501,7 +501,7 @@ export default function DatabaseGenWorkspace() {
                   className="group/btn relative inline-flex items-center gap-1.5 overflow-hidden rounded-lg bg-gradient-to-br from-[var(--accent)] via-[#d19a6a] to-[#c98560] px-4 py-2 text-xs font-bold tracking-wide text-[#1b120e] shadow-[0_4px_16px_-4px_var(--accent)] transition-all duration-200 hover:brightness-[1.12] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-35 disabled:shadow-none"
                 >
                   {generating && (
-                    <span className="anim-shine absolute inset-0" />
+                    <span className={`${styles.animShine} absolute inset-0`} />
                   )}
                   <span className="relative flex items-center gap-1.5">
                     {generating ? (
@@ -518,7 +518,9 @@ export default function DatabaseGenWorkspace() {
         </div>
 
         {error && (
-          <div className="anim-rise relative mt-2.5 inline-flex items-center gap-2 rounded-lg border border-red-500/25 bg-red-500/[0.08] px-3 py-1.5 text-[11.5px] font-medium text-red-300">
+          <div
+            className={`${styles.animRise} relative mt-2.5 inline-flex items-center gap-2 rounded-lg border border-red-500/25 bg-red-500/[0.08] px-3 py-1.5 text-[11.5px] font-medium text-red-300`}
+          >
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
             {error}
           </div>

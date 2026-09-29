@@ -11,7 +11,7 @@ import { CLEANUP_GROUPS, CLEANUP_TASKS } from "../data/tasks";
 import { ScriptPreview } from "../components/ScriptPreview";
 import { useCleaner } from "../hooks/useCleaner";
 import type { CleanupTask } from "../types";
-import "./cleaner.css";
+import styles from "./CleanerPage.module.css";
 
 function CleanerPage() {
   const {
@@ -47,17 +47,17 @@ function CleanerPage() {
     ).length;
     const group = CLEANUP_GROUPS.find((item) => item.id === tasks[0]?.category);
     return (
-      <section className="cleaner-group" key={tasks[0]?.category}>
-        <div className="cleaner-group-heading">
+      <section className={styles["cleaner-group"]} key={tasks[0]?.category}>
+        <div className={styles["cleaner-group-heading"]}>
           <div>
             <h2>{group?.title}</h2>
             <p>{group?.description}</p>
           </div>
-          <span className="cleaner-group-count">
+          <span className={styles["cleaner-group-count"]}>
             {groupSelection}/{tasks.length}
           </span>
         </div>
-        <div className="cleaner-task-list">
+        <div className={styles["cleaner-task-list"]}>
           {tasks.map((task) => {
             const Icon = task.icon;
             const isSelected = selected.includes(task.id);
@@ -65,30 +65,32 @@ function CleanerPage() {
               <button
                 key={task.id}
                 type="button"
-                className="cleaner-task"
+                className={styles["cleaner-task"]}
                 disabled={runState === "running"}
                 onClick={() => toggleTask(task.id)}
                 aria-pressed={isSelected}
               >
-                <span className="cleaner-task-icon">
+                <span className={styles["cleaner-task-icon"]}>
                   <Icon size={15} strokeWidth={1.8} />
                 </span>
-                <span className="cleaner-task-copy">
-                  <span className="cleaner-task-title">
+                <span className={styles["cleaner-task-copy"]}>
+                  <span className={styles["cleaner-task-title"]}>
                     {task.name}
                     {task.warning && (
-                      <span className="cleaner-warning">Permanent</span>
+                      <span className={styles["cleaner-warning"]}>
+                        Permanent
+                      </span>
                     )}
                   </span>
-                  <span className="cleaner-task-description">
+                  <span className={styles["cleaner-task-description"]}>
                     {task.description}
                   </span>
-                  <span className="cleaner-task-note">
+                  <span className={styles["cleaner-task-note"]}>
                     <CircleAlert size={11} />
                     {task.note}
                   </span>
                 </span>
-                <span className="cleaner-check" aria-hidden="true">
+                <span className={styles["cleaner-check"]} aria-hidden="true">
                   {isSelected && <Check size={12} strokeWidth={3} />}
                 </span>
               </button>
@@ -100,19 +102,19 @@ function CleanerPage() {
   };
 
   return (
-    <main className="cleaner-page">
-      <header className="cleaner-header">
+    <main className={styles["cleaner-page"]}>
+      <header className={styles["cleaner-header"]}>
         <div>
-          <p className="cleaner-eyebrow">
+          <p className={styles["cleaner-eyebrow"]}>
             <Sparkles size={12} /> System care
           </p>
           <h1>Cleaner v0.3</h1>
-          <p className="cleaner-subtitle">
+          <p className={styles["cleaner-subtitle"]}>
             Choose what to clean. Review the script, then run it.
           </p>
         </div>
         <Button
-          className="cleaner-run-button"
+          className={styles["cleaner-run-button"]}
           onClick={() => void runCleaner(selectedTasks)}
           loading={runState === "running"}
           disabled={selectedCount === 0 || runState === "running"}
@@ -137,13 +139,13 @@ function CleanerPage() {
       <span id="cleaner-selection-status" className="sr-only">
         {selectedCount} {selectedCount === 1 ? "task" : "tasks"} selected.
       </span>
-      <p className="cleaner-notice">
+      <p className={styles["cleaner-notice"]}>
         <ShieldCheck size={15} />
         Only reviewed cleanup actions run. Choose the Recycle Bin option only if
         you are sure you do not need its contents.
       </p>
 
-      <div className="cleaner-groups">
+      <div className={styles["cleaner-groups"]}>
         {CLEANUP_GROUPS.map((group) =>
           taskList(CLEANUP_TASKS.filter((task) => task.category === group.id)),
         )}
@@ -151,11 +153,11 @@ function CleanerPage() {
 
       {runState !== "idle" && (
         <section
-          className={`cleaner-progress is-${runState}`}
+          className={`${styles["cleaner-progress"]} ${styles[`is-${runState}`]}`}
           role="status"
           aria-live="polite"
         >
-          <div className="cleaner-progress-copy">
+          <div className={styles["cleaner-progress-copy"]}>
             {runState === "running" ? (
               <LoaderCircle size={15} className="animate-spin-slow" />
             ) : runState === "success" ? (
@@ -171,7 +173,7 @@ function CleanerPage() {
             </span>
           </div>
           <div
-            className={`cleaner-progress-track${runState === "running" ? " is-running" : ""}`}
+            className={`${styles["cleaner-progress-track"]}${runState === "running" ? ` ${styles["is-running"]}` : ""}`}
             aria-label={`${progress}% complete`}
           >
             <span style={{ width: `${Math.min(100, progress)}%` }} />
