@@ -11,6 +11,8 @@ export { default as Toggle } from "./Toggle";
 export { default as ImageUpload } from "./ImageUpload";
 export { default as ImageEditModal } from "./ImageEditModal";
 export { default as UpdateModal } from "./UpdateModal";
+export { default as FullscreenUpdater } from "./FullscreenUpdater";
+export { default as ChangelogModal } from "./ChangelogModal";
 export { CardGridSkeleton, LineSkeleton } from "./Skeleton";
 export { default as ToolNavigation } from "./ToolNavigation";
 export { default as SideBySideDiffViewer } from "./SideBySideDiffViewer";

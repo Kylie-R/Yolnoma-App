@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import AppRoutes from "./router";
 import SplashScreen from "./components/SplashScreen";
 import { isStandaloneWindow } from "@/shared/lib/window";
-import { UpdateModal } from "@/shared/ui";
+import { ChangelogModal, FullscreenUpdater, UpdateModal } from "@/shared/ui";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import CommandCenter from "./components/CommandCenter";
 import GlobalDropzone from "@/shared/components/GlobalDropzone";
@@ -99,6 +99,11 @@ function App() {
     return () => clearTimeout(timer);
   }, [appReady]);
 
+  useEffect(() => {
+    if (import.meta.env.DEV || !appReady) return;
+    void useUpdaterStore.getState().checkForSuccessfulUpdate();
+  }, [appReady]);
+
   const handleSplashFinish = () => {
     sessionStorage.setItem(SPLASH_KEY, "1");
     setShowSplash(false);
@@ -124,6 +129,8 @@ function App() {
           <GlobalDropzone />
           <KeyboardShortcutsModal />
           <UpdateModal />
+          <FullscreenUpdater />
+          <ChangelogModal />
           {showRouteLoadingPreview && (
             <div className="fixed inset-0 z-[110] flex h-screen w-screen items-center justify-center bg-black/80 backdrop-blur-sm">
               <RouteLoadingFallback />

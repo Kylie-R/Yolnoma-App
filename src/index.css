@@ -44,6 +44,130 @@
   --main-color: var(--accent);
 }
 
+@keyframes updater-line-drift {
+  from {
+    transform: translate3d(-8%, 0, 0) rotate(-18deg);
+  }
+  to {
+    transform: translate3d(8%, 0, 0) rotate(-18deg);
+  }
+}
+
+@keyframes updater-orb-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(20px, -16px, 0) scale(1.08);
+  }
+}
+
+.updater-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at center, black, transparent 76%);
+}
+
+.updater-orb {
+  height: 22rem;
+  width: 22rem;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.3;
+  animation: updater-orb-float 12s ease-in-out infinite;
+}
+
+.updater-orb-one {
+  background: #d97757;
+}
+.updater-orb-two {
+  background: #5b5bd6;
+  animation-delay: -5s;
+}
+
+.updater-lines span {
+  position: absolute;
+  left: -12%;
+  width: 124%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(217, 119, 87, 0.5),
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  opacity: 0.45;
+  animation: updater-line-drift 12s ease-in-out infinite alternate;
+}
+
+.updater-lines span:nth-child(1) {
+  top: 22%;
+  animation-delay: -2s;
+}
+.updater-lines span:nth-child(2) {
+  top: 42%;
+  animation-duration: 16s;
+}
+.updater-lines span:nth-child(3) {
+  top: 64%;
+  animation-delay: -7s;
+  animation-duration: 14s;
+}
+.updater-lines span:nth-child(4) {
+  top: 80%;
+  animation-delay: -4s;
+  animation-duration: 18s;
+}
+
+.updater-mark {
+  display: flex;
+  height: 5rem;
+  width: 5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(217, 119, 87, 0.35);
+  border-radius: 1.5rem;
+  color: #f3b39c;
+  background: linear-gradient(
+    135deg,
+    rgba(217, 119, 87, 0.28),
+    rgba(91, 91, 214, 0.16)
+  );
+  box-shadow: 0 0 80px rgba(217, 119, 87, 0.2);
+}
+
+.updater-mark-active {
+  animation: updater-orb-float 4s ease-in-out infinite;
+}
+
+.updater-progress-track {
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.updater-progress-value {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d97757, #f3b39c, #7373e8);
+  box-shadow: 0 0 24px rgba(217, 119, 87, 0.65);
+  transition: width 300ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .updater-orb,
+  .updater-lines span,
+  .updater-mark-active {
+    animation: none;
+  }
+}
+
 /* ─── Base Reset ─────────────────────────────────────────────── */
 *,
 *::before,
