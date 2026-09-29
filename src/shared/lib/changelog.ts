@@ -23,8 +23,10 @@ const BULLET = /^[-*]\s+(.+)$/;
 function isValidIsoDate(date: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
   const parsed = new Date(`${date}T00:00:00Z`);
-  return !Number.isNaN(parsed.getTime()) &&
-    parsed.toISOString().slice(0, 10) === date;
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === date
+  );
 }
 
 export function parseChangelog(markdown: string): ChangelogEntry[] {
@@ -52,7 +54,9 @@ export function parseChangelog(markdown: string): ChangelogEntry[] {
         throw new Error(`Duplicate changelog version: ${version}.`);
       }
       if (!isValidIsoDate(date)) {
-        throw new Error(`Invalid release date for version ${version}: ${date}.`);
+        throw new Error(
+          `Invalid release date for version ${version}: ${date}.`,
+        );
       }
       current = { version, date, categories: {} };
       entries.push(current);
@@ -63,7 +67,9 @@ export function parseChangelog(markdown: string): ChangelogEntry[] {
 
     if (line.startsWith("### ")) {
       if (!current) {
-        throw new Error(`Category appears before a release on line ${index + 1}.`);
+        throw new Error(
+          `Category appears before a release on line ${index + 1}.`,
+        );
       }
       const match = CATEGORY_HEADER.exec(line);
       if (!match) {
@@ -83,8 +89,10 @@ export function parseChangelog(markdown: string): ChangelogEntry[] {
       throw new Error(`Unexpected heading on line ${index + 1}.`);
     }
 
+    if (!current) continue;
+
     const bullet = BULLET.exec(line);
-    if (!bullet || !current || !category) {
+    if (!bullet || !category) {
       throw new Error(`Malformed changelog content on line ${index + 1}.`);
     }
     current.categories[category]?.push(bullet[1].trim());
@@ -108,9 +116,11 @@ export function parseChangelog(markdown: string): ChangelogEntry[] {
 }
 
 export function getChangelogEntry(version: string): ChangelogEntry | null {
-  return parseChangelog(changelogMarkdown).find(
-    (entry) => entry.version === version,
-  ) ?? null;
+  return (
+    parseChangelog(changelogMarkdown).find(
+      (entry) => entry.version === version,
+    ) ?? null
+  );
 }
 
 export function getChangelogMarkdown(): string {
