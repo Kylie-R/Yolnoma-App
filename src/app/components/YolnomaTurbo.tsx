@@ -134,6 +134,9 @@ export default function YolnomaTurbo() {
     reset: resetUpdaterPreview,
     devPreview,
     modalOpen,
+    fullscreenOpen,
+    changelogOpen,
+    previewChangelog,
   } = useUpdaterStore();
 
   const dragRef = useRef<{
@@ -251,7 +254,7 @@ export default function YolnomaTurbo() {
   };
 
   const handleToggleUpdater = () => {
-    if (devPreview && modalOpen) resetUpdaterPreview();
+    if (devPreview && (modalOpen || fullscreenOpen)) resetUpdaterPreview();
     else {
       window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
       previewUpdate();
@@ -259,10 +262,15 @@ export default function YolnomaTurbo() {
   };
 
   const handleToggleUpdaterStage = (stage: DevPreviewStage) => {
-    if (devPreview && modalOpen) resetUpdaterPreview();
+    window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
+    previewUpdaterStage(stage);
+  };
+
+  const handlePreviewChangelog = () => {
+    if (changelogOpen) resetUpdaterPreview();
     else {
       window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
-      previewUpdaterStage(stage);
+      previewChangelog();
     }
   };
 
@@ -1229,9 +1237,9 @@ export default function YolnomaTurbo() {
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono">
                   Auto-Updater Previews
                 </span>
-                {devPreview && modalOpen && (
+                {devPreview && (modalOpen || fullscreenOpen) && (
                   <span className="text-[10px] text-[#D97757] font-medium">
-                    Modal Active
+                    {fullscreenOpen ? "Fullscreen Active" : "Modal Active"}
                   </span>
                 )}
               </div>
@@ -1242,7 +1250,7 @@ export default function YolnomaTurbo() {
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D97757] to-[#e0896b] px-3 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[#D97757]/20 transition hover:brightness-110"
               >
                 <Play size={13} />
-                {devPreview && modalOpen
+                {devPreview && (modalOpen || fullscreenOpen)
                   ? "Close Updater Preview"
                   : "Preview Complete Update Flow"}
               </button>
@@ -1264,6 +1272,21 @@ export default function YolnomaTurbo() {
                   ))}
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handlePreviewChangelog}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${
+                  changelogOpen
+                    ? "border-[#D97757] bg-[#D97757]/20 text-white"
+                    : "border-white/10 bg-white/[0.04] text-white/80 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                <Check size={13} />
+                {changelogOpen
+                  ? "Close Changelog Preview"
+                  : "Preview Changelog"}
+              </button>
             </div>
 
             {/* Route Loading Fallback Preview */}
