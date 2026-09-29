@@ -262,11 +262,8 @@ export default function YolnomaTurbo() {
   };
 
   const handleToggleUpdaterStage = (stage: DevPreviewStage) => {
-    if (devPreview && (modalOpen || fullscreenOpen)) resetUpdaterPreview();
-    else {
-      window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
-      previewUpdaterStage(stage);
-    }
+    window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
+    previewUpdaterStage(stage);
   };
 
   const handlePreviewChangelog = () => {
