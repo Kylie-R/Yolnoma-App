@@ -1,4 +1,4 @@
-import { AlertCircle, Check, Loader2, X } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import Button from "./Button";
 
@@ -22,8 +22,7 @@ export default function FullscreenUpdater() {
   ].includes(status);
   const isError = status === "error";
   const isComplete = status === "complete";
-  const progressWidth =
-    isComplete || status === "installing" ? 100 : Math.max(2, progress);
+  const progressWidth = isComplete || status === "installing" ? 100 : progress;
 
   return (
     <div
@@ -57,19 +56,7 @@ export default function FullscreenUpdater() {
           </button>
         )}
 
-        <div className={`updater-mark ${isBusy ? "updater-mark-active" : ""}`}>
-          {isComplete ? (
-            <Check size={32} />
-          ) : isError ? (
-            <AlertCircle size={32} />
-          ) : (
-            <Loader2 size={32} className="animate-spin" />
-          )}
-        </div>
-        <p className="mt-9 text-[11px] font-semibold uppercase tracking-[0.35em] text-[#f3b39c]">
-          Yolnoma
-        </p>
-        <h1 className="mt-4 text-5xl font-semibold tracking-[-0.04em] text-white sm:text-7xl">
+        <h1 className="text-5xl font-semibold tracking-[-0.04em] text-white sm:text-7xl">
           Yolnoma Updating
         </h1>
 
