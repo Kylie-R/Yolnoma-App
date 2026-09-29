@@ -29,13 +29,15 @@ export const Toggle: React.FC<ToggleProps> = ({
           onChange={(event) => onChange(event.target.checked)}
         />
         <div
-          className={`block h-5 w-9 rounded-full transition-colors duration-300 ${
-            checked ? "bg-[#D97757]" : "bg-gray-300"
+          className={`block h-6 w-12 rounded-full border transition-colors duration-200 ${
+            checked
+              ? "border-[var(--accent)] bg-[var(--accent)]"
+              : "border-white/45 bg-transparent"
           }`}
         />
         <div
-          className={`absolute left-0.5 top-0.5 h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-            checked ? "translate-x-4" : "translate-x-0"
+          className={`absolute left-1 top-1 h-4 w-4 transform rounded-full shadow-md transition-transform duration-200 ${
+            checked ? "translate-x-6 bg-black/90" : "translate-x-0 bg-white/90"
           }`}
         />
       </div>
