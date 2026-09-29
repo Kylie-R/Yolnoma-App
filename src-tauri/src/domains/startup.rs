@@ -56,7 +56,7 @@ mod windows_impl {
     }
 
     unsafe fn open_key(hive: HKEY, subkey: &str, access: u32) -> Result<HKEY, String> {
-        let mut key = 0;
+        let mut key: HKEY = std::ptr::null_mut();
         let result = RegOpenKeyExW(hive, wide(subkey).as_ptr(), 0, access, &mut key);
         if result != ERROR_SUCCESS {
             return Err(format!("Registry key could not be opened (error {})", result));
@@ -65,7 +65,7 @@ mod windows_impl {
     }
 
     unsafe fn create_key(hive: HKEY, subkey: &str) -> Result<HKEY, String> {
-        let mut key = 0;
+        let mut key: HKEY = std::ptr::null_mut();
         let result = RegCreateKeyExW(
             hive,
             wide(subkey).as_ptr(),
