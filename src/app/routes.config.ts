@@ -18,6 +18,7 @@ import {
   WandSparkles,
   Palette,
   Trees,
+  Rocket,
 } from "lucide-react";
 import ViIcon from "@/assets/VI.svg";
 import { isAndroidApp } from "@/shared/lib/platform";
@@ -140,6 +141,9 @@ const CssToolsPage = lazyPage(
   () => import("@/features/css-tools/pages/CssToolsPage"),
 );
 const GitPage = lazyPage(() => import("@/features/git/pages/GitPage"));
+const StartupPage = lazyPage(
+  () => import("@/features/startup/pages/StartUpAppsPage"),
+);
 const FeedbackPage = lazyPage(
   () => import("@/features/feedback/pages/FeedbackPage"),
 );
@@ -351,13 +355,24 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     navGroup: "tools",
     pinnable: true,
   },
+  // {
+  //   id: "ai-chat",
+  //   path: "/tools/ai-chat",
+  //   component: AiChatPage,
+  //   mobile: true,
+  //   label: "AI Chat",
+  //   description: "Chat with OpenRouter models",
+  //   icon: Bot,
+  //   navGroup: "tools",
+  //   pinnable: true,
+  // },
   {
-    id: "ai-chat",
-    path: "/tools/ai-chat",
+    id: "ai-chat-2b-model",
+    path: "/tools/ai-chat-2b-model",
     component: AiChatPage,
     mobile: true,
-    label: "AI Chat",
-    description: "Chat with OpenRouter models",
+    label: "AI Chat: 2B_MODEL",
+    description: "Chat with text and image vision input",
     icon: Bot,
     navGroup: "tools",
     pinnable: true,
@@ -467,6 +482,16 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     pinnable: true,
   },
   {
+    id: "start-up-apps",
+    path: "/tools/startup",
+    component: StartupPage,
+    label: "Start Up Apps",
+    description: "Manage programs that run at system startup.",
+    icon: Rocket,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
     id: "world-3d",
     path: "/tools/world-3d",
     component: World3DPage,
@@ -489,10 +514,13 @@ export const getNavigationRoutes = () =>
   ROUTE_CONFIG.filter(
     (route) => visibleOnCurrentPlatform(route) && route.label && route.navGroup,
   );
+
 export const getToolRoutes = () =>
   ROUTE_CONFIG.filter(
     (route) =>
       visibleOnCurrentPlatform(route) &&
-      route.navGroup === "tools" &&
+      (route.navGroup === "tools" ||
+        route.navGroup === "steam" ||
+        route.pinnable) &&
       route.description,
   );

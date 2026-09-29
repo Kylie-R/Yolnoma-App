@@ -8,3 +8,4 @@ pub mod image;
 pub mod network;
 pub mod steam;
 pub mod system;
+pub mod startup;

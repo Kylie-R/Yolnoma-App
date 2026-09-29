@@ -1,6 +1,10 @@
+export type ChatContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 export type ChatMessage = {
   role: "user" | "assistant";
-  content: string;
+  content: string | ChatContentPart[];
   model?: string;
   id?: string;
   createdAt?: string;
@@ -25,6 +29,11 @@ export type OpenRouterModel = {
   name?: string;
   context_length?: number;
   pricing?: { prompt?: string; completion?: string };
+  architecture?: {
+    input_modalities?: string[];
+    output_modalities?: string[];
+    modality?: string;
+  };
 };
 
 export type ModelCategory = "all" | "free" | "paid";

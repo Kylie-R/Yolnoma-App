@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -34,6 +34,13 @@ import ChatComposer from "../components/ChatComposer";
 import ChatMessages from "../components/ChatMessages";
 import ApiKeyModal from "../components/ApiKeyModal";
 import { buildProjectContext } from "../context/projectContext";
+import {
+  bytesToDataUrl,
+  getMessageText,
+  isVisionModel,
+  validateVisionImage,
+  type VisionImage,
+} from "../vision";
 import {
   getApiKey,
   saveApiKey,
@@ -71,6 +78,8 @@ export default function AiChatPage() {
   const [modelCategory, setModelCategory] = useState<ModelCategory>("all");
   const [modelsLoading, setModelsLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
+  const [attachedImage, setAttachedImage] = useState<VisionImage | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [regeneratingMessageId, setRegeneratingMessageId] = useState<
     string | null
@@ -82,6 +91,7 @@ export default function AiChatPage() {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
 
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hydratedMessagesRef = useRef<string | null>(null);
 
@@ -314,11 +324,46 @@ export default function AiChatPage() {
     setSelectedModels((current) => (current[0] === id ? current : [id]));
   };
 
+  const handleImageSelection = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || loading || imageLoading) return;
+    setImageLoading(true);
+    try {
+      const name = file.name || "attached-image";
+      const extension = name.split(".").pop()?.toLowerCase() ?? "";
+      const mimeType =
+        extension === "png"
+          ? "image/png"
+          : extension === "webp"
+            ? "image/webp"
+            : "image/jpeg";
+      validateVisionImage(name, mimeType, file.size);
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      setAttachedImage({
+        name,
+        mimeType,
+        dataUrl: bytesToDataUrl(bytes, mimeType),
+        size: file.size,
+      });
+      setError("");
+    } catch (attachmentError) {
+      setError(
+        attachmentError instanceof Error
+          ? attachmentError.message
+          : "Could not read that image. Choose a valid PNG, JPG, JPEG, or WEBP file.",
+      );
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
   const newChat = async () => {
     knownSessionIdRef.current = null;
     setActiveSession(null);
     setMessages([]);
     setPrompt("");
+    setAttachedImage(null);
     setSidebarTab("sessions");
     setSidebarOpenMobile(false);
     setSearchParams({}, { replace: false });
@@ -332,6 +377,7 @@ export default function AiChatPage() {
     hydratedMessagesRef.current = JSON.stringify(session.messages);
     setMessages(session.messages);
     setPrompt("");
+    setAttachedImage(null);
     setSearchParams({ sessionId: id });
     setOpenSessionMenu(null);
     setSidebarOpenMobile(false);
@@ -368,8 +414,12 @@ export default function AiChatPage() {
     setOpenSessionMenu(null);
   };
 
-  const sendPrompt = async (text: string, conversationMessages = messages) => {
-    if (!text || loading) return;
+  const sendPrompt = async (
+    text: string,
+    image: VisionImage | null = attachedImage,
+    conversationMessages = messages,
+  ) => {
+    if ((!text && !image) || loading) return;
     if (!apiKey) {
       setError("Enter and save your OpenRouter API key first.");
       setShowKeyModal(true);
@@ -385,9 +435,15 @@ export default function AiChatPage() {
       setSearchParams({ sessionId: session.id });
     }
 
+    const userContent = image
+      ? [
+          ...(text ? [{ type: "text" as const, text }] : []),
+          { type: "image_url" as const, image_url: { url: image.dataUrl } },
+        ]
+      : text;
     const userMessage: ChatMessage = {
       role: "user",
-      content: text,
+      content: userContent,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
     };
@@ -401,7 +457,11 @@ export default function AiChatPage() {
 
     if (session.title === "New chat") {
       setTitleGenerating(true);
-      void generateChatTitle(apiKey, selectedModels[0], text)
+      void generateChatTitle(
+        apiKey,
+        selectedModels[0],
+        text || "Image analysis",
+      )
         .then((title) => {
           setActiveSession((current) => {
             if (!current) return current;
@@ -422,6 +482,11 @@ export default function AiChatPage() {
     try {
       for (const model of selectedModels) {
         setActiveModel(model);
+        if (image && !isVisionModel(models.find((item) => item.id === model))) {
+          throw new Error(
+            "The selected model does not advertise image support. Choose a model marked Vision.",
+          );
+        }
         const response = await requestChatCompletion(
           apiKey,
           model,
@@ -448,6 +513,7 @@ export default function AiChatPage() {
             createdAt: new Date().toISOString(),
           },
         ]);
+        setAttachedImage(null);
         return;
       }
       const checkedAt = new Date().toLocaleTimeString("uz-UZ", {
@@ -476,15 +542,32 @@ export default function AiChatPage() {
   const sendMessage = (event: React.SyntheticEvent) => {
     event.preventDefault();
     const text = prompt.trim();
-    if (!text || loading) return;
-    void sendPrompt(text);
+    if ((!text && !attachedImage) || loading) return;
+    void sendPrompt(text, attachedImage);
   };
 
   const editUserMessage = (message: ChatMessage) => {
     const index = messages.findIndex((item) => item.id === message.id);
     if (index < 0) return;
     setMessages(messages.slice(0, index));
-    setPrompt(message.content);
+    setPrompt(getMessageText(message.content));
+    setAttachedImage(
+      typeof message.content === "string"
+        ? null
+        : (() => {
+            const imagePart = message.content.find(
+              (part) => part.type === "image_url",
+            );
+            return imagePart?.type === "image_url"
+              ? {
+                  name: "previous-image",
+                  mimeType: "image/png",
+                  dataUrl: imagePart.image_url.url,
+                  size: 0,
+                }
+              : null;
+          })(),
+    );
     requestAnimationFrame(() => promptInputRef.current?.focus());
   };
 
@@ -497,9 +580,27 @@ export default function AiChatPage() {
     if (!previousUser || loading) return;
     setMessages(messages.slice(0, index));
     setRegeneratingMessageId(message.id ?? null);
-    void sendPrompt(previousUser.content, messages.slice(0, index)).finally(
-      () => setRegeneratingMessageId(null),
-    );
+    const previousImage: VisionImage | null =
+      typeof previousUser.content === "string"
+        ? null
+        : (() => {
+            const imagePart = previousUser.content.find(
+              (part) => part.type === "image_url",
+            );
+            return imagePart?.type === "image_url"
+              ? {
+                  name: "previous-image",
+                  mimeType: "image/png",
+                  dataUrl: imagePart.image_url.url,
+                  size: 0,
+                }
+              : null;
+          })();
+    void sendPrompt(
+      getMessageText(previousUser.content),
+      previousImage,
+      messages.slice(0, index),
+    ).finally(() => setRegeneratingMessageId(null));
   };
 
   const filteredSessions = sessions.filter((session) =>
@@ -542,7 +643,10 @@ export default function AiChatPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setMessages([])}
+              onClick={() => {
+                setMessages([]);
+                setAttachedImage(null);
+              }}
               disabled={!messages.length}
             >
               <Trash2 size={15} /> Clear
@@ -573,6 +677,18 @@ export default function AiChatPage() {
           promptInputRef={promptInputRef}
           onPromptChange={setPrompt}
           onSubmit={sendMessage}
+          image={attachedImage}
+          imageLoading={imageLoading}
+          onAttachImage={() => imageInputRef.current?.click()}
+          onRemoveImage={() => setAttachedImage(null)}
+        />
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={(event) => void handleImageSelection(event)}
+          className="hidden"
+          aria-label="Choose an image for AI Chat"
         />
       </main>
 
@@ -676,6 +792,11 @@ export default function AiChatPage() {
                       <span className="min-w-0 truncate text-xs font-medium">
                         {getShortModelName(model)}
                       </span>
+                      {isVisionModel(model) && (
+                        <span className="ml-auto text-[9px] text-emerald-300/70">
+                          Vision
+                        </span>
+                      )}
                     </label>
                   ))}
               </div>
