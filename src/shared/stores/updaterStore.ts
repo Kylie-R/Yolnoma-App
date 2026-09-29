@@ -12,7 +12,11 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { getVersion } from "@tauri-apps/api/app";
 import { toast } from "@/shared/ui/Toast";
 import { getErrorMessage, reportError } from "@/shared/lib/errors";
-import { getChangelogEntry, type ChangelogEntry } from "@/shared/lib/changelog";
+import {
+  getChangelogEntry,
+  getLatestChangelogEntry,
+  type ChangelogEntry,
+} from "@/shared/lib/changelog";
 
 export type UpdateStatus =
   | "idle"
@@ -433,7 +437,7 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
 
   previewChangelog: () => {
     if (!import.meta.env.DEV) return;
-    const entry = getChangelogEntry("1.2.2");
+    const entry = getLatestChangelogEntry();
     if (entry) set({ changelogEntry: entry, changelogOpen: true });
   },
 

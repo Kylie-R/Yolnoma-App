@@ -16,7 +16,7 @@ export interface ChangelogEntry {
   categories: Partial<Record<ChangelogCategory, string[]>>;
 }
 
-const RELEASE_HEADER = /^## \[([^\]]+)\] - (\d{4}-\d{2}-\d{2})$/;
+const RELEASE_HEADER = /^## \[([^\]]+)\] - (\S+)$/;
 const CATEGORY_HEADER = /^### (Added|Improved|Fixed|Changed|Removed)$/;
 const BULLET = /^[-*]\s+(.+)$/;
 
@@ -121,6 +121,10 @@ export function getChangelogEntry(version: string): ChangelogEntry | null {
       (entry) => entry.version === version,
     ) ?? null
   );
+}
+
+export function getLatestChangelogEntry(): ChangelogEntry | null {
+  return parseChangelog(changelogMarkdown)[0] ?? null;
 }
 
 export function getChangelogMarkdown(): string {
