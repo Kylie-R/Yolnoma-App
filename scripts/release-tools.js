@@ -4,7 +4,13 @@ import process from "node:process";
 import { pathToFileURL } from "node:url";
 
 const ROOT = process.cwd();
-const CHANGELOG_CATEGORIES = ["Added", "Improved", "Fixed", "Changed", "Removed"];
+const CHANGELOG_CATEGORIES = [
+  "Added",
+  "Improved",
+  "Fixed",
+  "Changed",
+  "Removed",
+];
 const RELEASE_HEADER = /^## \[([^\]]+)\] - (\d{4}-\d{2}-\d{2})$/;
 const CATEGORY_HEADER = /^### (Added|Improved|Fixed|Changed|Removed)$/;
 const BULLET = /^[-*]\s+(.+)$/;
@@ -26,10 +32,15 @@ export function parseChangelog(markdown) {
 
     if (line.startsWith("## ")) {
       const match = RELEASE_HEADER.exec(line);
-      if (!match) throw new Error(`Malformed release header on line ${index + 1}.`);
+      if (!match)
+        throw new Error(`Malformed release header on line ${index + 1}.`);
       const [, version, date] = match;
-      if (versions.has(version)) throw new Error(`Duplicate changelog version: ${version}.`);
-      if (!isValidDate(date)) throw new Error(`Invalid release date for version ${version}: ${date}.`);
+      if (versions.has(version))
+        throw new Error(`Duplicate changelog version: ${version}.`);
+      if (!isValidDate(date))
+        throw new Error(
+          `Invalid release date for version ${version}: ${date}.`,
+        );
       current = { version, date, categories: {} };
       entries.push(current);
       versions.add(version);
@@ -38,26 +49,40 @@ export function parseChangelog(markdown) {
     }
 
     if (line.startsWith("### ")) {
-      if (!current) throw new Error(`Category appears before a release on line ${index + 1}.`);
+      if (!current)
+        throw new Error(
+          `Category appears before a release on line ${index + 1}.`,
+        );
       const match = CATEGORY_HEADER.exec(line);
-      if (!match) throw new Error(`Unsupported changelog category on line ${index + 1}.`);
+      if (!match)
+        throw new Error(`Unsupported changelog category on line ${index + 1}.`);
       category = match[1];
-      if (current.categories[category]) throw new Error(`Duplicate ${category} category for version ${current.version}.`);
+      if (current.categories[category])
+        throw new Error(
+          `Duplicate ${category} category for version ${current.version}.`,
+        );
       current.categories[category] = [];
       continue;
     }
 
-    if (line.startsWith("#")) throw new Error(`Unexpected heading on line ${index + 1}.`);
+    if (line.startsWith("#"))
+      throw new Error(`Unexpected heading on line ${index + 1}.`);
     if (!current) continue;
     const bullet = BULLET.exec(line);
-    if (!bullet || !category) throw new Error(`Malformed changelog content on line ${index + 1}.`);
+    if (!bullet || !category)
+      throw new Error(`Malformed changelog content on line ${index + 1}.`);
     current.categories[category].push(bullet[1].trim());
   }
 
-  if (entries.length === 0) throw new Error("CHANGELOG.md does not contain any release entries.");
+  if (entries.length === 0)
+    throw new Error("CHANGELOG.md does not contain any release entries.");
   for (const entry of entries) {
-    const count = Object.values(entry.categories).reduce((total, items) => total + items.length, 0);
-    if (count === 0) throw new Error(`Changelog entry for version ${entry.version} is empty.`);
+    const count = Object.values(entry.categories).reduce(
+      (total, items) => total + items.length,
+      0,
+    );
+    if (count === 0)
+      throw new Error(`Changelog entry for version ${entry.version} is empty.`);
   }
   return entries;
 }
@@ -65,13 +90,24 @@ export function parseChangelog(markdown) {
 function isValidDate(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
   const parsed = new Date(`${date}T00:00:00Z`);
-  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date;
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === date
+  );
 }
 
 export function parseSemver(version) {
-  const match = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.exec(version);
+  const match =
+    /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.exec(
+      version,
+    );
   if (!match) throw new Error(`Invalid semantic version: ${version}.`);
-  return { major: Number(match[1]), minor: Number(match[2]), patch: Number(match[3]), prerelease: match[4]?.split(".") ?? [] };
+  return {
+    major: Number(match[1]),
+    minor: Number(match[2]),
+    patch: Number(match[3]),
+    prerelease: match[4]?.split(".") ?? [],
+  };
 }
 
 export function compareSemver(left, right) {
@@ -92,7 +128,8 @@ export function compareSemver(left, right) {
     if (leftIdentifier === rightIdentifier) continue;
     const leftNumeric = /^\d+$/.test(leftIdentifier);
     const rightNumeric = /^\d+$/.test(rightIdentifier);
-    if (leftNumeric && rightNumeric) return Number(leftIdentifier) > Number(rightIdentifier) ? 1 : -1;
+    if (leftNumeric && rightNumeric)
+      return Number(leftIdentifier) > Number(rightIdentifier) ? 1 : -1;
     if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1;
     return leftIdentifier > rightIdentifier ? 1 : -1;
   }
@@ -100,26 +137,26 @@ export function compareSemver(left, right) {
 }
 
 function readVersions() {
-  const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
-  const tauri = JSON.parse(fs.readFileSync(path.join(ROOT, "src-tauri/tauri.conf.json"), "utf8"));
-  const cargo = fs.readFileSync(path.join(ROOT, "src-tauri/Cargo.toml"), "utf8").match(/^version\s*=\s*"([^"]+)"/m)?.[1];
-  if (!cargo) throw new Error("Could not read version from src-tauri/Cargo.toml.");
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.join(ROOT, "package.json"), "utf8"),
+  );
+  const tauri = JSON.parse(
+    fs.readFileSync(path.join(ROOT, "src-tauri/tauri.conf.json"), "utf8"),
+  );
+  const cargo = fs
+    .readFileSync(path.join(ROOT, "src-tauri/Cargo.toml"), "utf8")
+    .match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  if (!cargo)
+    throw new Error("Could not read version from src-tauri/Cargo.toml.");
   return { package: packageJson.version, tauri: tauri.version, cargo };
-}
-
-function previousReleaseVersion(tag) {
-  const tags = requireGitTags();
-  const current = tag.replace(/^v/, "");
-  return tags
-    .map((value) => value.replace(/^v/, ""))
-    .filter((value) => value !== current)
-    .filter((value) => { try { parseSemver(value); return true; } catch { return false; } })
-    .sort((a, b) => compareSemver(b, a))[0] ?? null;
 }
 
 function requireGitTags() {
   const output = process.env.RELEASE_TAGS ?? "";
-  return output.split(/\r?\n/).map((tag) => tag.trim()).filter(Boolean);
+  return output
+    .split(/\r?\n/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 export function validateRelease({ tag, tags = [] }) {
@@ -127,30 +164,58 @@ export function validateRelease({ tag, tags = [] }) {
   parseSemver(version);
   const versions = readVersions();
   if (new Set(Object.values(versions)).size !== 1) {
-    throw new Error(`Version mismatch: package.json=${versions.package}, Cargo.toml=${versions.cargo}, tauri.conf.json=${versions.tauri}.`);
+    throw new Error(
+      `Version mismatch: package.json=${versions.package}, Cargo.toml=${versions.cargo}, tauri.conf.json=${versions.tauri}.`,
+    );
   }
-  if (versions.package !== version) throw new Error(`Release tag ${tag} does not match application version ${versions.package}.`);
+  if (versions.package !== version)
+    throw new Error(
+      `Release tag ${tag} does not match application version ${versions.package}.`,
+    );
 
-  const changelog = parseChangelog(fs.readFileSync(path.join(ROOT, "CHANGELOG.md"), "utf8"));
+  const changelog = parseChangelog(
+    fs.readFileSync(path.join(ROOT, "CHANGELOG.md"), "utf8"),
+  );
   const entry = changelog.find((item) => item.version === version);
-  if (!entry) throw new Error(`Changelog entry for version ${version} is missing.`);
-  if (!isValidDate(entry.date)) throw new Error(`Changelog release date for version ${version} is invalid.`);
+  if (!entry)
+    throw new Error(`Changelog entry for version ${version} is missing.`);
+  if (!isValidDate(entry.date))
+    throw new Error(
+      `Changelog release date for version ${version} is invalid.`,
+    );
 
-  const previous = tags.map((value) => value.replace(/^v/, "")).filter((value) => value !== version).filter((value) => {
-    try { parseSemver(value); return true; } catch { return false; }
-  }).sort((a, b) => compareSemver(b, a))[0];
+  const previous = tags
+    .map((value) => value.replace(/^v/, ""))
+    .filter((value) => value !== version)
+    .filter((value) => {
+      try {
+        parseSemver(value);
+        return true;
+      } catch {
+        return false;
+      }
+    })
+    .sort((a, b) => compareSemver(b, a))[0];
   if (previous && compareSemver(version, previous) <= 0) {
-    throw new Error(`Release ${version} must be newer than previous release ${previous}.`);
+    throw new Error(
+      `Release ${version} must be newer than previous release ${previous}.`,
+    );
   }
   return { version, entry, previous: previous ?? null };
 }
 
 export function formatReleaseNotes(entry) {
-  return CHANGELOG_CATEGORIES.filter((category) => entry.categories[category]?.length).map((category) => [
-    `### ${category}`,
-    "",
-    ...entry.categories[category].map((item) => `- ${item}`),
-  ].join("\n")).join("\n\n");
+  return CHANGELOG_CATEGORIES.filter(
+    (category) => entry.categories[category]?.length,
+  )
+    .map((category) =>
+      [
+        `### ${category}`,
+        "",
+        ...entry.categories[category].map((item) => `- ${item}`),
+      ].join("\n"),
+    )
+    .join("\n\n");
 }
 
 function getArgument(name) {
@@ -165,7 +230,9 @@ function run() {
     if (!tag) throw new Error("validate requires --tag.");
     const tags = requireGitTags();
     const result = validateRelease({ tag, tags });
-    console.log(`Release metadata valid for ${result.version}; changelog entry dated ${result.entry.date}.`);
+    console.log(
+      `Release metadata valid for ${result.version}; changelog entry dated ${result.entry.date}.`,
+    );
     return;
   }
 
@@ -176,7 +243,10 @@ function run() {
     const output = getArgument("--output");
     const notesOutput = getArgument("--notes-output");
     const repo = getArgument("--repo");
-    if (!tag || !exe || !signature || !output || !notesOutput || !repo) throw new Error("generate-manifest requires --tag, --exe, --signature, --output, --notes-output, and --repo.");
+    if (!tag || !exe || !signature || !output || !notesOutput || !repo)
+      throw new Error(
+        "generate-manifest requires --tag, --exe, --signature, --output, --notes-output, and --repo.",
+      );
     const { version, entry } = validateRelease({ tag, tags: requireGitTags() });
     const notes = formatReleaseNotes(entry);
     const releaseUrl = `https://github.com/${repo}/releases/download/${tag}`;
@@ -191,7 +261,8 @@ function run() {
         },
       },
     };
-    if (!manifest.platforms["windows-x86_64"].signature) throw new Error("Updater signature is empty.");
+    if (!manifest.platforms["windows-x86_64"].signature)
+      throw new Error("Updater signature is empty.");
     fs.writeFileSync(output, `${JSON.stringify(manifest, null, 2)}\n`);
     fs.writeFileSync(notesOutput, `${notes}\n`);
     JSON.parse(fs.readFileSync(output, "utf8"));
@@ -203,5 +274,12 @@ function run() {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  try { run(); } catch (error) { console.error(`::error::${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
+  try {
+    run();
+  } catch (error) {
+    console.error(
+      `::error::${error instanceof Error ? error.message : String(error)}`,
+    );
+    process.exitCode = 1;
+  }
 }
