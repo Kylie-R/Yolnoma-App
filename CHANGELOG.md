@@ -2,6 +2,12 @@
 
 All notable Yolnoma releases are documented here. This file is the source of truth for updater release notes.
 
+## [1.2.3] - 2026-09-30
+
+### Added
+
+- New Future #1
+
 ## [1.2.2] - 2026-09-26
 
 ### Added

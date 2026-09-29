@@ -56,8 +56,14 @@ export default function FullscreenUpdater() {
           </button>
         )}
 
-        <h1 className="text-5xl font-semibold tracking-[-0.04em] text-white sm:text-7xl">
-          Yolnoma Updating
+        <h1 className="text-5xl font-serif font-semibold tracking-[-0.04em] sm:text-7xl transition-all duration-500 ease-in-out hover:scale-105">
+          <span
+            className="animate-bounce inline-block"
+            style={{ color: "var(--main-color)" }}
+          >
+            Yol
+          </span>
+          noma <span className="animate-bounce inline-block">Up</span>dating
         </h1>
 
         <div className="mt-14 w-full max-w-xl">
