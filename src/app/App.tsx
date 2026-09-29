@@ -8,6 +8,7 @@ import CommandCenter from "./components/CommandCenter";
 import GlobalDropzone from "@/shared/components/GlobalDropzone";
 import KeyboardShortcutsModal from "@/shared/components/KeyboardShortcutsModal";
 import RouteLoadingFallback from "./components/RouteLoadingFallback";
+import LoginPage from "@/features/auth/pages/LoginPage";
 
 const SPLASH_KEY = "yolnoma_splash_shown";
 
@@ -18,6 +19,7 @@ function App() {
     "standard" | "loading" | null
   >(null);
   const [showRouteLoadingPreview, setShowRouteLoadingPreview] = useState(false);
+  const [showLoginPreview, setShowLoginPreview] = useState(false);
   const [appReady, setAppReady] = useState(isStandalone);
   const hasCheckedStartupRef = useRef(false);
 
@@ -46,11 +48,13 @@ function App() {
       setSplashPreview(variant === "loading" ? "loading" : "standard");
     };
     const handlePreviewRouteLoading = () => setShowRouteLoadingPreview(true);
+    const handlePreviewLogin = () => setShowLoginPreview(true);
     window.addEventListener("yolnoma:preview-splash", handlePreviewSplash);
     window.addEventListener(
       "yolnoma:preview-route-loading",
       handlePreviewRouteLoading,
     );
+    window.addEventListener("yolnoma:preview-login", handlePreviewLogin);
     const handleHideRouteLoading = () => setShowRouteLoadingPreview(false);
     window.addEventListener(
       "yolnoma:hide-route-loading",
@@ -61,6 +65,7 @@ function App() {
     const handleCloseAllPreviews = () => {
       setSplashPreview(null);
       setShowRouteLoadingPreview(false);
+      setShowLoginPreview(false);
       useUpdaterStore.getState().reset();
     };
     window.addEventListener(
@@ -73,6 +78,7 @@ function App() {
         "yolnoma:preview-route-loading",
         handlePreviewRouteLoading,
       );
+      window.removeEventListener("yolnoma:preview-login", handlePreviewLogin);
       window.removeEventListener(
         "yolnoma:hide-route-loading",
         handleHideRouteLoading,
@@ -134,6 +140,18 @@ function App() {
           {showRouteLoadingPreview && (
             <div className="fixed inset-0 z-[110] flex h-screen w-screen items-center justify-center bg-black/80 backdrop-blur-sm">
               <RouteLoadingFallback />
+            </div>
+          )}
+          {showLoginPreview && (
+            <div className="fixed inset-0 z-[110] overflow-auto">
+              <LoginPage
+                preview
+                onClosePreview={() =>
+                  window.dispatchEvent(
+                    new CustomEvent("yolnoma:close-all-previews"),
+                  )
+                }
+              />
             </div>
           )}
         </>

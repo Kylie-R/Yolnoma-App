@@ -19,10 +19,19 @@ import {
   AlertCircle,
   ArrowRight,
   Sparkles,
+  X,
 } from "lucide-react";
 import { images } from "@/shared/assets/images";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  preview?: boolean;
+  onClosePreview?: () => void;
+};
+
+export default function LoginPage({
+  preview = false,
+  onClosePreview,
+}: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isWaitingForBrowser, setIsWaitingForBrowser] = useState(false);
   const [error, setError] = useState("");
@@ -142,6 +151,8 @@ export default function LoginPage() {
 
   // Listen for deep link events from Tauri
   useEffect(() => {
+    if (preview) return;
+
     let unlistenAuth: (() => void) | null = null;
     let unlistenSessionLimit: (() => void) | null = null;
     let unlistenDeepLink: (() => void) | null = null;
@@ -199,9 +210,14 @@ export default function LoginPage() {
       if (unlistenSessionLimit) unlistenSessionLimit();
       if (unlistenDeepLink) unlistenDeepLink();
     };
-  }, [navigate]);
+  }, [navigate, preview]);
 
   const handleStartGoogleSignIn = async () => {
+    if (preview) {
+      setSuccessMsg("Preview mode: browser sign-in is disabled.");
+      return;
+    }
+
     setError("");
     setIsWaitingForBrowser(true);
 
@@ -226,6 +242,11 @@ export default function LoginPage() {
       setError("Please enter the code.");
       return;
     }
+    if (preview) {
+      setSuccessMsg("Preview mode: code exchange is disabled.");
+      setError("");
+      return;
+    }
     handleExchangeCode(manualCode);
   };
 
@@ -235,9 +256,20 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-[#F2EDE6]"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden p-4 text-[#F2EDE6]"
       style={{ background: "#14110E" }}
     >
+      {preview && onClosePreview && (
+        <button
+          type="button"
+          onClick={onClosePreview}
+          className="absolute right-4 top-4 z-20 rounded-full border border-white/10 bg-black/30 p-2 text-white/50 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+          aria-label="Close login preview"
+          title="Close login preview"
+        >
+          <X size={18} />
+        </button>
+      )}
       {/* Decorative ambient glow */}
       <div
         className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none opacity-[0.12]"
