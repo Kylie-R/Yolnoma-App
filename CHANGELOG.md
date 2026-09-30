@@ -6,7 +6,43 @@ All notable Yolnoma releases are documented here. This file is the source of tru
 
 ### Added
 
-- New Future #1
+- DNS Records lookup and inspection tools.
+- Subdomain Finder with multi-view visualization.
+- HTTP Headers inspection tool.
+- Windows Startup Apps manager.
+- AI Chat vision and image support.
+- Centralized changelog parser and updater changelog integration.
+- Fullscreen update and changelog flow.
+- Isolated login UI preview for Turbo(dev).
+
+### Improved
+
+- Expanded DNS inspection workspace and Command Center DNS tools.
+- Improved AI Agent workspace with better word wrapping and project restoration.
+- Improved AI Chat image loading through native file input.
+- Improved updater progress and preview experience.
+- Improved changelog preview and invalid-date handling.
+- Refreshed updater heading and overall update experience.
+- Expanded tool routes and workspace UI consistency.
+- Updated README with clearer project documentation, requirements, and setup instructions.
+- Updated Agents guide with current features and rules.
+
+### Fixed
+
+- Safely initialized Windows Registry handles.
+- Fixed release changelog file introduction handling.
+- Fixed release manifest validation and linting.
+- Improved updater preview stage transitions.
+- Removed issues related to obsolete codebase-agent routing and permissions.
+
+### Changed
+
+- Refactored feature modules into canonical project modules.
+- Split global CSS and scoped styles for feature modules.
+- Modularized the AI Agent page into dedicated components.
+- Unified Git types and diff viewer logic.
+- Localized remaining Uzbek UI strings to English.
+- Moved release notes to the centralized changelog as the updater source of truth.
 
 ## [1.2.2] - 2026-09-26
 

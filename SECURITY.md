@@ -28,7 +28,7 @@ The application also requests the public model catalog from OpenRouter when the 
 
 ## Third-party integrations
 
-Yolnoma uses third-party services and libraries. Their availability, logging, retention, and data-processing practices are governed by their own policies. The relevant service URLs and the project’s attribution information are documented in the source and in [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md).
+Yolnoma uses third-party services and libraries. Their availability, logging, retention, and data-processing practices are governed by their own policies. The relevant service URLs and the project’s attribution information are documented in the source and in [THIRD-PARTY-NOTICES.md](./src-tauri/THIRD-PARTY-NOTICES.md).
 
 ## Reporting a vulnerability
 
