@@ -1,0 +1,53 @@
+/* Global styles: forms.css */
+
+/* ─── Form Controls ──────────────────────────────────────────── */
+.form-input,
+.form-textarea {
+  width: 100%;
+  background: rgba(242, 237, 230, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-faint);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--accent-border);
+  background: rgba(217, 119, 87, 0.04);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.json-editor-textarea {
+  min-height: 720px;
+  height: 720px;
+  line-height: 1.75;
+}
+@media (max-width: 1023px) {
+  .json-editor-textarea {
+    min-height: 560px;
+    height: 560px;
+  }
+}
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+}

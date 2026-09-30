@@ -67,7 +67,7 @@ export default function SystemMonitorSection({
               {!monitoringEnabled
                 ? "Disabled"
                 : isPaused
-                  ? "To'xtatildi (fon)"
+                  ? "Paused (background)"
                   : "Real-time (2s)"}
             </span>
           </div>
@@ -84,9 +84,7 @@ export default function SystemMonitorSection({
                 : "bg-white/10 hover:bg-white/15"
             }`}
             title={
-              monitoringEnabled
-                ? "Monitoringni to'xtatish"
-                : "Monitoringni yoqish"
+              monitoringEnabled ? "Disable monitoring" : "Enable monitoring"
             }
           >
             <span

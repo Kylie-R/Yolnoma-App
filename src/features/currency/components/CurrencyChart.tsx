@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
-import { ArrowUpRight, ArrowDownRight, Loader2, Calendar } from 'lucide-react';
-import type { HistoricalPoint } from '@/features/currency/api/currencyApi';
+import { useState, useMemo } from "react";
+import { ArrowUpRight, ArrowDownRight, Loader2, Calendar } from "lucide-react";
+import type { HistoricalPoint } from "@/features/currency/api/currencyApi";
 
 interface CurrencyChartProps {
   points: HistoricalPoint[];
@@ -12,7 +12,7 @@ interface CurrencyChartProps {
   currentRate?: number;
 }
 
-const RANGES = ['1D', '5D', '1M', '1Y', '5Y', 'MAX'] as const;
+const RANGES = ["1D", "5D", "1M", "1Y", "5Y", "MAX"] as const;
 
 export default function CurrencyChart({
   points,
@@ -27,8 +27,9 @@ export default function CurrencyChart({
 
   // Statistics calculation
   const stats = useMemo(() => {
-    if (!points || points.length === 0) return { min: 0, max: 0, avg: 0, change: 0, isPositive: true };
-    const rates = points.map(p => p.rate);
+    if (!points || points.length === 0)
+      return { min: 0, max: 0, avg: 0, change: 0, isPositive: true };
+    const rates = points.map((p) => p.rate);
     const min = Math.min(...rates);
     const max = Math.max(...rates);
     const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
@@ -45,9 +46,10 @@ export default function CurrencyChart({
   const paddingY = 24;
 
   const chartData = useMemo(() => {
-    if (!points || points.length === 0) return { pathD: '', areaD: '', coordinates: [] };
+    if (!points || points.length === 0)
+      return { pathD: "", areaD: "", coordinates: [] };
 
-    const rates = points.map(p => p.rate);
+    const rates = points.map((p) => p.rate);
     const min = Math.min(...rates);
     const max = Math.max(...rates);
     const rangeVal = max - min || 1;
@@ -90,9 +92,10 @@ export default function CurrencyChart({
     return { pathD, areaD, coordinates };
   }, [points, svgWidth, svgHeight]);
 
-  const activePoint = hoveredIndex !== null && chartData.coordinates[hoveredIndex]
-    ? chartData.coordinates[hoveredIndex]
-    : chartData.coordinates[chartData.coordinates.length - 1];
+  const activePoint =
+    hoveredIndex !== null && chartData.coordinates[hoveredIndex]
+      ? chartData.coordinates[hoveredIndex]
+      : chartData.coordinates[chartData.coordinates.length - 1];
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-white/[0.08] bg-[#14110E] p-4 shadow-xl md:p-5">
@@ -103,24 +106,36 @@ export default function CurrencyChart({
             <span className="text-xs font-semibold tracking-wider uppercase text-[var(--accent)]">
               Historical dynamics
             </span>
-            <span className="text-xs text-white/40">({base} / {quote})</span>
+            <span className="text-xs text-white/40">
+              ({base} / {quote})
+            </span>
           </div>
           <div className="flex items-baseline gap-3 mt-1">
             <span className="text-2xl font-bold font-mono text-white">
-              {activePoint ? activePoint.point.rate.toLocaleString('uz-UZ', { maximumFractionDigits: 4 }) : '—'}
+              {activePoint
+                ? activePoint.point.rate.toLocaleString("uz-UZ", {
+                    maximumFractionDigits: 4,
+                  })
+                : "—"}
             </span>
             <span className="text-xs text-white/40 font-mono">{quote}</span>
-            <span className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${
-              stats.isPositive
-                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
-                : 'bg-red-500/15 text-red-400 border border-red-500/20'
-            }`}>
-              {stats.isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+            <span
+              className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${
+                stats.isPositive
+                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                  : "bg-red-500/15 text-red-400 border border-red-500/20"
+              }`}
+            >
+              {stats.isPositive ? (
+                <ArrowUpRight size={13} />
+              ) : (
+                <ArrowDownRight size={13} />
+              )}
               {Math.abs(stats.change).toFixed(2)}%
             </span>
           </div>
           <p className="text-[11px] text-white/35 mt-0.5">
-            {activePoint ? activePoint.point.date : 'Sana tanlanmagan'}
+            {activePoint ? activePoint.point.date : "Date not selected"}
           </p>
         </div>
 
@@ -132,8 +147,8 @@ export default function CurrencyChart({
               onClick={() => onRangeChange(r)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 range === r
-                  ? 'bg-[var(--accent)] text-white shadow-md'
-                  : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                  ? "bg-[var(--accent)] text-white shadow-md"
+                  : "text-white/50 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               {r}
@@ -154,7 +169,7 @@ export default function CurrencyChart({
         {points.length === 0 && !loading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white/30 text-xs">
             <Calendar size={28} className="mb-2 opacity-40" />
-           No graphical data is available for this period.
+            No graphical data is available for this period.
           </div>
         ) : (
           <svg
@@ -175,9 +190,30 @@ export default function CurrencyChart({
             </defs>
 
             {/* Horizontal Grid lines */}
-            <line x1={paddingX} y1={paddingY} x2={svgWidth - paddingX} y2={paddingY} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-            <line x1={paddingX} y1={svgHeight / 2} x2={svgWidth - paddingX} y2={svgHeight / 2} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-            <line x1={paddingX} y1={svgHeight - paddingY} x2={svgWidth - paddingX} y2={svgHeight - paddingY} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+            <line
+              x1={paddingX}
+              y1={paddingY}
+              x2={svgWidth - paddingX}
+              y2={paddingY}
+              stroke="rgba(255,255,255,0.05)"
+              strokeDasharray="3 3"
+            />
+            <line
+              x1={paddingX}
+              y1={svgHeight / 2}
+              x2={svgWidth - paddingX}
+              y2={svgHeight / 2}
+              stroke="rgba(255,255,255,0.05)"
+              strokeDasharray="3 3"
+            />
+            <line
+              x1={paddingX}
+              y1={svgHeight - paddingY}
+              x2={svgWidth - paddingX}
+              y2={svgHeight - paddingY}
+              stroke="rgba(255,255,255,0.05)"
+              strokeDasharray="3 3"
+            />
 
             {/* Area Fill */}
             <path d={chartData.areaD} fill="url(#areaGradient)" />
@@ -241,19 +277,19 @@ export default function CurrencyChart({
         <div className="bg-white/[0.02] p-2.5 rounded-xl border border-white/[0.04]">
           <p className="text-[11px] text-white/40 mb-0.5">Lowest</p>
           <p className="text-xs font-mono font-semibold text-white/90">
-            {stats.min.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })}
+            {stats.min.toLocaleString("uz-UZ", { maximumFractionDigits: 4 })}
           </p>
         </div>
         <div className="bg-white/[0.02] p-2.5 rounded-xl border border-white/[0.04]">
           <p className="text-[11px] text-white/40 mb-0.5">Average</p>
           <p className="text-xs font-mono font-semibold text-white/90">
-            {stats.avg.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })}
+            {stats.avg.toLocaleString("uz-UZ", { maximumFractionDigits: 4 })}
           </p>
         </div>
         <div className="bg-white/[0.02] p-2.5 rounded-xl border border-white/[0.04]">
           <p className="text-[11px] text-white/40 mb-0.5">The highest</p>
           <p className="text-xs font-mono font-semibold text-white/90">
-            {stats.max.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })}
+            {stats.max.toLocaleString("uz-UZ", { maximumFractionDigits: 4 })}
           </p>
         </div>
       </div>

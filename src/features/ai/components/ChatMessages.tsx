@@ -51,7 +51,27 @@ export default function ChatMessages({
                     : "group max-w-[85%] px-1 py-2 text-sm leading-relaxed text-white/80"
                 }
               >
-                <MarkdownContent content={message.content} />
+                {typeof message.content === "string" ? (
+                  <MarkdownContent content={message.content} />
+                ) : (
+                  <div className="space-y-2">
+                    {message.content.map((part, partIndex) =>
+                      part.type === "image_url" ? (
+                        <img
+                          key={`${message.id ?? index}-image-${partIndex}`}
+                          src={part.image_url.url}
+                          alt="Attached image"
+                          className="max-h-72 max-w-full rounded-xl border border-white/[0.08] object-contain"
+                        />
+                      ) : (
+                        <MarkdownContent
+                          key={`${message.id ?? index}-text-${partIndex}`}
+                          content={part.text}
+                        />
+                      ),
+                    )}
+                  </div>
+                )}
                 {message.model && (
                   <p className="mt-2 text-[10px] text-white/30">
                     {models.find((model) => model.id === message.model)?.name ??

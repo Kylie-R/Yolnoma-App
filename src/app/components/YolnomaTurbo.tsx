@@ -113,6 +113,7 @@ export default function YolnomaTurbo() {
     "standard" | "loading" | null
   >(null);
   const [showRouteLoadingPreview, setShowRouteLoadingPreview] = useState(false);
+  const [showLoginPreview, setShowLoginPreview] = useState(false);
 
   // Turbo store state
   const {
@@ -134,6 +135,9 @@ export default function YolnomaTurbo() {
     reset: resetUpdaterPreview,
     devPreview,
     modalOpen,
+    fullscreenOpen,
+    changelogOpen,
+    previewChangelog,
   } = useUpdaterStore();
 
   const dragRef = useRef<{
@@ -151,6 +155,7 @@ export default function YolnomaTurbo() {
     const closeOtherPreviews = () => {
       setShowRouteLoadingPreview(false);
       setSplashPreview(null);
+      setShowLoginPreview(false);
     };
     window.addEventListener("yolnoma:close-all-previews", closeOtherPreviews);
     return () =>
@@ -251,7 +256,7 @@ export default function YolnomaTurbo() {
   };
 
   const handleToggleUpdater = () => {
-    if (devPreview && modalOpen) resetUpdaterPreview();
+    if (devPreview && (modalOpen || fullscreenOpen)) resetUpdaterPreview();
     else {
       window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
       previewUpdate();
@@ -259,10 +264,15 @@ export default function YolnomaTurbo() {
   };
 
   const handleToggleUpdaterStage = (stage: DevPreviewStage) => {
-    if (devPreview && modalOpen) resetUpdaterPreview();
+    window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
+    previewUpdaterStage(stage);
+  };
+
+  const handlePreviewChangelog = () => {
+    if (changelogOpen) resetUpdaterPreview();
     else {
       window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
-      previewUpdaterStage(stage);
+      previewChangelog();
     }
   };
 
@@ -275,6 +285,12 @@ export default function YolnomaTurbo() {
   const handleCloseRouteLoading = () => {
     setShowRouteLoadingPreview(false);
     window.dispatchEvent(new CustomEvent("yolnoma:hide-route-loading"));
+  };
+
+  const handlePreviewLogin = () => {
+    window.dispatchEvent(new CustomEvent("yolnoma:close-all-previews"));
+    setShowLoginPreview(true);
+    window.dispatchEvent(new CustomEvent("yolnoma:preview-login"));
   };
 
   // Quick Action triggers
@@ -1229,9 +1245,9 @@ export default function YolnomaTurbo() {
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono">
                   Auto-Updater Previews
                 </span>
-                {devPreview && modalOpen && (
+                {devPreview && (modalOpen || fullscreenOpen) && (
                   <span className="text-[10px] text-[#D97757] font-medium">
-                    Modal Active
+                    {fullscreenOpen ? "Fullscreen Active" : "Modal Active"}
                   </span>
                 )}
               </div>
@@ -1242,7 +1258,7 @@ export default function YolnomaTurbo() {
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D97757] to-[#e0896b] px-3 py-2.5 text-xs font-semibold text-white shadow-lg shadow-[#D97757]/20 transition hover:brightness-110"
               >
                 <Play size={13} />
-                {devPreview && modalOpen
+                {devPreview && (modalOpen || fullscreenOpen)
                   ? "Close Updater Preview"
                   : "Preview Complete Update Flow"}
               </button>
@@ -1264,6 +1280,21 @@ export default function YolnomaTurbo() {
                   ))}
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handlePreviewChangelog}
+                className={`w-full flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${
+                  changelogOpen
+                    ? "border-[#D97757] bg-[#D97757]/20 text-white"
+                    : "border-white/10 bg-white/[0.04] text-white/80 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                <Check size={13} />
+                {changelogOpen
+                  ? "Close Changelog Preview"
+                  : "Preview Changelog"}
+              </button>
             </div>
 
             {/* Route Loading Fallback Preview */}
@@ -1288,6 +1319,43 @@ export default function YolnomaTurbo() {
                 {showRouteLoadingPreview
                   ? "Close Lazy Load Preview"
                   : "Preview Route Loading Fallback"}
+              </button>
+            </div>
+
+            {/* Login UI Preview */}
+            <div className="rounded-xl border border-white/[0.08] bg-black/30 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono">
+                  Authentication UI Preview
+                </span>
+                {showLoginPreview && (
+                  <span className="text-[10px] text-[#D97757] font-medium">
+                    Preview Active
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] leading-relaxed text-white/40">
+                Opens the login screen without changing the current route or
+                contacting the authentication service.
+              </p>
+              <button
+                type="button"
+                onClick={
+                  showLoginPreview
+                    ? () =>
+                        window.dispatchEvent(
+                          new CustomEvent("yolnoma:close-all-previews"),
+                        )
+                    : handlePreviewLogin
+                }
+                className={`w-full flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition ${
+                  showLoginPreview
+                    ? "border-[#D97757] bg-[#D97757]/20 text-white"
+                    : "border-white/10 bg-white/[0.04] text-white/80 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                <Globe size={13} />
+                {showLoginPreview ? "Close Login Preview" : "Preview Login UI"}
               </button>
             </div>
           </div>

@@ -228,6 +228,7 @@ pub fn run() {
             domains::account::clear_api_key,
             commands::proxy::proxy_request,
             commands::proxy::proxy_ep,
+            commands::proxy::inspect_http_headers,
             commands::windows::open_in_new_window,
             commands::windows::open_agent_window,
             // ── YouTube Video Downloader ──
@@ -246,6 +247,9 @@ pub fn run() {
             commands::plugins::read_plugin_source,
             // ── System Monitoring ──
             domains::system::get_system_stats,
+            // ── Windows Startup Apps ──
+            domains::startup::list_startup_apps,
+            domains::startup::set_startup_app_enabled,
             // ── Cleaner ──
             domains::cleaner::run_cleaner,
             // ── Crosshair Overlay ──

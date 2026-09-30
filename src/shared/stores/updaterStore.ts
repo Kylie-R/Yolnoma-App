@@ -1,9 +1,8 @@
 /**
- * updaterStore — Global auto-updater state & service for Tauri 2.
+ * Global Tauri updater state and lifecycle.
  *
- * The install path intentionally separates volatile runtime cleanup from account
- * authentication. It stops idling/SteamUtility processes before installation but
- * never clears auth tokens, account config, encrypted API keys, or user sessions.
+ * The updater engine remains Tauri's signed updater. This store only coordinates
+ * the compact prompt, fullscreen progress view, and post-restart changelog.
  */
 
 import { create } from "zustand";
@@ -13,6 +12,11 @@ import { relaunch } from "@tauri-apps/plugin-process";
 import { getVersion } from "@tauri-apps/api/app";
 import { toast } from "@/shared/ui/Toast";
 import { getErrorMessage, reportError } from "@/shared/lib/errors";
+import {
+  getChangelogEntry,
+  getLatestChangelogEntry,
+  type ChangelogEntry,
+} from "@/shared/lib/changelog";
 
 export type UpdateStatus =
   | "idle"
@@ -53,41 +57,50 @@ interface UpdaterState {
   totalBytes: number | null;
   error: string | null;
   modalOpen: boolean;
+  fullscreenOpen: boolean;
+  changelogOpen: boolean;
+  changelogEntry: ChangelogEntry | null;
   lastChecked: Date | null;
   devPreview: boolean;
 
   checkForUpdates: (options?: { silent?: boolean }) => Promise<boolean>;
+  checkForSuccessfulUpdate: () => Promise<boolean>;
   downloadAndInstall: () => Promise<void>;
   openModal: () => void;
   closeModal: () => void;
+  closeFullscreen: () => void;
+  closeChangelog: () => void;
   previewUpdate: () => void;
   previewUpdaterStage: (stage: DevPreviewStage) => void;
+  previewChangelog: () => void;
   reset: () => void;
 }
 
 const FAILED_TARGET_KEY = "yolnoma.updater.failed-target";
+const PENDING_SUCCESS_KEY = "yolnoma.updater.pending-success";
+const SEEN_CHANGELOG_KEY = "yolnoma.updater.seen-changelog";
 
-function getFailedTarget(): string | null {
+function getStorageValue(key: string): string | null {
   try {
-    return localStorage.getItem(FAILED_TARGET_KEY);
+    return localStorage.getItem(key);
   } catch {
     return null;
   }
 }
 
-function setFailedTarget(version: string): void {
+function setStorageValue(key: string, value: string): void {
   try {
-    localStorage.setItem(FAILED_TARGET_KEY, version);
+    localStorage.setItem(key, value);
   } catch {
-    // localStorage unavailable in tests or restricted webviews — ignore.
+    // Storage can be unavailable in restricted test webviews.
   }
 }
 
-function clearFailedTarget(): void {
+function removeStorageValue(key: string): void {
   try {
-    localStorage.removeItem(FAILED_TARGET_KEY);
+    localStorage.removeItem(key);
   } catch {
-    // Ignore unavailable storage.
+    // Storage can be unavailable in restricted test webviews.
   }
 }
 
@@ -99,7 +112,7 @@ const DEV_UPDATE_INFO: UpdateInfo = {
   version: "1.0.24-preview",
   currentVersion: "1.0.23",
   date: "2026-09-22",
-  body: "Preview mode: test the complete updater animation, safe preparation steps, download progress, and relaunch confirmation without installing anything.",
+  body: "Preview mode: test the updater experience without installing anything.",
 };
 
 const wait = (milliseconds: number) =>
@@ -113,6 +126,9 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
   totalBytes: null,
   error: null,
   modalOpen: false,
+  fullscreenOpen: false,
+  changelogOpen: false,
+  changelogEntry: null,
   lastChecked: null,
   devPreview: false,
 
@@ -170,15 +186,16 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
       return false;
     }
 
-    const failedTarget = getFailedTarget();
-    if (failedTarget && failedTarget === currentVersion) clearFailedTarget();
+    const failedTarget = getStorageValue(FAILED_TARGET_KEY);
+    if (failedTarget && failedTarget === currentVersion)
+      removeStorageValue(FAILED_TARGET_KEY);
 
     try {
       const update = await check();
       set({ lastChecked: new Date() });
 
       if (update && update.available) {
-        const currentFailedTarget = getFailedTarget();
+        const currentFailedTarget = getStorageValue(FAILED_TARGET_KEY);
         if (currentFailedTarget && update.version === currentFailedTarget) {
           activeUpdate = null;
           const skipMsg = `Update to v${update.version} previously failed. It will not be offered again until a newer version is released.`;
@@ -198,11 +215,10 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
             version: update.version,
             currentVersion,
             date: update.date,
-            body:
-              update.body ||
-              "Bug fixes, performance improvements, and security updates.",
+            body: update.body,
           },
           modalOpen: true,
+          fullscreenOpen: false,
           error: null,
         });
         isChecking = false;
@@ -225,6 +241,35 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
     }
   },
 
+  checkForSuccessfulUpdate: async () => {
+    if (import.meta.env.DEV) return false;
+    const pendingVersion = getStorageValue(PENDING_SUCCESS_KEY);
+    if (!pendingVersion) return false;
+
+    try {
+      const currentVersion = await getVersion();
+      if (currentVersion !== pendingVersion) return false;
+      removeStorageValue(PENDING_SUCCESS_KEY);
+      if (getStorageValue(SEEN_CHANGELOG_KEY) === currentVersion) return false;
+
+      const entry = getChangelogEntry(currentVersion);
+      if (!entry) {
+        reportError(
+          "AutoUpdater:Changelog",
+          new Error(
+            `Changelog entry for version ${currentVersion} is missing.`,
+          ),
+        );
+        return false;
+      }
+      set({ changelogEntry: entry, changelogOpen: true });
+      return true;
+    } catch (err: unknown) {
+      reportError("AutoUpdater:SuccessfulUpdate", err);
+      return false;
+    }
+  },
+
   downloadAndInstall: async () => {
     const { status } = get();
     if (
@@ -237,7 +282,13 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
 
     if (get().devPreview) {
       isInstalling = true;
-      set({ status: "preparing", progress: 0, error: null, modalOpen: true });
+      set({
+        status: "preparing",
+        progress: 0,
+        error: null,
+        modalOpen: false,
+        fullscreenOpen: true,
+      });
       await wait(900);
       set({ status: "downloading", progress: 8 });
       for (const progress of [22, 44, 67, 88, 100]) {
@@ -265,21 +316,15 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
       downloadedBytes: 0,
       totalBytes: null,
       error: null,
-      modalOpen: true,
+      modalOpen: false,
+      fullscreenOpen: true,
     });
 
     try {
-      // This command drains only volatile idling/helper processes. It does not
-      // clear auth/session storage, so the user remains signed in after relaunch.
       const preparation = await invoke<UpdatePreparation>("prepare_for_update");
-      console.info("[AutoUpdater:Preparation]", {
-        stoppedIdlingGames: preparation.stoppedIdlingGames,
-        killedSteamUtilityProcesses: preparation.killedSteamUtilityProcesses,
-      });
+      console.info("[AutoUpdater:Preparation]", preparation);
 
-      // Record the target only after runtime cleanup succeeds. A cleanup failure
-      // must not poison the retry guard for an update that was never downloaded.
-      setFailedTarget(activeUpdate.version);
+      setStorageValue(FAILED_TARGET_KEY, activeUpdate.version);
       set({ status: "downloading" });
 
       let downloaded = 0;
@@ -307,8 +352,9 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
         }
       });
 
+      setStorageValue(PENDING_SUCCESS_KEY, activeUpdate.version);
       set({ status: "complete", progress: 100 });
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      await wait(900);
       await relaunch();
     } catch (err: unknown) {
       reportError("AutoUpdater:Download", err);
@@ -317,12 +363,12 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
         "Failed to prepare, download, or install the update.",
       );
       isInstalling = false;
-      set({ status: "error", error: msg, modalOpen: true });
+      set({ status: "error", error: msg, fullscreenOpen: true });
       toast.error(msg);
     }
   },
 
-  openModal: () => set({ modalOpen: true }),
+  openModal: () => set({ modalOpen: true, fullscreenOpen: false }),
   closeModal: () => {
     const { status } = get();
     if (
@@ -333,6 +379,22 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
     )
       return;
     set({ modalOpen: false });
+  },
+  closeFullscreen: () => {
+    const { status } = get();
+    if (
+      status === "preparing" ||
+      status === "downloading" ||
+      status === "installing" ||
+      status === "complete"
+    )
+      return;
+    set({ fullscreenOpen: false, modalOpen: status === "error" });
+  },
+  closeChangelog: () => {
+    const entry = get().changelogEntry;
+    if (entry) setStorageValue(SEEN_CHANGELOG_KEY, entry.version);
+    set({ changelogOpen: false });
   },
 
   previewUpdate: () => {
@@ -347,6 +409,8 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
       totalBytes: 128 * 1024 * 1024,
       error: null,
       modalOpen: true,
+      fullscreenOpen: false,
+      changelogOpen: false,
     });
   },
 
@@ -356,7 +420,8 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
       devPreview: true,
       status: stage,
       updateInfo: DEV_UPDATE_INFO,
-      modalOpen: true,
+      modalOpen: stage === "update-available",
+      fullscreenOpen: stage !== "update-available",
       error:
         stage === "error"
           ? "Preview error: the signed package could not be applied. You can safely retry."
@@ -368,6 +433,12 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
             ? 100
             : 0,
     });
+  },
+
+  previewChangelog: () => {
+    if (!import.meta.env.DEV) return;
+    const entry = getLatestChangelogEntry();
+    if (entry) set({ changelogEntry: entry, changelogOpen: true });
   },
 
   reset: () => {
@@ -382,6 +453,9 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
       totalBytes: null,
       error: null,
       modalOpen: false,
+      fullscreenOpen: false,
+      changelogOpen: false,
+      changelogEntry: null,
       devPreview: false,
     });
   },

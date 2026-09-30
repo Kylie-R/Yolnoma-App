@@ -12,11 +12,13 @@ import {
   ImageIcon,
   GitBranch,
   Radar,
+  Network,
   Sparkles,
   Wrench,
   WandSparkles,
   Palette,
   Trees,
+  Rocket,
 } from "lucide-react";
 import ViIcon from "@/assets/VI.svg";
 import { isAndroidApp } from "@/shared/lib/platform";
@@ -87,10 +89,10 @@ const PerformancePage = lazyPage(
   () => import("@/features/performance/pages/PerformancePage"),
 );
 const SteamIdlerPage = lazyPage(
-  () => import("@/features/steam-idler/pages/SteamIdlerPage"),
+  () => import("@/features/steam/idler/pages/SteamIdlerPage"),
 );
 const SteamSamPage = lazyPage(
-  () => import("@/features/steam-sam/pages/SteamSamPage"),
+  () => import("@/features/steam/sam/pages/SteamSamPage"),
 );
 const UsersPage = lazyPage(() => import("@/features/users/pages/UsersPage"));
 const VideoDetailPage = lazyPage(
@@ -101,7 +103,7 @@ const CleanerPage = lazyPage(
   () => import("@/features/cleaner/pages/CleanerPage"),
 );
 const VideoDownloader = lazyPage(() =>
-  import("@/features/yt-video-downloader/pages/YTVideoDownloader").then(
+  import("@/features/videos/downloader/YTVideoDownloader").then(
     ({ VideoDownloader }) => ({
       default: VideoDownloader,
     }),
@@ -117,14 +119,14 @@ const ImagePage = lazyPage(() => import("@/features/image/pages/ImagePage"));
 const PortScannerPage = lazyPage(
   () => import("@/features/port-scanner/pages/PortScannerPage"),
 );
+const DnsRecordsPage = lazyPage(
+  () => import("@/features/dns-records/pages/DnsRecordsPage"),
+);
 const ArchiveExplorerPage = lazyPage(
   () => import("@/features/archive-explorer/pages/ArchiveExplorerPage"),
 );
 const AiChatPage = lazyPage(() => import("@/features/ai/pages/AiChatPage"));
 const AiAgentPage = lazyPage(() => import("@/features/ai/pages/AiAgentPage"));
-const CodebaseAgentPage = lazyPage(
-  () => import("@/features/ai/pages/CodebaseAgentPage"),
-);
 const ViCountdown = lazyPage(() => import("@/features/vi/pages/ViCountdown"));
 const World3DPage = lazyPage(
   () => import("@/features/world3d/pages/World3DPage"),
@@ -133,12 +135,15 @@ const DeveloperToolsPage = lazyPage(
   () => import("@/features/developer-tools/pages/DeveloperToolsPage"),
 );
 const AiToolsPage = lazyPage(
-  () => import("@/features/ai-tools/pages/AiToolsPage"),
+  () => import("@/features/ai/tools/pages/AiToolsPage"),
 );
 const CssToolsPage = lazyPage(
   () => import("@/features/css-tools/pages/CssToolsPage"),
 );
 const GitPage = lazyPage(() => import("@/features/git/pages/GitPage"));
+const StartupPage = lazyPage(
+  () => import("@/features/startup/pages/StartUpAppsPage"),
+);
 const FeedbackPage = lazyPage(
   () => import("@/features/feedback/pages/FeedbackPage"),
 );
@@ -167,15 +172,6 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     component: AiAgentPage,
     status: "dev",
     label: "Yolnoma Agent",
-    icon: Bot,
-    navGroup: "home",
-  },
-  {
-    id: "codebase-agent",
-    path: "/codebase-agent",
-    component: CodebaseAgentPage,
-    status: "dev",
-    label: "Codebase Agent",
     icon: Bot,
     navGroup: "home",
   },
@@ -334,6 +330,17 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     pinnable: true,
   },
   {
+    id: "dns-records",
+    path: "/tools/dns-records",
+    component: DnsRecordsPage,
+    mobile: true,
+    label: "DNS Records",
+    description: "Lookup & inspect domain DNS records",
+    icon: Network,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
     id: "archive-explorer",
     path: "/tools/archive-explorer",
     component: ArchiveExplorerPage,
@@ -343,13 +350,24 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     navGroup: "tools",
     pinnable: true,
   },
+  // {
+  //   id: "ai-chat",
+  //   path: "/tools/ai-chat",
+  //   component: AiChatPage,
+  //   mobile: true,
+  //   label: "AI Chat",
+  //   description: "Chat with OpenRouter models",
+  //   icon: Bot,
+  //   navGroup: "tools",
+  //   pinnable: true,
+  // },
   {
-    id: "ai-chat",
-    path: "/tools/ai-chat",
+    id: "ai-chat-2b-model",
+    path: "/tools/ai-chat-2b-model",
     component: AiChatPage,
     mobile: true,
-    label: "AI Chat",
-    description: "Chat with OpenRouter models",
+    label: "AI Chat: 2B_MODEL",
+    description: "Chat with text and image vision input",
     icon: Bot,
     navGroup: "tools",
     pinnable: true,
@@ -459,6 +477,16 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     pinnable: true,
   },
   {
+    id: "start-up-apps",
+    path: "/tools/startup",
+    component: StartupPage,
+    label: "Start Up Apps",
+    description: "Manage programs that run at system startup.",
+    icon: Rocket,
+    navGroup: "tools",
+    pinnable: true,
+  },
+  {
     id: "world-3d",
     path: "/tools/world-3d",
     component: World3DPage,
@@ -481,10 +509,13 @@ export const getNavigationRoutes = () =>
   ROUTE_CONFIG.filter(
     (route) => visibleOnCurrentPlatform(route) && route.label && route.navGroup,
   );
+
 export const getToolRoutes = () =>
   ROUTE_CONFIG.filter(
     (route) =>
       visibleOnCurrentPlatform(route) &&
-      route.navGroup === "tools" &&
+      (route.navGroup === "tools" ||
+        route.navGroup === "steam" ||
+        route.pinnable) &&
       route.description,
   );

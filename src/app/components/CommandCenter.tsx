@@ -9,9 +9,11 @@ import {
   GitBranch,
   History,
   Keyboard,
+  ListTree,
   PanelLeftClose,
   RotateCw,
   Search,
+  ShieldCheck,
   Sparkles,
   UploadCloud,
   Wrench,
@@ -98,6 +100,34 @@ const ACTION_ITEMS: CommandItem[] = [
 ];
 
 const WORKSPACE_ITEMS: CommandItem[] = [
+  // {
+  //   id: "dns-records-lookup",
+  //   label: "DNS Records · DNS Lookup",
+  //   description: "Inspect DNS records, resolvers, and DNS security details",
+  //   path: "/tools/dns-records?tab=dns-lookup",
+  //   group: "Workspace",
+  //   icon: Network,
+  //   keywords: "dns records lookup resolver doh nameserver network",
+  // },
+  {
+    id: "dns-records-subdomains",
+    label: "DNS Records · Subdomain Finder",
+    description:
+      "Discover active subdomains and visualize domain relationships",
+    path: "/tools/dns-records?tab=subdomains",
+    group: "Workspace",
+    icon: ListTree,
+    keywords: "dns subdomain finder discover domain topology relationships",
+  },
+  {
+    id: "dns-records-security-audit",
+    label: "DNS Records · SSL Score & Headers",
+    description: "Inspect SSL health and HTTP security response headers",
+    path: "/tools/dns-records?tab=security-audit",
+    group: "Workspace",
+    icon: ShieldCheck,
+    keywords: "dns ssl tls certificate https headers security audit score",
+  },
   {
     id: "git-commit-generator",
     label: "Git · Commit Generator",
