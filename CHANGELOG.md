@@ -2,6 +2,18 @@
 
 All notable Yolnoma releases are documented here. This file is the source of truth for updater release notes.
 
+## [1.2.5] - 2026-09-30
+
+### Improved
+
+- Redesigned the Navbar language switcher into a compact, elegant dropdown matching navbar dimensions with a globe indicator and smooth backdrop blur.
+- (dev)Added smooth freeform dragging and position persistence to Yolnoma Turbo compact floating button.
+
+### Fixed
+
+- Resolved `useNavigate` Router context missing error during Turbo Login UI preview by moving `HashRouter` to the top-level application providers.
+- Disabled context menu and page reload shortcuts (`Ctrl+R`, `F5`, `Cmd+R`) during fullscreen updates to prevent interrupting update installations.
+
 ## [1.2.4] - 2026-09-30
 
 ### Added
