@@ -1,0 +1,71 @@
+{
+  "navigation": {
+    "groups": {
+      "home": "Home",
+      "workspace": "Workspace",
+      "tools": "Tools",
+      "steam": "Steam",
+      "plugins": "Plugins"
+    },
+    "routes": {
+      "dashboard": "Dashboard",
+      "agent": "Yolnoma Agent",
+      "performances": "Performance",
+      "videos": "Stream",
+      "users": "Users",
+      "profile": "Profile",
+      "settings": "Settings",
+      "marketplace": "Marketplace",
+      "feedback": "Ideas & Bugs",
+      "currency": "Currency Converter",
+      "bg-remover": "Background Remover",
+      "steam-idler": "Steam / Idler",
+      "image": "Image",
+      "video-downloader": "YT Video Downloader",
+      "port-scanner": "Port Scanner",
+      "dns-records": "DNS Records",
+      "archive-explorer": "Archive Explorer",
+      "ai-chat-2b-model": "AI Chat: 2B_MODEL",
+      "cleaner": "Cleaner",
+      "crosshair-overlay": "Crosshair Overlay",
+      "vi": "VI COUNTDOWN",
+      "steam-sam": "Steam / SAM",
+      "steam-review": "Steam / Review",
+      "developer-tools": "Developer Tools",
+      "ai-tools": "AI Tools",
+      "json-viewer": "JSON EDIT/VIEW",
+      "css-tools": "CSS Tools",
+      "git": "Git",
+      "start-up-apps": "Start Up Apps",
+      "world-3d": "Yolnoma World"
+    }
+  },
+  "sidebar": {
+    "brandEdition": "ULTIMATE EDITION",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar",
+    "signOut": "Sign out",
+    "signOutTitle": "Sign Out",
+    "signOutDescription": "Are you sure you want to sign out of your account? You will need to sign in again to access your workspace.",
+    "cancel": "Cancel",
+    "addToDashboard": "Add {{label}} to Dashboard",
+    "removeFromDashboard": "Remove {{label}} from Dashboard",
+    "keyboardShortcuts": "Keyboard Shortcuts (Ctrl + /)",
+    "resize": "Drag to resize sidebar"
+  },
+  "navbar": {
+    "back": "Return to the previous page",
+    "forward": "Go to the next page",
+    "refresh": "Reload the page",
+    "copyUrl": "Copies the URL when clicked",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "refreshing": "Refreshing...",
+    "settings": "Profile and Settings",
+    "language": "Language"
+  },
+  "language": {
+    "english": "English",
+    "russian": "Русский"
+  }
+}

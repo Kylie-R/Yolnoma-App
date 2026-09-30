@@ -51,6 +51,8 @@ pub struct AccountConfig {
     /// Persisted schema version; missing values are treated as the original format.
     #[serde(default = "default_schema_version")]
     pub schema_version: u32,
+    #[serde(default = "default_language")]
+    pub language: String,
     #[serde(default)]
     pub system_monitoring: bool,
     #[serde(default)]
@@ -65,10 +67,15 @@ fn default_schema_version() -> u32 {
     CURRENT_SCHEMA_VERSION
 }
 
+fn default_language() -> String {
+    "en".to_string()
+}
+
 impl Default for AccountConfig {
     fn default() -> Self {
         AccountConfig {
             schema_version: CURRENT_SCHEMA_VERSION,
+            language: default_language(),
             system_monitoring: false,
             saved_tools: vec![],
             weather_location: None,

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,22 +9,25 @@ import {
   ShieldCheck,
   Globe,
   Settings,
-} from 'lucide-react';
-import { useAuth } from '@/features/auth/AuthContext';
+} from "lucide-react";
+import { useAuth } from "@/features/auth/AuthContext";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/shared/ui/LanguageSwitcher";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation("common");
 
   const [copied, setCopied] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Clean path formatting for yolnoma:// URL
-  const cleanPath = location.pathname.startsWith('/')
+  const cleanPath = location.pathname.startsWith("/")
     ? location.pathname.slice(1)
     : location.pathname;
-  const currentAppUrl = `yolnoma://app/${cleanPath || 'dashboard'}${location.search}`;
+  const currentAppUrl = `yolnoma://app/${cleanPath || "dashboard"}${location.search}`;
 
   const handleCopyUrl = async () => {
     try {
@@ -33,11 +36,11 @@ export default function Navbar() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback
-      const textarea = document.createElement('textarea');
+      const textarea = document.createElement("textarea");
       textarea.value = currentAppUrl;
       document.body.appendChild(textarea);
       textarea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textarea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -55,7 +58,7 @@ export default function Navbar() {
   return (
     <header
       className="h-14 shrink-0 border-b px-4 sm:px-6 flex items-center justify-between gap-4 select-none relative z-20 backdrop-blur-md bg-[#14110E]/85"
-      style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}
+      style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}
     >
       {/* Left: Navigation controls (Steam style) */}
       <div className="flex items-center gap-1.5 shrink-0">
@@ -63,8 +66,8 @@ export default function Navbar() {
           type="button"
           onClick={() => navigate(-1)}
           className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-          title="Return to the previous page"
-          aria-label="Back"
+          title={t("navbar.back")}
+          aria-label={t("navbar.back")}
         >
           <ChevronLeft size={16} strokeWidth={2} />
         </button>
@@ -73,8 +76,8 @@ export default function Navbar() {
           type="button"
           onClick={() => navigate(1)}
           className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-          title="Go to the next page"
-          aria-label="Forward"
+          title={t("navbar.forward")}
+          aria-label={t("navbar.forward")}
         >
           <ChevronRight size={16} strokeWidth={2} />
         </button>
@@ -85,13 +88,17 @@ export default function Navbar() {
           disabled={isRefreshing}
           className={`p-1.5 rounded-lg transition-all ${
             isRefreshing
-              ? 'text-[var(--accent)] bg-white/[0.08] cursor-wait'
-              : 'text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1]'
+              ? "text-[var(--accent)] bg-white/[0.08] cursor-wait"
+              : "text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1]"
           }`}
-          title={isRefreshing ? 'Yangilanmoqda...' : 'Reload the page'}
-          aria-label="Refresh"
+          title={isRefreshing ? t("navbar.refreshing") : t("navbar.refresh")}
+          aria-label={t("navbar.refresh")}
         >
-          <RotateCw size={14} strokeWidth={2} className={isRefreshing ? 'animate-spin' : ''} />
+          <RotateCw
+            size={14}
+            strokeWidth={2}
+            className={isRefreshing ? "animate-spin" : ""}
+          />
         </button>
       </div>
 
@@ -101,7 +108,7 @@ export default function Navbar() {
           onClick={handleCopyUrl}
           role="button"
           tabIndex={0}
-          title="Copies the URL when clicked"
+          title={t("navbar.copyUrl")}
           className="group relative flex items-center justify-between gap-2.5 px-3 py-1.5 rounded-lg
                      bg-[#181411] border border-white/[0.07] hover:border-[#D97757]/40 hover:bg-[#1c1713]
                      transition-all duration-200 cursor-pointer shadow-inner"
@@ -113,7 +120,7 @@ export default function Navbar() {
               yolnoma://
             </span>
             <span className="text-white/80 truncate">
-              app/{cleanPath || 'dashboard'}
+              app/{cleanPath || "dashboard"}
             </span>
             {location.search && (
               <span className="text-[#D97757]/90 font-medium truncate">
@@ -127,12 +134,12 @@ export default function Navbar() {
             {copied ? (
               <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-sans font-medium">
                 <Check size={12} strokeWidth={2.5} />
-                Copied!
+                {t("navbar.copied")}
               </span>
             ) : (
               <span className="flex items-center gap-1 text-[11px] text-white/40 group-hover:text-white/80 font-sans transition-colors">
                 <Copy size={11} strokeWidth={2} />
-                <span className="hidden sm:inline">Copy</span>
+                <span className="hidden sm:inline">{t("navbar.copy")}</span>
               </span>
             )}
           </div>
@@ -142,17 +149,17 @@ export default function Navbar() {
       {/* Right: Role & Status */}
       <div className="flex items-center gap-3 shrink-0">
         {/* Role Badge */}
-        {user?.role === 'owner' ? (
+        {user?.role === "owner" ? (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#D97757]/15 border border-[#D97757]/30 text-[#D97757] text-xs font-semibold">
             <ShieldCheck size={13} strokeWidth={2.5} />
             <span>OWNER</span>
           </div>
-        ) : user?.role === 'admin' ? (
+        ) : user?.role === "admin" ? (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
             <ShieldCheck size={13} strokeWidth={2.5} />
             <span>ADMIN</span>
           </div>
-        ) : user?.role === 'tester' ? (
+        ) : user?.role === "tester" ? (
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold">
             <span>TESTER</span>
           </div>
@@ -172,11 +179,13 @@ export default function Navbar() {
           <RefreshCw className={updaterStatus === 'checking' ? 'animate-spin text-[#D97757]' : ''} size={13} />
         </button> */}
 
+        <LanguageSwitcher />
         <button
           type="button"
-          onClick={() => navigate('/settings')}
+          onClick={() => navigate("/settings")}
           className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] transition-colors"
-          title="Profile and Settings"
+          title={t("navbar.settings")}
+          aria-label={t("navbar.settings")}
         >
           <Settings size={15} strokeWidth={1.75} />
         </button>

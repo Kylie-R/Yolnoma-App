@@ -1,0 +1,15 @@
+{
+  "defaultLanguage": "en",
+  "supportedLanguages": [
+    {
+      "code": "en",
+      "label": "English",
+      "nativeLabel": "English"
+    },
+    {
+      "code": "ru",
+      "label": "Russian",
+      "nativeLabel": "Русский"
+    }
+  ]
+}

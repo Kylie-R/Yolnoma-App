@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "@/shared/i18n";
 import App from "./app/App";
 import { AppErrorBoundary } from "./app/components/AppErrorBoundary";
 import { AppProviders } from "./app/providers/AppProviders";
