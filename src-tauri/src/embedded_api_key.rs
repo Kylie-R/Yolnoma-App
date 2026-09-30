@@ -1,7 +1,3 @@
-/// Build vaqtida STEAM_API_KEY env var-dan olingan key-ni
-/// binary ichiga obfuskatsiya qilib embed qiladi.
-/// Foydalanuvchidan key so'ramaymiz — shu yerda yashiringan.
-
 const SEED: [u8; 32] = [
     0x1c, 0x4e, 0x8a, 0x2d, 0x91, 0x63, 0xf7, 0x0b, 0x5a, 0xd2, 0x39, 0x76, 0xbe, 0x14, 0xc8, 0x5f,
     0xa3, 0x67, 0xe1, 0x0d, 0x92, 0x4b, 0x7c, 0x38, 0xd6, 0x29, 0xf4, 0x83, 0x1a, 0x6e, 0xc5, 0x50,
@@ -44,8 +40,6 @@ const fn obfuscate(api_key: &str) -> ([u8; 64], usize) {
     (out, len)
 }
 
-/// Build vaqtida embed qilingan API key-ni qaytaradi.
-/// Agar build `STEAM_API_KEY` env var bilan qilinmagan bo'lsa — `None`.
 pub fn decode() -> Option<String> {
     const OBFUSCATED: ([u8; 64], usize) = match option_env!("STEAM_API_KEY") {
         Some(key) => obfuscate(key),
@@ -69,7 +63,6 @@ fn decode_obfuscated(obfuscated: ([u8; 64], usize)) -> Option<String> {
     Some(String::from_utf8_lossy(&decoded).to_string())
 }
 
-// Generates a referer based on the same host as the index mapping in the frontend.
 pub fn referer() -> Result<String, String> {
     const OBFUSCATED: ([u8; 64], usize) = match option_env!("VITE_ABC_KEY") {
         Some(key) => obfuscate(key),

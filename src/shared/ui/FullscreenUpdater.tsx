@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AlertCircle, X } from "lucide-react";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import Button from "./Button";
@@ -12,6 +13,40 @@ export default function FullscreenUpdater() {
     closeFullscreen,
     downloadAndInstall,
   } = useUpdaterStore();
+
+  useEffect(() => {
+    if (!fullscreenOpen) return;
+
+    // Blocking the context menu (right mouse button)
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    };
+
+    // Block page reloading (Ctrl+R, Cmd+R, F5, Ctrl+F5, Ctrl+Shift+R)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isRefresh =
+        e.key === "F5" ||
+        ((e.ctrlKey || e.metaKey) && (e.key === "r" || e.key === "R"));
+
+      if (isRefresh) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    };
+
+    window.addEventListener("contextmenu", handleContextMenu, {
+      capture: true,
+    });
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+
+    return () => {
+      window.removeEventListener("contextmenu", handleContextMenu, {
+        capture: true,
+      });
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+    };
+  }, [fullscreenOpen]);
 
   if (!fullscreenOpen) return null;
 

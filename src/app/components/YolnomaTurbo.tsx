@@ -146,6 +146,7 @@ export default function YolnomaTurbo() {
     x: number;
     y: number;
   } | null>(null);
+  const hasMovedRef = useRef(false);
 
   useEffect(() => {
     saveState(mode, compact, custom);
@@ -166,6 +167,9 @@ export default function YolnomaTurbo() {
   }, []);
 
   const getPositionStyle = useCallback((): React.CSSProperties => {
+    const width = compact ? COMPACT_SIZE : PANEL_WIDTH;
+    const height = compact ? COMPACT_SIZE : PANEL_HEIGHT;
+
     const base: React.CSSProperties = compact
       ? {}
       : {
@@ -176,7 +180,11 @@ export default function YolnomaTurbo() {
         };
 
     if (mode === "custom") {
-      return { ...base, left: custom.x, top: custom.y };
+      const maxX = Math.max(8, window.innerWidth - width - 8);
+      const maxY = Math.max(8, window.innerHeight - height - 8);
+      const clampedX = Math.min(Math.max(8, custom.x), maxX);
+      const clampedY = Math.min(Math.max(8, custom.y), maxY);
+      return { ...base, left: clampedX, top: clampedY };
     }
     const horizontal =
       mode === "left"
@@ -192,45 +200,57 @@ export default function YolnomaTurbo() {
     setCustom({ x: 16, y: 16 });
   };
 
-  const beginDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (compact) return;
+  const beginDrag = (event: React.PointerEvent<HTMLElement>) => {
     const element = event.currentTarget.closest("aside");
     if (!element) return;
     const rect = element.getBoundingClientRect();
+    hasMovedRef.current = false;
     dragRef.current = {
       pointerX: event.clientX,
       pointerY: event.clientY,
       x: rect.left,
       y: rect.top,
     };
-    setMode("custom");
-    setDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
-  const moveDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+  const moveDrag = (event: React.PointerEvent<HTMLElement>) => {
     const start = dragRef.current;
     if (!start) return;
+    const deltaX = event.clientX - start.pointerX;
+    const deltaY = event.clientY - start.pointerY;
+
+    if (!hasMovedRef.current && Math.hypot(deltaX, deltaY) > 3) {
+      hasMovedRef.current = true;
+      setDragging(true);
+      setMode("custom");
+    }
+
+    if (!hasMovedRef.current) return;
+
     const width = compact ? COMPACT_SIZE : PANEL_WIDTH;
     const height = compact ? COMPACT_SIZE : PANEL_HEIGHT;
     const x = Math.max(
       8,
-      Math.min(
-        window.innerWidth - width - 8,
-        start.x + event.clientX - start.pointerX,
-      ),
+      Math.min(window.innerWidth - width - 8, start.x + deltaX),
     );
     const y = Math.max(
       8,
-      Math.min(
-        window.innerHeight - height - 8,
-        start.y + event.clientY - start.pointerY,
-      ),
+      Math.min(window.innerHeight - height - 8, start.y + deltaY),
     );
     setCustom({ x, y });
   };
 
-  const endDrag = () => {
+  const endDrag = (event?: React.PointerEvent<HTMLElement>) => {
+    if (event && dragRef.current) {
+      try {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+      } catch {
+        // Pointer capture release safety
+      }
+    }
     dragRef.current = null;
     setDragging(false);
   };
@@ -381,31 +401,46 @@ export default function YolnomaTurbo() {
   if (compact) {
     return (
       <aside
-        className="fixed z-[999999] select-none"
+        className="fixed z-[999999] select-none touch-none"
         style={getPositionStyle()}
       >
         <button
           type="button"
           aria-label="Open Yolnoma Turbo DevTools"
-          title="Open Yolnoma Turbo DevTools"
-          onClick={() => setCompact(false)}
-          className="group relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-[#181410]/95 text-white shadow-2xl shadow-black/50 backdrop-blur-xl transition hover:scale-105 hover:border-[#D97757]/50"
+          title="Open Yolnoma Turbo DevTools (Drag to move)"
+          onPointerDown={beginDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={(e) => {
+            const moved = hasMovedRef.current;
+            endDrag(e);
+            if (!moved) {
+              setCompact(false);
+            }
+          }}
+          onPointerCancel={endDrag}
+          className={`group relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-[#181410]/95 text-white shadow-2xl shadow-black/50 backdrop-blur-xl transition hover:border-[#D97757]/50 ${
+            dragging
+              ? "cursor-grabbing scale-95 ring-2 ring-[#D97757]/40"
+              : "cursor-grab hover:scale-105 active:scale-95"
+          }`}
         >
           <Bug
             size={20}
-            className="text-[#D97757] transition group-hover:rotate-12"
+            className={`text-[#D97757] transition ${
+              dragging ? "" : "group-hover:rotate-12"
+            }`}
           />
 
           {/* Badge for Errors */}
           {errors.length > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-lg shadow-red-500/50 animate-pulse">
+            <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-lg shadow-red-500/50 animate-pulse">
               {errors.length > 99 ? "99+" : errors.length}
             </span>
           )}
 
           {/* Badge for Warnings if no errors */}
           {errors.length === 0 && logs.some((l) => l.level === "warn") && (
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 rounded-full bg-amber-500 ring-2 ring-[#181410]" />
+            <span className="pointer-events-none absolute -top-1 -right-1 flex h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-[#181410]" />
           )}
         </button>
       </aside>
