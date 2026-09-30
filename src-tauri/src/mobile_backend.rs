@@ -14,6 +14,8 @@ pub struct WeatherLocation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountConfig {
+    #[serde(default = "default_language")]
+    pub language: String,
     #[serde(default)]
     pub system_monitoring: bool,
     #[serde(default)]
@@ -22,9 +24,14 @@ pub struct AccountConfig {
     pub weather_location: Option<WeatherLocation>,
 }
 
+fn default_language() -> String {
+    "en".to_string()
+}
+
 impl Default for AccountConfig {
     fn default() -> Self {
         Self {
+            language: default_language(),
             system_monitoring: false,
             saved_tools: Vec::new(),
             weather_location: None,

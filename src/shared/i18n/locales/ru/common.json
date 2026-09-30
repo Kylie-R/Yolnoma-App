@@ -1,0 +1,71 @@
+{
+  "navigation": {
+    "groups": {
+      "home": "Главная",
+      "workspace": "Рабочее пространство",
+      "tools": "Инструменты",
+      "steam": "Steam",
+      "plugins": "Плагины"
+    },
+    "routes": {
+      "dashboard": "Панель управления",
+      "agent": "Yolnoma Agent",
+      "performances": "Производительность",
+      "videos": "Стримы",
+      "users": "Пользователи",
+      "profile": "Профиль",
+      "settings": "Настройки",
+      "marketplace": "Маркетплейс",
+      "feedback": "Идеи и ошибки",
+      "currency": "Конвертер валют",
+      "bg-remover": "Удаление фона",
+      "steam-idler": "Steam / Idler",
+      "image": "Изображения",
+      "video-downloader": "Загрузчик видео",
+      "port-scanner": "Сканер портов",
+      "dns-records": "DNS-записи",
+      "archive-explorer": "Проводник архивов",
+      "ai-chat-2b-model": "AI Chat: 2B_MODEL",
+      "cleaner": "Очистка системы",
+      "crosshair-overlay": "Прицел поверх экрана",
+      "vi": "VI COUNTDOWN",
+      "steam-sam": "Steam / SAM",
+      "steam-review": "Steam / Отзывы",
+      "developer-tools": "Инструменты разработчика",
+      "ai-tools": "AI-инструменты",
+      "json-viewer": "Просмотр/редактор JSON",
+      "css-tools": "CSS-инструменты",
+      "git": "Git",
+      "start-up-apps": "Автозагрузка",
+      "world-3d": "Мир Yolnoma"
+    }
+  },
+  "sidebar": {
+    "brandEdition": "ULTIMATE EDITION",
+    "expand": "Развернуть боковую панель",
+    "collapse": "Свернуть боковую панель",
+    "signOut": "Выйти",
+    "signOutTitle": "Выход",
+    "signOutDescription": "Вы действительно хотите выйти из аккаунта? Для доступа к рабочему пространству потребуется войти снова.",
+    "cancel": "Отмена",
+    "addToDashboard": "Добавить {{label}} на панель",
+    "removeFromDashboard": "Убрать {{label}} с панели",
+    "keyboardShortcuts": "Горячие клавиши (Ctrl + /)",
+    "resize": "Перетащите, чтобы изменить размер панели"
+  },
+  "navbar": {
+    "back": "Вернуться на предыдущую страницу",
+    "forward": "Перейти на следующую страницу",
+    "refresh": "Перезагрузить страницу",
+    "copyUrl": "Нажмите, чтобы скопировать URL",
+    "copy": "Копировать",
+    "copied": "Скопировано!",
+    "refreshing": "Обновление...",
+    "settings": "Профиль и настройки",
+    "language": "Язык"
+  },
+  "language": {
+    "english": "English",
+    "russian": "Русский"
+  }
+}

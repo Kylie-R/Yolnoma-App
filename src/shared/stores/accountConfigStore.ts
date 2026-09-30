@@ -2,18 +2,21 @@
  * accountConfigStore — account-specific configuration backed by
  * AppData\Local\Yolnoma\accounts\{userId}\config.json via Tauri.
  *
- * Shape:  { systemMonitoring: boolean; savedTools: string[] }
+ * Shape:  { language: AppLanguage; systemMonitoring: boolean; savedTools: string[] }
  *
  * Usage:
  *   const { config, updateConfig } = useAccountConfigStore();
  */
 
-import { create } from 'zustand';
-import { invoke } from '@tauri-apps/api/core';
+import { create } from "zustand";
+import { invoke } from "@tauri-apps/api/core";
+import { setAppLanguage, type AppLanguage } from "@/shared/i18n";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface AccountConfig {
+  /** Selected application language, persisted in the account config.json. */
+  language: AppLanguage;
   /** Whether real-time system monitoring is enabled on the Dashboard. */
   systemMonitoring: boolean;
   /** Tool IDs pinned (★ favourite) on the Dashboard. */
@@ -27,6 +30,7 @@ export interface AccountConfig {
 }
 
 const DEFAULT_CONFIG: AccountConfig = {
+  language: "en",
   systemMonitoring: false,
   savedTools: [],
   weatherLocation: undefined,
@@ -57,10 +61,13 @@ export const useAccountConfigStore = create<AccountConfigState>((set, get) => ({
   loadConfig: async (userId: string) => {
     set({ loading: true, userId });
     try {
-      const config = await invoke<AccountConfig>('get_account_config', { userId });
+      const config = await invoke<AccountConfig>("get_account_config", {
+        userId,
+      });
       set({ config, loading: false });
+      setAppLanguage(config.language);
     } catch (err) {
-      console.error('[accountConfigStore] Failed to load config:', err);
+      console.error("[accountConfigStore] Failed to load config:", err);
       set({ config: DEFAULT_CONFIG, loading: false });
     }
   },
@@ -74,7 +81,7 @@ export const useAccountConfigStore = create<AccountConfigState>((set, get) => ({
     let activeUserId = userId;
     if (!activeUserId) {
       try {
-        const stored = localStorage.getItem('yolnoma_user');
+        const stored = localStorage.getItem("yolnoma_user");
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed?.id) activeUserId = parsed.id;
@@ -84,9 +91,12 @@ export const useAccountConfigStore = create<AccountConfigState>((set, get) => ({
 
     if (!activeUserId) return;
     try {
-      await invoke('save_account_config', { userId: activeUserId, config: next });
+      await invoke("save_account_config", {
+        userId: activeUserId,
+        config: next,
+      });
     } catch (err) {
-      console.error('[accountConfigStore] Failed to save config:', err);
+      console.error("[accountConfigStore] Failed to save config:", err);
     }
   },
 

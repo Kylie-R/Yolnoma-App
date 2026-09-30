@@ -2,6 +2,19 @@
 
 All notable Yolnoma releases are documented here. This file is the source of truth for updater release notes.
 
+## [1.2.4] - 2026-09-30
+
+### Added
+
+- Russian localization foundation with a config-driven language registry.
+- Persistent account language preference in `config.json`.
+- Production-safe DNS and certificate-transparency requests through the Tauri backend.
+
+### Improved
+
+- Replaced the Navbar language selector with the shared styled `SelectMenu` component.
+- DNS Records lookup, subdomain discovery, and host resolution no longer depend on browser CSP or CORS permissions.
+
 ## [1.2.3] - 2026-09-30
 
 ### Added

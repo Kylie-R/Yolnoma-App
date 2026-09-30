@@ -7,6 +7,7 @@ import type {
   DnsRecordParsedData,
   DnsRecordType,
 } from "../types";
+import { invoke } from "@tauri-apps/api/core";
 
 export const DNS_PROVIDERS: readonly DnsProviderInfo[] = [
   {
@@ -234,67 +235,48 @@ async function querySingleType(
   statusCode: number;
   dnssec: boolean;
 }> {
-  const url = new URL(providerInfo.endpoint);
-  url.searchParams.set("name", domain);
-  url.searchParams.set("type", type);
+  const json = await invoke<RawDnsResponse>("query_dns_records", {
+    provider: providerInfo.id,
+    domain,
+    recordType: type,
+  });
+  const statusCode = json.Status ?? 0;
+  const statusName = STATUS_CODES[statusCode] || `CODE_${statusCode}`;
+  const dnssec = Boolean(json.AD);
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8000);
+  const answers = json.Answer || [];
+  const authorities = json.Authority || [];
+  const allRaw = [...answers, ...authorities];
 
-  try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        Accept: "application/dns-json",
-      },
-      signal: controller.signal,
+  const records: DnsRecord[] = allRaw
+    .filter((ans) => {
+      const mappedType = TYPE_ID_MAP[ans.type];
+      return (
+        mappedType === type ||
+        (!TYPE_ID_MAP[ans.type] && ans.type.toString() === type)
+      );
+    })
+    .map((ans, idx) => {
+      const recordType = TYPE_ID_MAP[ans.type] || type;
+      const { data, parsed } = parseRecordData(recordType, ans.data);
+      return {
+        id: `${domain}-${recordType}-${idx}-${ans.data}`,
+        name: ans.name.replace(/\.$/, ""),
+        type: recordType,
+        typeId: ans.type,
+        ttl: ans.TTL,
+        data,
+        parsed,
+        raw: ans.data,
+      };
     });
 
-    if (!response.ok) {
-      throw new Error(`DNS resolver responded with HTTP ${response.status}`);
-    }
-
-    const json = (await response.json()) as RawDnsResponse;
-    const statusCode = json.Status ?? 0;
-    const statusName = STATUS_CODES[statusCode] || `CODE_${statusCode}`;
-    const dnssec = Boolean(json.AD);
-
-    const answers = json.Answer || [];
-    const authorities = json.Authority || [];
-    const allRaw = [...answers, ...authorities];
-
-    const records: DnsRecord[] = allRaw
-      .filter((ans) => {
-        const mappedType = TYPE_ID_MAP[ans.type];
-        return (
-          mappedType === type ||
-          (!TYPE_ID_MAP[ans.type] && ans.type.toString() === type)
-        );
-      })
-      .map((ans, idx) => {
-        const recordType = TYPE_ID_MAP[ans.type] || type;
-        const { data, parsed } = parseRecordData(recordType, ans.data);
-        return {
-          id: `${domain}-${recordType}-${idx}-${ans.data}`,
-          name: ans.name.replace(/\.$/, ""),
-          type: recordType,
-          typeId: ans.type,
-          ttl: ans.TTL,
-          data,
-          parsed,
-          raw: ans.data,
-        };
-      });
-
-    return {
-      records,
-      status: statusName,
-      statusCode,
-      dnssec,
-    };
-  } finally {
-    clearTimeout(timer);
-  }
+  return {
+    records,
+    status: statusName,
+    statusCode,
+    dnssec,
+  };
 }
 
 export async function lookupDnsRecords(

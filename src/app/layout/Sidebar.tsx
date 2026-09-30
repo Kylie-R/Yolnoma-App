@@ -27,6 +27,7 @@ import { useActiveToolsStatus } from "@/shared/hooks/useActiveToolsStatus";
 import type { LucideIcon } from "lucide-react";
 import { openAgentWindow } from "@/shared/lib/window";
 import { getNavigationRoutes } from "@/app/routes.config";
+import { useTranslation } from "react-i18next";
 
 type SidebarLink = {
   to: string;
@@ -80,6 +81,7 @@ export default function Sidebar() {
   const [isResizing, setIsResizing] = useState(false);
   const resizeStart = useRef({ pointerX: 0, width: DEFAULT_SIDEBAR_WIDTH });
   const { logout, user } = useAuth();
+  const { t } = useTranslation("common");
   const { pinnedTools, togglePinnedTool } = usePinnedTools();
   const { idlingCount, isCrosshairActive } = useActiveToolsStatus();
 
@@ -145,21 +147,21 @@ export default function Sidebar() {
   );
   const navigationGroups = [
     {
-      label: "Home",
+      key: "home",
       items: filteredLinks.filter((link) => link.navGroup === "home"),
     },
     {
-      label: "Workspace",
+      key: "workspace",
       items: filteredLinks.filter((link) => link.navGroup === "workspace"),
     },
     {
-      label: "Tools",
+      key: "tools",
       items: filteredLinks
         .filter((link) => link.navGroup === "tools")
         .sort((left, right) => left.label.localeCompare(right.label)),
     },
     {
-      label: "Steam",
+      key: "steam",
       items: filteredLinks
         .filter((link) => link.navGroup === "steam")
         .sort((left, right) => left.label.localeCompare(right.label)),
@@ -181,7 +183,7 @@ export default function Sidebar() {
         />
         {!isCollapsed && (
           <p className="text-[10px] uppercase tracking-[0.18em] text-[var(--text -faint)] mb-1 relative font-semibold">
-            ULTIMATE EDITION
+            {t("sidebar.brandEdition")}
           </p>
         )}
         {!isCollapsed && (
@@ -193,8 +195,8 @@ export default function Sidebar() {
           type="button"
           onClick={() => setIsCollapsed((collapsed) => !collapsed)}
           className={`relative flex items-center justify-center rounded-md text-[var(--text-faint)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-colors ${isCollapsed ? "mx-auto mt-0 h-9 w-9" : "absolute right-4 top-4 h-8 w-8"}`}
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={isCollapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+          aria-label={isCollapsed ? t("sidebar.expand") : t("sidebar.collapse")}
         >
           {isCollapsed ? (
             <PanelLeftOpen size={17} />
@@ -211,14 +213,17 @@ export default function Sidebar() {
         {navigationGroups.map(
           (group) =>
             group.items.length > 0 && (
-              <div key={group.label} className="space-y-1">
+              <div key={group.key} className="space-y-1">
                 {!isCollapsed && (
                   <div className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-faint)]">
-                    {group.label}
+                    {t(`navigation.groups.${group.key}`)}
                   </div>
                 )}
                 {group.items.map((link) => {
-                  const { to, label, icon: Icon } = link;
+                  const { to, icon: Icon } = link;
+                  const label = t(`navigation.routes.${link.name}`, {
+                    defaultValue: link.label,
+                  });
                   const inDev = link.status !== "stable";
                   const hasBypass = canAccessDevFeature(user?.role, link.name);
 
@@ -353,13 +358,17 @@ export default function Sidebar() {
                                   }`}
                                   title={
                                     pinnedTools.includes(link.name)
-                                      ? "Remove from Dashboard"
-                                      : "Add to Dashboard"
+                                      ? t("sidebar.removeFromDashboard", {
+                                          label,
+                                        })
+                                      : t("sidebar.addToDashboard", { label })
                                   }
                                   aria-label={
                                     pinnedTools.includes(link.name)
-                                      ? `Remove ${label} from Dashboard`
-                                      : `Add ${label} to Dashboard`
+                                      ? t("sidebar.removeFromDashboard", {
+                                          label,
+                                        })
+                                      : t("sidebar.addToDashboard", { label })
                                   }
                                 >
                                   <Star
@@ -404,7 +413,7 @@ export default function Sidebar() {
           <div className="pt-3">
             {!isCollapsed && (
               <div className="px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[var(--text-faint)] font-semibold">
-                Plugins
+                {t("navigation.groups.plugins")}
               </div>
             )}
             <div className="space-y-1 mt-1">
@@ -460,15 +469,15 @@ export default function Sidebar() {
         <button
           onClick={() => setShowLogoutConfirm(true)}
           className={`group relative w-full flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium text-red-400/80 hover:text-red-400 hover:bg-red-500/10 transition-colors duration-150 cursor-pointer ${isCollapsed ? "justify-center px-2" : "px-4"}`}
-          title={isCollapsed ? "Sign out" : undefined}
-          aria-label={isCollapsed ? "Sign out" : undefined}
+          title={isCollapsed ? t("sidebar.signOut") : undefined}
+          aria-label={isCollapsed ? t("sidebar.signOut") : undefined}
         >
           <LogOut
             size={17}
             strokeWidth={1.75}
             className="text-red-400/60 group-hover:text-red-400"
           />
-          {!isCollapsed && "Sign out"}
+          {!isCollapsed && t("sidebar.signOut")}
         </button>
       </nav>
 
@@ -490,8 +499,8 @@ export default function Sidebar() {
               window.dispatchEvent(new CustomEvent("yolnoma:open-shortcuts"))
             }
             className="flex items-center justify-center p-1.5 rounded-md hover:bg-white/[0.08] text-white/40 hover:text-[var(--accent)] transition-colors"
-            title="Keyboard Shortcuts (Ctrl + /)"
-            aria-label="Keyboard Shortcuts"
+            title={t("sidebar.keyboardShortcuts")}
+            aria-label={t("sidebar.keyboardShortcuts")}
           >
             <Keyboard size={15} />
           </button>
@@ -501,11 +510,11 @@ export default function Sidebar() {
       {!isCollapsed && (
         <div
           role="separator"
-          aria-label="Resize sidebar"
+          aria-label={t("sidebar.resize")}
           aria-orientation="vertical"
           onPointerDown={startResizing}
           className="absolute right-[-3px] top-0 z-20 h-full w-1 cursor-col-resize hover:bg-[var(--accent)] active:bg-[var(--accent)]"
-          title="Drag to resize sidebar"
+          title={t("sidebar.resize")}
         />
       )}
 
@@ -517,10 +526,10 @@ export default function Sidebar() {
           setShowLogoutConfirm(false);
           await logout();
         }}
-        title="Sign Out"
-        description="Are you sure you want to sign out of your account? You will need to sign in again to access your workspace."
-        confirmText="Sign Out"
-        cancelText="Cancel"
+        title={t("sidebar.signOutTitle")}
+        description={t("sidebar.signOutDescription")}
+        confirmText={t("sidebar.signOut")}
+        cancelText={t("sidebar.cancel")}
         variant="danger"
       />
     </aside>
