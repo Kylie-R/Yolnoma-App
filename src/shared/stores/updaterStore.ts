@@ -79,6 +79,7 @@ interface UpdaterState {
 const FAILED_TARGET_KEY = "yolnoma.updater.failed-target";
 const PENDING_SUCCESS_KEY = "yolnoma.updater.pending-success";
 const SEEN_CHANGELOG_KEY = "yolnoma.updater.seen-changelog";
+const LAST_RUN_VERSION_KEY = "yolnoma.updater.last-run-version";
 
 function getStorageValue(key: string): string | null {
   try {
@@ -244,13 +245,21 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
   checkForSuccessfulUpdate: async () => {
     if (import.meta.env.DEV) return false;
     const pendingVersion = getStorageValue(PENDING_SUCCESS_KEY);
-    if (!pendingVersion) return false;
 
     try {
       const currentVersion = await getVersion();
-      if (currentVersion !== pendingVersion) return false;
-      removeStorageValue(PENDING_SUCCESS_KEY);
-      if (getStorageValue(SEEN_CHANGELOG_KEY) === currentVersion) return false;
+      const lastRunVersion = getStorageValue(LAST_RUN_VERSION_KEY);
+      const versionChanged =
+        Boolean(lastRunVersion) && lastRunVersion !== currentVersion;
+      const isPendingUpdate = pendingVersion === currentVersion;
+
+      setStorageValue(LAST_RUN_VERSION_KEY, currentVersion);
+
+      if (!isPendingUpdate && !versionChanged) return false;
+      if (getStorageValue(SEEN_CHANGELOG_KEY) === currentVersion) {
+        removeStorageValue(PENDING_SUCCESS_KEY);
+        return false;
+      }
 
       const entry = getChangelogEntry(currentVersion);
       if (!entry) {
@@ -393,7 +402,10 @@ export const useUpdaterStore = create<UpdaterState>((set, get) => ({
   },
   closeChangelog: () => {
     const entry = get().changelogEntry;
-    if (entry) setStorageValue(SEEN_CHANGELOG_KEY, entry.version);
+    if (entry) {
+      setStorageValue(SEEN_CHANGELOG_KEY, entry.version);
+      removeStorageValue(PENDING_SUCCESS_KEY);
+    }
     set({ changelogOpen: false });
   },
 
