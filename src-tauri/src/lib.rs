@@ -229,6 +229,8 @@ pub fn run() {
             commands::proxy::proxy_request,
             commands::proxy::proxy_ep,
             commands::proxy::inspect_http_headers,
+            commands::dns::query_dns_records,
+            commands::dns::fetch_certificate_subdomains,
             commands::windows::open_in_new_window,
             commands::windows::open_agent_window,
             // ── YouTube Video Downloader ──
@@ -337,6 +339,8 @@ pub fn run() {
             mobile_backend::get_api_key,
             mobile_backend::set_api_key,
             mobile_backend::clear_api_key,
+            commands::dns::query_dns_records,
+            commands::dns::fetch_certificate_subdomains,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Android application");

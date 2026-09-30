@@ -3,6 +3,7 @@ import type {
   SubdomainItem,
   SubdomainScanResult,
 } from "../types";
+import { invoke } from "@tauri-apps/api/core";
 import { cleanDomainInput } from "./dnsService";
 import {
   getAsnProvider,
@@ -161,15 +162,11 @@ interface CrtEntry {
 
 export async function fetchCertTransparencySubdomains(
   domain: string,
-  signal?: AbortSignal,
+  _signal?: AbortSignal,
 ): Promise<string[]> {
-  const url = `https://crt.sh/?q=%25.${encodeURIComponent(domain)}&output=json`;
-  const res = await fetch(url, { signal });
-  if (!res.ok) {
-    throw new Error(`Certificate log search returned HTTP ${res.status}`);
-  }
-
-  const data = (await res.json()) as CrtEntry[];
+  const data = await invoke<CrtEntry[]>("fetch_certificate_subdomains", {
+    domain,
+  });
   const found = new Set<string>();
 
   for (const item of data) {
@@ -196,18 +193,14 @@ export async function resolveHostIp(
   hostname: string,
 ): Promise<{ ip?: string; cname?: string; live: boolean }> {
   try {
-    const url = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(
-      hostname,
-    )}&type=A`;
-    const res = await fetch(url, {
-      headers: { Accept: "application/dns-json" },
-    });
-    if (!res.ok) return { live: false };
-
-    const data = (await res.json()) as {
+    const data = await invoke<{
       Status?: number;
       Answer?: Array<{ type: number; data: string }>;
-    };
+    }>("query_dns_records", {
+      provider: "cloudflare",
+      domain: hostname,
+      recordType: "A",
+    });
 
     if (data.Status === 0 && data.Answer && data.Answer.length > 0) {
       let ip: string | undefined;
