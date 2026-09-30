@@ -7,7 +7,6 @@ All notable Yolnoma releases are documented here. This file is the source of tru
 ### Added
 
 - Russian localization foundation with a config-driven language registry.
-- Persistent account language preference in `config.json`.
 - Production-safe DNS and certificate-transparency requests through the Tauri backend.
 
 ### Improved
