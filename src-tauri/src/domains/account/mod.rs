@@ -472,12 +472,14 @@ mod tests {
     fn test_config_serde_camel_case() {
         let config = AccountConfig {
             schema_version: CURRENT_SCHEMA_VERSION,
+            language: "en".to_string(),
             system_monitoring: true,
             saved_tools: vec!["ai-chat".to_string(), "cleaner".to_string()],
             weather_location: None,
         };
         let json = serde_json::to_string(&config).unwrap();
         assert!(json.contains("\"systemMonitoring\":true"));
+        assert!(json.contains("\"language\":\"en\""));
         assert!(json.contains("\"savedTools\":[\"ai-chat\",\"cleaner\"]"));
 
         let deserialized: AccountConfig = serde_json::from_str(&json).unwrap();
