@@ -65,7 +65,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
+          className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/6 active:bg-white/10 transition-all"
           title={t("navbar.back")}
           aria-label={t("navbar.back")}
         >
@@ -75,7 +75,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => navigate(1)}
-          className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
+          className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/6 active:bg-white/10 transition-all"
           title={t("navbar.forward")}
           aria-label={t("navbar.forward")}
         >
@@ -88,8 +88,8 @@ export default function Navbar() {
           disabled={isRefreshing}
           className={`p-1.5 rounded-lg transition-all ${
             isRefreshing
-              ? "text-[var(--accent)] bg-white/[0.08] cursor-wait"
-              : "text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1]"
+              ? "text-(--accent) bg-white/8 cursor-wait"
+              : "text-white/50 hover:text-white hover:bg-white/6 active:bg-white/10"
           }`}
           title={isRefreshing ? t("navbar.refreshing") : t("navbar.refresh")}
           aria-label={t("navbar.refresh")}
@@ -130,7 +130,7 @@ export default function Navbar() {
           </div>
 
           {/* Copy Action / Indicator */}
-          <div className="flex items-center gap-1.5 shrink-0 pl-2 border-l border-white/[0.06]">
+          <div className="flex items-center gap-1.5 shrink-0 pl-2 border-l border-white/6">
             {copied ? (
               <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-sans font-medium">
                 <Check size={12} strokeWidth={2.5} />
@@ -164,26 +164,18 @@ export default function Navbar() {
             <span>TESTER</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/60 text-xs font-medium">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/4 border border-white/8 text-white/60 text-xs font-medium">
             <span>USER</span>
           </div>
         )}
 
-        {/* <button
-          onClick={() => checkForUpdates({
-            silent: false
-          })}
-          disabled={updaterStatus === 'checking' || updaterStatus === 'downloading' || updaterStatus === 'installing'}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.04] border border-white/[0.08] text-white/80 hover:text-white hover:bg-white/[0.08] disabled:opacity-50 transition-all cursor-pointer"
-        >
-          <RefreshCw className={updaterStatus === 'checking' ? 'animate-spin text-[#D97757]' : ''} size={13} />
-        </button> */}
-
         <LanguageSwitcher />
+
+        {/* /Settings Button */}
         <button
           type="button"
           onClick={() => navigate("/settings")}
-          className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/[0.06] transition-colors"
+          className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/6 transition-colors"
           title={t("navbar.settings")}
           aria-label={t("navbar.settings")}
         >
