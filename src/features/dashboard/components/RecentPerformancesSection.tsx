@@ -1,12 +1,13 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ArrowRight, Shield } from "lucide-react";
 import type { Performance } from "@/types";
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale: string): string {
   if (!iso) return "—";
   try {
-    return new Date(iso).toLocaleDateString("uz-UZ", {
+    return new Date(iso).toLocaleDateString(locale, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -25,6 +26,7 @@ export default function RecentPerformancesSection({
   items,
   loading,
 }: RecentPerformancesSectionProps) {
+  const { t, i18n } = useTranslation("common");
   const recent = useMemo(() => {
     return [...items]
       .sort((a, b) => b.created_at.localeCompare(a.created_at))
@@ -36,17 +38,17 @@ export default function RecentPerformancesSection({
       <div className="px-6 py-5 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md bg-[var(--accent-glow)] text-[var(--accent)] font-semibold border border-[var(--accent-border)]">
-            <Shield size={10} /> Owner
+            <Shield size={10} /> {t("dashboard.owner")}
           </span>
           <h2 className="font-serif text-lg font-medium text-white m-0">
-            Recently added performance
+            {t("dashboard.recentlyAddedPerformance")}
           </h2>
         </div>
         <Link
           to="/performances"
           className="flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:underline"
         >
-          View all <ArrowRight size={13} />
+          {t("dashboard.viewAll")} <ArrowRight size={13} />
         </Link>
       </div>
 
@@ -64,7 +66,7 @@ export default function RecentPerformancesSection({
         </div>
       ) : recent.length === 0 ? (
         <div className="p-10 text-center text-white/40 text-xs">
-          No performance have joined yet.
+          {t("dashboard.noPerformances")}
         </div>
       ) : (
         <ul className="divide-y divide-white/[0.04] m-0 p-0 list-none">
@@ -91,7 +93,7 @@ export default function RecentPerformancesSection({
                       {p.full_name}
                     </p>
                     <p className="text-[11px] text-white/35 font-mono">
-                      {formatDate(p.created_at)}
+                      {formatDate(p.created_at, i18n.language)}
                     </p>
                   </div>
                 </div>

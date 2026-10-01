@@ -21,7 +21,7 @@ export default function DashboardHeader({
         {greeting}, {displayName}
       </h1>
       <p className="mt-2 text-sm text-white/40 max-w-2xl">
-        Your personal command center for system health and everyday tools.
+        {t("dashboard.commandCenterDescription")}
       </p>
     </div>
   );

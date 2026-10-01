@@ -69,15 +69,15 @@ export default function PinnedToolsSection({
   return (
     <section className="space-y-4">
       <h2 className="text-xs font-semibold uppercase tracking-wider text-white/40">
-        Tools
+        {t("dashboard.tools")}
       </h2>
       {pinnedTools.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/[0.12] bg-[#111109] p-8 text-center">
           <p className="text-sm font-medium text-white/70">
-            No favorite tools yet
+            {t("dashboard.noFavoriteTools")}
           </p>
           <p className="mt-1 text-xs text-white/40">
-            Add tools from the Sidebar to show them here.
+            {t("dashboard.addToolsFromSidebar")}
           </p>
         </div>
       ) : (
