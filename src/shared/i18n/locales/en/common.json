@@ -28,7 +28,6 @@
       "ai-chat-2b-model": "AI Chat: 2B_MODEL",
       "cleaner": "Cleaner",
       "crosshair-overlay": "Crosshair Overlay",
-      "vi": "VI COUNTDOWN",
       "steam-sam": "Steam / SAM",
       "steam-review": "Steam / Review",
       "developer-tools": "Developer Tools",
@@ -1310,18 +1309,6 @@
     "selectObject": "Select an object to inspect it.",
     "standalone": "Open in a separate window",
     "back": "Back"
-  },
-  "vi": {
-    "day": "day",
-    "hour": "hour",
-    "minute": "minute",
-    "second": "second",
-    "heroTag": "Leonida is waiting for you.",
-    "releaseDate": "Release date:",
-    "platforms": "It will be released on Xbox Series X|S, PlayStation 5, and PlayStation 5 Pro platforms.",
-    "presents": "Rockstar Games presents.",
-    "play": "Play music",
-    "pause": "Pause music"
   },
   "currency": {
     "title": "Currency converter",
