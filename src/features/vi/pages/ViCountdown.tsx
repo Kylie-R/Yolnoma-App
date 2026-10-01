@@ -1,6 +1,7 @@
-import { images } from '@/shared/assets/images';
-import { useEffect, useRef, useState, useCallback } from 'react';
-import gta6MainMusic from '../audio/GTA 6 - Official Main Theme Music - Dan Allen Gaming.mp3'
+import { useTranslation } from "react-i18next";
+import { images } from "@/shared/assets/images";
+import { useEffect, useRef, useState, useCallback } from "react";
+import gta6MainMusic from "../audio/GTA 6 - Official Main Theme Music - Dan Allen Gaming.mp3";
 
 const HERO_IMG = images.vi.VI_HERO_IMG;
 const LOGO_IMG = images.vi.VI_LOGO_IMG;
@@ -8,37 +9,37 @@ const LOGO_IMG = images.vi.VI_LOGO_IMG;
 const SECTIONS = [
   {
     img: images.vi.VI_LEONIDA,
-    title: 'Leonida',
-    text: 'Palm trees at sunset, neon lights, and bustling coastal cities—the new world inspired by Vice City is now bigger, more vibrant, and more detailed.',
-    align: 'left',
+    title: "Leonida",
+    text: "Palm trees at sunset, neon lights, and bustling coastal cities—the new world inspired by Vice City is now bigger, more vibrant, and more detailed.",
+    align: "left",
   },
   {
     img: images.vi.VI_THOP,
-    title: 'Two heroes, one path',
-    text: 'Jason and Lucia are the only two people who trust each other. Their story is not about money, but about the struggle to survive together.',
-    align: 'right',
+    title: "Two heroes, one path",
+    text: "Jason and Lucia are the only two people who trust each other. Their story is not about money, but about the struggle to survive together.",
+    align: "right",
   },
   {
     img: images.vi.VI_VC_LEONIDA,
-    title: 'The city never sleeps.',
-    text: 'Every street and every neighborhood has its own story. This time, Rockstar has created a world that is far deeper and more alive than before.',
-    align: 'left',
+    title: "The city never sleeps.",
+    text: "Every street and every neighborhood has its own story. This time, Rockstar has created a world that is far deeper and more alive than before.",
+    align: "left",
   },
   {
     img: images.vi.VI_JasonLucia,
-    title: 'Jason and Lucia',
-    text: 'Rather than just cosmetics',
-    align: 'right',
+    title: "Jason and Lucia",
+    text: "Rather than just cosmetics",
+    align: "right",
   },
   {
     img: images.vi.VI_DIAZ,
-    title: 'Real Dimez',
+    title: "Real Dimez",
     text: "Leonida's street culture is a battle for fashion, music, and status. In this world, everything depends on appearances.",
-    align: 'left',
+    align: "left",
   },
 ];
 
-const RELEASE_DATE = new Date('2026-11-19T00:00:00');
+const RELEASE_DATE = new Date("2026-11-19T00:00:00");
 
 function useCountdown(target: Date) {
   const [remaining, setRemaining] = useState(
@@ -93,7 +94,7 @@ function ParallaxPanel({
   img: string;
   title: string;
   text: string;
-  align: 'left' | 'right';
+  align: "left" | "right";
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLDivElement | null>(null);
@@ -113,11 +114,11 @@ function ParallaxPanel({
 
   useEffect(() => {
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
   }, [onScroll]);
 
@@ -131,7 +132,7 @@ function ParallaxPanel({
       <div className="panel-scrim" />
       <div
         ref={revealRef}
-        className={`panel-copy panel-copy--${align} ${visible ? 'is-visible' : ''}`}
+        className={`panel-copy panel-copy--${align} ${visible ? "is-visible" : ""}`}
       >
         <h2>{title}</h2>
         <p>{text}</p>
@@ -141,7 +142,7 @@ function ParallaxPanel({
 }
 
 function TimeBlock({ value, label }: { value: number; label: string }) {
-  const padded = String(value).padStart(2, '0');
+  const padded = String(value).padStart(2, "0");
   return (
     <div className="time-block">
       <span className="time-value">{padded}</span>
@@ -151,6 +152,7 @@ function TimeBlock({ value, label }: { value: number; label: string }) {
 }
 
 function ViCountdown() {
+  const { t } = useTranslation();
   const { days, hours, minutes, seconds } = useCountdown(RELEASE_DATE);
   const heroImgRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -164,8 +166,8 @@ function ViCountdown() {
       el.style.transform = `scale(1.1) translateY(${y * 0.25}px)`;
     };
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const toggleMusic = useCallback(() => {
@@ -177,7 +179,7 @@ function ViCountdown() {
       setIsPlaying(false);
     } else {
       audio.currentTime = 0;
-      audio.play().catch((err) => console.error('play error:', err));
+      audio.play().catch((err) => console.error("play error:", err));
       setIsPlaying(true);
     }
   }, [isPlaying]);
@@ -465,7 +467,7 @@ function ViCountdown() {
       </audio>
 
       <button className="music-button" onClick={toggleMusic}>
-        <span>{isPlaying ? '⏸' : '▶'}</span>
+        <span>{isPlaying ? "⏸" : "▶"}</span>
       </button>
 
       {/* HERO */}
@@ -474,17 +476,17 @@ function ViCountdown() {
         <div className="hero-gradient" />
         <div className="hero-content">
           <img className="hero-logo" src={LOGO_IMG} alt="Grand Theft Auto VI" />
-          <p className="hero-tag">Leonida is waiting for you.</p>
+          <p className="hero-tag">{t("vi.heroTag")}</p>
 
           <div className="countdown">
-            <TimeBlock value={days} label="day" />
-            <TimeBlock value={hours} label="hour" />
-            <TimeBlock value={minutes} label="minute" />
-            <TimeBlock value={seconds} label="second" />
+            <TimeBlock value={days} label={t("vi.day")} />
+            <TimeBlock value={hours} label={t("vi.hour")} />
+            <TimeBlock value={minutes} label={t("vi.minute")} />
+            <TimeBlock value={seconds} label={t("vi.second")} />
           </div>
 
           <p className="release-line">
-            Release date: <b>November 19, 2026</b>
+            {t("vi.releaseDate")} <b>November 19, 2026</b>
           </p>
           <p className="platforms">
             It will be released on Xbox Series X|S, PlayStation 5, and
@@ -501,7 +503,7 @@ function ViCountdown() {
           img={s.img}
           title={s.title}
           text={s.text}
-          align={s.align as 'left' | 'right'}
+          align={s.align as "left" | "right"}
         />
       ))}
 
@@ -509,7 +511,7 @@ function ViCountdown() {
       <footer className="footer">
         <img className="footer-logo" src={LOGO_IMG} alt="Grand Theft Auto VI" />
         <p className="footer-date">November 19, 2026</p>
-        <p className="footer-sub">Rockstar Games presents.</p>
+        <p className="footer-sub">{t("vi.presents")}</p>
       </footer>
     </div>
   );

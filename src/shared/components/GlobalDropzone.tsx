@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   UploadCloud,
   FileText,
@@ -9,8 +10,8 @@ import {
   X,
   Code,
   FileCode,
-} from 'lucide-react';
-import { formatBytes } from '@/shared/lib/files';
+} from "lucide-react";
+import { formatBytes } from "@/shared/lib/files";
 
 type DroppedFile = {
   name: string;
@@ -30,6 +31,7 @@ type SuggestedTool = {
 };
 
 export default function GlobalDropzone() {
+  const { t } = useTranslation();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState<DroppedFile[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,34 +44,34 @@ export default function GlobalDropzone() {
     const firstExt = files[0].extension.toLowerCase();
 
     // Image files
-    if (['jpg', 'jpeg', 'png', 'webp', 'bmp', 'avif'].includes(firstExt)) {
+    if (["jpg", "jpeg", "png", "webp", "bmp", "avif"].includes(firstExt)) {
       return [
         {
-          id: 'bg-remover',
-          title: 'Background Remover (AI)',
-          description: 'Remove image background using AI',
-          path: '/tools/bg-remover',
+          id: "bg-remover",
+          title: t("dropzone.bg"),
+          description: t("dropzone.bgDesc"),
+          path: "/tools/bg-remover",
           icon: Sparkles,
           primary: true,
         },
         {
-          id: 'image-converter',
-          title: 'Image Converter & Optimizer',
-          description: 'Convert formats, compress, and optimize image files',
-          path: '/tools/image',
+          id: "image-converter",
+          title: t("dropzone.image"),
+          description: t("dropzone.imageDesc"),
+          path: "/tools/image",
           icon: ImageIcon,
         },
       ];
     }
 
     // Archive files
-    if (['zip', 'rar', '7z', 'tar', 'gz', 'tar.gz'].includes(firstExt)) {
+    if (["zip", "rar", "7z", "tar", "gz", "tar.gz"].includes(firstExt)) {
       return [
         {
-          id: 'archive-explorer',
-          title: 'Archive Explorer',
-          description: 'Browse and inspect files inside compressed archive',
-          path: '/tools/archive-explorer',
+          id: "archive-explorer",
+          title: t("dropzone.archive"),
+          description: t("dropzone.archiveDesc"),
+          path: "/tools/archive-explorer",
           icon: FileArchive,
           primary: true,
         },
@@ -77,34 +79,34 @@ export default function GlobalDropzone() {
     }
 
     // JSON files
-    if (firstExt === 'json') {
+    if (firstExt === "json") {
       return [
         {
-          id: 'json-viewer',
-          title: 'JSON Edit & View',
-          description: 'Inspect, edit, and visualize JSON as interactive cards',
-          path: '/tools/json',
+          id: "json-viewer",
+          title: t("dropzone.json"),
+          description: t("dropzone.jsonDesc"),
+          path: "/tools/json",
           icon: Code,
           primary: true,
         },
         {
-          id: 'developer-tools',
-          title: 'Developer Tools',
-          description: 'JSON formatter, validator, and essential developer utilities',
-          path: '/tools/developer-tools',
+          id: "developer-tools",
+          title: t("dropzone.dev"),
+          description: t("dropzone.devDesc"),
+          path: "/tools/developer-tools",
           icon: FileCode,
         },
       ];
     }
 
     // CSS files
-    if (['css', 'scss', 'sass', 'less'].includes(firstExt)) {
+    if (["css", "scss", "sass", "less"].includes(firstExt)) {
       return [
         {
-          id: 'css-tools',
-          title: 'CSS Tools',
-          description: 'Gradients, scrollbar generator, and minification',
-          path: '/tools/css-tools',
+          id: "css-tools",
+          title: t("dropzone.css"),
+          description: t("dropzone.cssDesc"),
+          path: "/tools/css-tools",
           icon: FileCode,
           primary: true,
         },
@@ -114,18 +116,18 @@ export default function GlobalDropzone() {
     // Default fallback suggestions
     return [
       {
-        id: 'developer-tools',
-        title: 'Developer Tools',
-        description: 'Universal workspace utilities for code and text',
-        path: '/tools/developer-tools',
+        id: "developer-tools",
+        title: t("dropzone.dev"),
+        description: t("dropzone.devDefault"),
+        path: "/tools/developer-tools",
         icon: FileCode,
         primary: true,
       },
       {
-        id: 'archive-explorer',
-        title: 'Archive Explorer',
-        description: 'Inspect archive and file structure',
-        path: '/tools/archive-explorer',
+        id: "archive-explorer",
+        title: t("dropzone.archive"),
+        description: t("dropzone.archiveDefault"),
+        path: "/tools/archive-explorer",
         icon: FileArchive,
       },
     ];
@@ -137,8 +139,8 @@ export default function GlobalDropzone() {
     const list: DroppedFile[] = [];
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
-      const parts = file.name.split('.');
-      const extension = parts.length > 1 ? parts.pop() || '' : '';
+      const parts = file.name.split(".");
+      const extension = parts.length > 1 ? parts.pop() || "" : "";
       list.push({
         name: file.name,
         size: file.size,
@@ -156,7 +158,10 @@ export default function GlobalDropzone() {
     const handleDragEnter = (e: globalThis.DragEvent) => {
       e.preventDefault();
       // Only care about files
-      if (e.dataTransfer && Array.from(e.dataTransfer.types).includes('Files')) {
+      if (
+        e.dataTransfer &&
+        Array.from(e.dataTransfer.types).includes("Files")
+      ) {
         dragCounter.current += 1;
         setIsDraggingOver(true);
       }
@@ -165,7 +170,7 @@ export default function GlobalDropzone() {
     const handleDragOver = (e: globalThis.DragEvent) => {
       e.preventDefault();
       if (e.dataTransfer) {
-        e.dataTransfer.dropEffect = 'copy';
+        e.dataTransfer.dropEffect = "copy";
       }
     };
 
@@ -192,18 +197,21 @@ export default function GlobalDropzone() {
       fileInputRef.current?.click();
     };
 
-    window.addEventListener('dragenter', handleDragEnter);
-    window.addEventListener('dragover', handleDragOver);
-    window.addEventListener('dragleave', handleDragLeave);
-    window.addEventListener('drop', handleDrop);
-    window.addEventListener('yolnoma:open-dropzone', handleOpenCustomDropzone);
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("drop", handleDrop);
+    window.addEventListener("yolnoma:open-dropzone", handleOpenCustomDropzone);
 
     return () => {
-      window.removeEventListener('dragenter', handleDragEnter);
-      window.removeEventListener('dragover', handleDragOver);
-      window.removeEventListener('dragleave', handleDragLeave);
-      window.removeEventListener('drop', handleDrop);
-      window.removeEventListener('yolnoma:open-dropzone', handleOpenCustomDropzone);
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("drop", handleDrop);
+      window.removeEventListener(
+        "yolnoma:open-dropzone",
+        handleOpenCustomDropzone,
+      );
     };
   }, []);
 
@@ -228,7 +236,7 @@ export default function GlobalDropzone() {
           if (e.target.files) {
             processFiles(e.target.files);
           }
-          e.target.value = '';
+          e.target.value = "";
         }}
       />
 
@@ -240,14 +248,16 @@ export default function GlobalDropzone() {
               <UploadCloud size={44} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white tracking-wide">Drop files here</h2>
+              <h2 className="text-xl font-bold text-white tracking-wide">
+                {t("dropzone.drop")}
+              </h2>
               <p className="text-sm text-white/50 mt-1.5">
-                Quickly open images, archives, or JSON with dedicated desktop tools
+                {t("dropzone.dropDesc")}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs text-[var(--accent)] font-medium px-3 py-1.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20">
               <Sparkles size={13} />
-              <span>Smart tool suggestion enabled</span>
+              <span>{t("dropzone.smart")}</span>
             </div>
           </div>
         </div>
@@ -272,12 +282,17 @@ export default function GlobalDropzone() {
                   <FileText size={22} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold text-white truncate max-w-xs" title={primaryFile.name}>
+                  <h3
+                    className="text-base font-semibold text-white truncate max-w-xs"
+                    title={primaryFile.name}
+                  >
                     {primaryFile.name}
                   </h3>
                   <p className="text-xs text-white/40 mt-0.5">
-                    {formatBytes(primaryFile.size)} • {primaryFile.extension.toUpperCase() || 'FILE'}
-                    {droppedFiles.length > 1 && ` (+ ${droppedFiles.length - 1} more files)`}
+                    {formatBytes(primaryFile.size)} •{" "}
+                    {primaryFile.extension.toUpperCase() || t("dropzone.file")}
+                    {droppedFiles.length > 1 &&
+                      ` ${t("dropzone.more", { count: droppedFiles.length - 1 })}`}
                   </p>
                 </div>
               </div>
@@ -285,7 +300,7 @@ export default function GlobalDropzone() {
                 type="button"
                 onClick={() => setModalOpen(false)}
                 className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.06] transition"
-                aria-label="Close"
+                aria-label={t("shortcuts.close")}
               >
                 <X size={18} />
               </button>
@@ -294,7 +309,7 @@ export default function GlobalDropzone() {
             {/* Suggestions list */}
             <div className="mt-5 space-y-2.5 max-h-[50vh] overflow-y-auto pr-1 custom-scrollbar">
               <p className="text-xs font-semibold uppercase tracking-wider text-white/40">
-                Open with which tool?
+                {t("dropzone.openWith")}
               </p>
               {suggestions.map((tool) => {
                 const Icon = tool.icon;
@@ -305,16 +320,16 @@ export default function GlobalDropzone() {
                     onClick={() => handleToolSelect(tool)}
                     className={`group w-full flex items-center justify-between gap-4 p-3.5 rounded-xl border text-left transition-all ${
                       tool.primary
-                        ? 'border-[var(--accent-border)] bg-[var(--accent-dim)] hover:bg-[var(--accent)]/20 text-white'
-                        : 'border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] text-white/80'
+                        ? "border-[var(--accent-border)] bg-[var(--accent-dim)] hover:bg-[var(--accent)]/20 text-white"
+                        : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] text-white/80"
                     }`}
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
                         className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border ${
                           tool.primary
-                            ? 'border-[var(--accent-border)] bg-[var(--accent)]/20 text-[var(--accent)]'
-                            : 'border-white/[0.08] bg-white/[0.04] text-white/50'
+                            ? "border-[var(--accent-border)] bg-[var(--accent)]/20 text-[var(--accent)]"
+                            : "border-white/[0.08] bg-white/[0.04] text-white/50"
                         }`}
                       >
                         <Icon size={20} />
@@ -324,11 +339,13 @@ export default function GlobalDropzone() {
                           <span>{tool.title}</span>
                           {tool.primary && (
                             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[var(--accent)]/20 text-[var(--accent)] uppercase">
-                              Recommended
+                              {t("dropzone.recommended")}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-white/40 truncate mt-0.5">{tool.description}</p>
+                        <p className="text-xs text-white/40 truncate mt-0.5">
+                          {tool.description}
+                        </p>
                       </div>
                     </div>
                     <ArrowRight
@@ -342,7 +359,7 @@ export default function GlobalDropzone() {
 
             {/* Footer */}
             <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-white/35">
-              <span>Press Esc or click outside to cancel</span>
+              <span>{t("dropzone.cancelHint")}</span>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}

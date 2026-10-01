@@ -1,4 +1,5 @@
 import { Files, GitBranch } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type SidebarPanel = "explorer" | "source-control";
 
@@ -15,11 +16,12 @@ export default function AgentActivityBar({
   gitChangesCount,
   onTogglePanel,
 }: AgentActivityBarProps) {
+  const { t } = useTranslation();
   return (
     <nav className="flex w-10 shrink-0 flex-col border-r border-white/[0.08] bg-[#0f0e0b] pt-1">
       <button
         type="button"
-        title="Explorer (Ctrl+B)"
+        title={t("ai.explorer")}
         onClick={() => onTogglePanel("explorer")}
         className={`flex h-10 w-full items-center justify-center border-l-2 transition-colors ${
           sidebarVisible && sidebarPanel === "explorer"
@@ -31,7 +33,7 @@ export default function AgentActivityBar({
       </button>
       <button
         type="button"
-        title="Source Control"
+        title={t("ai.sourceControl")}
         onClick={() => onTogglePanel("source-control")}
         className={`relative flex h-10 w-full items-center justify-center border-l-2 transition-colors ${
           sidebarVisible && sidebarPanel === "source-control"

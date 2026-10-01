@@ -1,33 +1,36 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Plus, RefreshCw, Lock, AlertCircle } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Plus, RefreshCw, Lock, AlertCircle } from "lucide-react";
 
-import PerformanceCard from '@/features/performance/components/PerformanceCard';
-import AddPerformanceModal from '@/features/performance/components/AddPerformanceModal';
-import EditPerformanceModal from '@/features/performance/components/EditPerformanceModal';
-import DeleteConfirmModal from '@/features/performance/components/DeleteConfirmModal';
-import EditAvPerformanceModal from '@/features/performance/components/EditAvPerformanceModal';
-import DeleteAvPerformanceModal from '@/features/performance/components/DeleteAvPerformanceModal';
-import AvPerformanceCatalog from '@/features/performance/pages/AvPerformanceCatalog';
-import { usePerformanceList } from '@/features/performance/hooks/usePerformanceQueries';
-import { useAvPerformanceList } from '@/features/performance/hooks/useAvPerformanceQueries';
-import { useModal } from '@/features/performance/hooks/usePerformanceModal';
-import { useAuth } from '@/features/auth/AuthContext';
-import { Button, CardGridSkeleton, Pagination, SearchInput } from '@/shared/ui';
-import type { AvPerformance, PaginationMeta, Performance } from '@/types';
-import { getErrorMessage } from '@/shared/lib/errors';
+import PerformanceCard from "@/features/performance/components/PerformanceCard";
+import AddPerformanceModal from "@/features/performance/components/AddPerformanceModal";
+import EditPerformanceModal from "@/features/performance/components/EditPerformanceModal";
+import DeleteConfirmModal from "@/features/performance/components/DeleteConfirmModal";
+import EditAvPerformanceModal from "@/features/performance/components/EditAvPerformanceModal";
+import DeleteAvPerformanceModal from "@/features/performance/components/DeleteAvPerformanceModal";
+import AvPerformanceCatalog from "@/features/performance/pages/AvPerformanceCatalog";
+import { usePerformanceList } from "@/features/performance/hooks/usePerformanceQueries";
+import { useAvPerformanceList } from "@/features/performance/hooks/useAvPerformanceQueries";
+import { useModal } from "@/features/performance/hooks/usePerformanceModal";
+import { useAuth } from "@/features/auth/AuthContext";
+import { Button, CardGridSkeleton, Pagination, SearchInput } from "@/shared/ui";
+import type { AvPerformance, PaginationMeta, Performance } from "@/types";
+import { getErrorMessage } from "@/shared/lib/errors";
 
 export default function PerformancePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const isOwner = user?.role === 'owner';
+  const isOwner = user?.role === "owner";
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read URL query parameters
-  const pageParam = parseInt(searchParams.get('page') || '1', 10);
-  const limitParam = parseInt(searchParams.get('limit') || '15', 10);
-  const searchParam = searchParams.get('search') || searchParams.get('query') || '';
-  const isAvMode = searchParams.get('type') === 'av';
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
+  const limitParam = parseInt(searchParams.get("limit") || "15", 10);
+  const searchParam =
+    searchParams.get("search") || searchParams.get("query") || "";
+  const isAvMode = searchParams.get("type") === "av";
 
   const currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
   const currentLimit = isNaN(limitParam) || limitParam < 1 ? 15 : limitParam;
@@ -40,8 +43,18 @@ export default function PerformancePage() {
     hasNextPage: false,
     hasPrevPage: false,
   };
-  const performanceQuery = usePerformanceList(currentPage, currentLimit, searchParam, isOwner && !isAvMode);
-  const avPerformanceQuery = useAvPerformanceList(currentPage, currentLimit, searchParam, isOwner && isAvMode);
+  const performanceQuery = usePerformanceList(
+    currentPage,
+    currentLimit,
+    searchParam,
+    isOwner && !isAvMode,
+  );
+  const avPerformanceQuery = useAvPerformanceList(
+    currentPage,
+    currentLimit,
+    searchParam,
+    isOwner && isAvMode,
+  );
   const items = performanceQuery.data?.data ?? [];
   const pagination = performanceQuery.data?.pagination ?? emptyPagination;
   const loading = performanceQuery.isLoading;
@@ -52,8 +65,8 @@ export default function PerformancePage() {
   const avError = avPerformanceQuery.error;
   const [searchInput, setSearchInput] = useState(searchParam);
 
-  const addModal    = useModal();
-  const editModal   = useModal<Performance>();
+  const addModal = useModal();
+  const editModal = useModal<Performance>();
   const deleteModal = useModal<Performance>();
   const avEditModal = useModal<AvPerformance>();
   const avDeleteModal = useModal<AvPerformance>();
@@ -67,9 +80,9 @@ export default function PerformancePage() {
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage === currentPage) return;
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('page', String(newPage));
-    newParams.set('limit', String(currentLimit));
-    if (searchParam) newParams.set('search', searchParam);
+    newParams.set("page", String(newPage));
+    newParams.set("limit", String(currentLimit));
+    if (searchParam) newParams.set("search", searchParam);
     setSearchParams(newParams);
   };
 
@@ -77,9 +90,9 @@ export default function PerformancePage() {
   const handleLimitChange = (newLimit: number) => {
     if (newLimit === currentLimit) return;
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('page', '1');
-    newParams.set('limit', String(newLimit));
-    if (searchParam) newParams.set('search', searchParam);
+    newParams.set("page", "1");
+    newParams.set("limit", String(newLimit));
+    if (searchParam) newParams.set("search", searchParam);
     setSearchParams(newParams);
   };
 
@@ -87,24 +100,24 @@ export default function PerformancePage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('page', '1');
-    newParams.set('limit', String(currentLimit));
+    newParams.set("page", "1");
+    newParams.set("limit", String(currentLimit));
     if (searchInput.trim()) {
-      newParams.set('search', searchInput.trim());
-      newParams.delete('query');
+      newParams.set("search", searchInput.trim());
+      newParams.delete("query");
     } else {
-      newParams.delete('search');
-      newParams.delete('query');
+      newParams.delete("search");
+      newParams.delete("query");
     }
     setSearchParams(newParams);
   };
 
   const handleClearSearch = () => {
-    setSearchInput('');
+    setSearchInput("");
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('page', '1');
-    newParams.delete('search');
-    newParams.delete('query');
+    newParams.set("page", "1");
+    newParams.delete("search");
+    newParams.delete("query");
     setSearchParams(newParams);
   };
 
@@ -113,14 +126,14 @@ export default function PerformancePage() {
     return (
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '60vh',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "60vh",
           gap: 16,
-          color: 'var(--text-muted)',
-          textAlign: 'center',
+          color: "var(--text-muted)",
+          textAlign: "center",
           padding: 24,
         }}
       >
@@ -128,21 +141,42 @@ export default function PerformancePage() {
           style={{
             width: 64,
             height: 64,
-            borderRadius: '50%',
-            background: 'rgba(217,119,87,0.08)',
-            border: '1px solid rgba(217,119,87,0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            borderRadius: "50%",
+            background: "rgba(217,119,87,0.08)",
+            border: "1px solid rgba(217,119,87,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <Lock size={28} strokeWidth={1.5} style={{ color: '#D97757' }} />
+          <Lock size={28} strokeWidth={1.5} style={{ color: "#D97757" }} />
         </div>
-        <h2 style={{ fontSize: 20, color: 'var(--text-primary)', margin: 0, fontWeight: 500 }}>
+        <h2
+          style={{
+            fontSize: 20,
+            color: "var(--text-primary)",
+            margin: 0,
+            fontWeight: 500,
+          }}
+        >
           Access Restricted
         </h2>
         <p style={{ fontSize: 13, margin: 0, maxWidth: 420, lineHeight: 1.6 }}>
-          The Performance catalog is available exclusively to the <strong style={{ color: '#D97757' }}>Owner</strong> role. Your current signed-in role is <span style={{ fontFamily: 'monospace', color: '#fff', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4 }}>{user?.role || 'user'}</span>.
+          The Performance catalog is available exclusively to the{" "}
+          <strong style={{ color: "#D97757" }}>Owner</strong> role. Your current
+          signed-in role is{" "}
+          <span
+            style={{
+              fontFamily: "monospace",
+              color: "#fff",
+              background: "rgba(255,255,255,0.1)",
+              padding: "2px 6px",
+              borderRadius: 4,
+            }}
+          >
+            {user?.role || "user"}
+          </span>
+          .
         </p>
       </div>
     );
@@ -151,61 +185,68 @@ export default function PerformancePage() {
   if (isAvMode) {
     return (
       <>
-      <AvPerformanceCatalog
-        setSearchParams={setSearchParams}
-        searchParam={searchParam}
-        currentPage={currentPage}
-        currentLimit={currentLimit}
-        items={avItems}
-        pagination={avPagination}
-        loading={avLoading}
-        error={avError}
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        onSearchSubmit={handleSearchSubmit}
-        onClearSearch={handleClearSearch}
-        onPageChange={handlePageChange}
-        onLimitChange={handleLimitChange}
-        onRefresh={() => avPerformanceQuery.refetch()}
-        onAdd={() => addModal.open()}
-        addModalOpen={addModal.isOpen}
-        onAddClose={addModal.close}
-        onEdit={avEditModal.open}
-        onDelete={avDeleteModal.open}
-      />
-      <EditAvPerformanceModal open={avEditModal.isOpen} item={avEditModal.target} onClose={avEditModal.close} />
-      <DeleteAvPerformanceModal open={avDeleteModal.isOpen} item={avDeleteModal.target} onClose={avDeleteModal.close} />
+        <AvPerformanceCatalog
+          setSearchParams={setSearchParams}
+          searchParam={searchParam}
+          currentPage={currentPage}
+          currentLimit={currentLimit}
+          items={avItems}
+          pagination={avPagination}
+          loading={avLoading}
+          error={avError}
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
+          onSearchSubmit={handleSearchSubmit}
+          onClearSearch={handleClearSearch}
+          onPageChange={handlePageChange}
+          onLimitChange={handleLimitChange}
+          onRefresh={() => avPerformanceQuery.refetch()}
+          onAdd={() => addModal.open()}
+          addModalOpen={addModal.isOpen}
+          onAddClose={addModal.close}
+          onEdit={avEditModal.open}
+          onDelete={avDeleteModal.open}
+        />
+        <EditAvPerformanceModal
+          open={avEditModal.isOpen}
+          item={avEditModal.target}
+          onClose={avEditModal.close}
+        />
+        <DeleteAvPerformanceModal
+          open={avDeleteModal.isOpen}
+          item={avDeleteModal.target}
+          onClose={avDeleteModal.close}
+        />
       </>
     );
   }
 
-
   return (
     <div
       style={{
-        minHeight: '100%',
-        fontFamily: 'var(--font-sans)',
-        color: 'var(--text-primary)',
+        minHeight: "100%",
+        fontFamily: "var(--font-sans)",
+        color: "var(--text-primary)",
       }}
     >
       {/* ── Header ───────────────────────────────────────────── */}
       <header
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
           marginBottom: 28,
           paddingBottom: 24,
-          borderBottom: '1px solid var(--border)',
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <div>
           <p
             style={{
               fontSize: 11,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: 'var(--accent)',
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "var(--accent)",
               marginBottom: 8,
               fontWeight: 600,
             }}
@@ -214,34 +255,43 @@ export default function PerformancePage() {
           </p>
           <h1
             style={{
-              fontFamily: 'var(--font-serif)',
+              fontFamily: "var(--font-serif)",
               fontSize: 38,
               fontWeight: 500,
-              letterSpacing: '-0.01em',
+              letterSpacing: "-0.01em",
               margin: 0,
               lineHeight: 1.05,
             }}
           >
             Performance
           </h1>
-          <p style={{ marginTop: 8, color: 'var(--text-muted)', fontSize: 14 }}>
+          <p style={{ marginTop: 8, color: "var(--text-muted)", fontSize: 14 }}>
             {loading
-              ? 'Loading…'
+              ? "Loading…"
               : `Total: ${pagination.total} performance · Page ${currentPage} / ${pagination.totalPages}`}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <Button variant="ghost" onClick={() => setSearchParams({ type: 'av', page: '1', limit: String(currentLimit) })}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <Button
+            variant="ghost"
+            onClick={() =>
+              setSearchParams({
+                type: "av",
+                page: "1",
+                limit: String(currentLimit),
+              })
+            }
+          >
             AV Performances
           </Button>
           <Button
             variant="ghost"
             onClick={() => performanceQuery.refetch()}
             disabled={loading}
-            title="Refresh"
+            title={t("performance.refresh")}
           >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             Refresh
           </Button>
           <Button variant="primary" onClick={() => addModal.open()}>
@@ -252,24 +302,47 @@ export default function PerformancePage() {
       </header>
 
       {/* ── Search & Filter Controls ─────────────────────────── */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: 8, flex: 1, minWidth: 260 }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          marginBottom: 24,
+          flexWrap: "wrap",
+        }}
+      >
+        <form
+          onSubmit={handleSearchSubmit}
+          style={{ display: "flex", gap: 8, flex: 1, minWidth: 260 }}
+        >
           <SearchInput
             size="md"
             width="wide"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             onClear={handleClearSearch}
-            placeholder="Search by name or keyword…"
+            placeholder={t("performance.search", { count: pagination.total })}
           />
-          <Button type="submit" variant="ghost">Search</Button>
+          <Button type="submit" variant="ghost">
+            Search
+          </Button>
           {searchParam && (
-            <Button type="button" variant="ghost" onClick={handleClearSearch}>Clear</Button>
+            <Button type="button" variant="ghost" onClick={handleClearSearch}>
+              Clear
+            </Button>
           )}
         </form>
 
         {/* Limit Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)' }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 13,
+            color: "var(--text-muted)",
+          }}
+        >
           <span>On every page:</span>
           {[15, 20, 40].map((l) => (
             <button
@@ -277,15 +350,22 @@ export default function PerformancePage() {
               type="button"
               onClick={() => handleLimitChange(l)}
               style={{
-                padding: '4px 10px',
+                padding: "4px 10px",
                 borderRadius: 6,
                 fontSize: 12,
                 fontWeight: currentLimit === l ? 700 : 400,
-                background: currentLimit === l ? 'rgba(217,119,87,0.15)' : 'rgba(255,255,255,0.03)',
-                border: currentLimit === l ? '1px solid rgba(217,119,87,0.4)' : '1px solid var(--border)',
-                color: currentLimit === l ? 'var(--accent)' : 'var(--text-muted)',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                background:
+                  currentLimit === l
+                    ? "rgba(217,119,87,0.15)"
+                    : "rgba(255,255,255,0.03)",
+                border:
+                  currentLimit === l
+                    ? "1px solid rgba(217,119,87,0.4)"
+                    : "1px solid var(--border)",
+                color:
+                  currentLimit === l ? "var(--accent)" : "var(--text-muted)",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
               }}
             >
               {l}
@@ -314,39 +394,43 @@ export default function PerformancePage() {
       {error && (
         <div
           style={{
-            border: '1px solid rgba(220,80,80,0.3)',
-            background: 'rgba(220,80,80,0.07)',
-            color: '#F2A8A8',
+            border: "1px solid rgba(220,80,80,0.3)",
+            background: "rgba(220,80,80,0.07)",
+            color: "#F2A8A8",
             borderRadius: 12,
-            padding: '14px 18px',
+            padding: "14px 18px",
             marginBottom: 28,
             fontSize: 13,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             gap: 12,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <AlertCircle size={18} style={{ color: '#F2A8A8', flexShrink: 0 }} />
-            <span>{getErrorMessage(error, 'Unable to load performances.')}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <AlertCircle
+              size={18}
+              style={{ color: "#F2A8A8", flexShrink: 0 }}
+            />
+            <span>
+              {getErrorMessage(error, "Unable to load performances.")}
+            </span>
           </div>
           <Button
             variant="ghost"
             onClick={() => performanceQuery.refetch()}
             style={{
-              padding: '6px 14px',
+              padding: "6px 14px",
               fontSize: 12,
-              background: 'rgba(220,80,80,0.15)',
-              border: '1px solid rgba(220,80,80,0.3)',
-              color: '#fff',
+              background: "rgba(220,80,80,0.15)",
+              border: "1px solid rgba(220,80,80,0.3)",
+              color: "#fff",
             }}
           >
             Retry
           </Button>
         </div>
       )}
-
 
       {/* ── Skeleton ─────────────────────────────────────────── */}
       {loading && <CardGridSkeleton count={currentLimit} />}
@@ -355,27 +439,43 @@ export default function PerformancePage() {
       {!loading && !error && items.length === 0 && (
         <div
           style={{
-            textAlign: 'center',
-            padding: '80px 20px',
-            color: 'var(--text-muted)',
-            border: '1px dashed var(--border)',
+            textAlign: "center",
+            padding: "80px 20px",
+            color: "var(--text-muted)",
+            border: "1px dashed var(--border)",
             borderRadius: 16,
             marginBottom: 28,
           }}
         >
           {searchParam ? (
             <>
-              <p style={{ fontSize: 16, color: 'var(--text-primary)', marginBottom: 4 }}>
+              <p
+                style={{
+                  fontSize: 16,
+                  color: "var(--text-primary)",
+                  marginBottom: 4,
+                }}
+              >
                 Nothing was found for... «{searchParam}»
               </p>
               <p style={{ fontSize: 13 }}>Try changing the search term.</p>
-              <Button variant="ghost" onClick={handleClearSearch} style={{ marginTop: 12 }}>
+              <Button
+                variant="ghost"
+                onClick={handleClearSearch}
+                style={{ marginTop: 12 }}
+              >
                 Clear search
               </Button>
             </>
           ) : (
             <>
-              <p style={{ fontSize: 16, marginBottom: 6, color: 'var(--text-primary)' }}>
+              <p
+                style={{
+                  fontSize: 16,
+                  marginBottom: 6,
+                  color: "var(--text-primary)",
+                }}
+              >
                 No one has joined yet.
               </p>
               <p style={{ fontSize: 13 }}>Press the button «Add».</p>
@@ -388,8 +488,8 @@ export default function PerformancePage() {
       {!loading && items.length > 0 && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
             gap: 24,
             marginBottom: 36,
           }}

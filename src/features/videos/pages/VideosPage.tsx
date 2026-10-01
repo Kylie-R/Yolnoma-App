@@ -1,72 +1,92 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, Film, Bookmark, AlertCircle, RefreshCw, ArrowUpDown } from 'lucide-react';
-import { usePerformanceList } from '@/features/performance/hooks/usePerformanceQueries';
-import { useSavedVideos } from '@/features/videos/hooks/useSavedVideos';
-import { useVideoSearch } from '@/features/videos/hooks/useVideoQueries';
-import { useAuth } from '@/features/auth/AuthContext';
-import VideoCard from '@/features/videos/components/VideoCard';
-import { Button, Pagination, SearchInput, SelectMenu } from '@/shared/ui';
-import type { EPVideo, VideoOrder } from '@/features/videos/types/video';
-import { getErrorMessage } from '@/shared/lib/errors';
+import { useTranslation } from "react-i18next";
+import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  Search,
+  Film,
+  Bookmark,
+  AlertCircle,
+  RefreshCw,
+  ArrowUpDown,
+} from "lucide-react";
+import { usePerformanceList } from "@/features/performance/hooks/usePerformanceQueries";
+import { useSavedVideos } from "@/features/videos/hooks/useSavedVideos";
+import { useVideoSearch } from "@/features/videos/hooks/useVideoQueries";
+import { useAuth } from "@/features/auth/AuthContext";
+import VideoCard from "@/features/videos/components/VideoCard";
+import { Button, Pagination, SearchInput, SelectMenu } from "@/shared/ui";
+import type { EPVideo, VideoOrder } from "@/features/videos/types/video";
+import { getErrorMessage } from "@/shared/lib/errors";
 
 const VALID_ORDERS: VideoOrder[] = [
-  'latest',
-  'longest',
-  'shortest',
-  'most-popular',
-  'top-rated',
-  'top-weekly',
-  'top-monthly',
+  "latest",
+  "longest",
+  "shortest",
+  "most-popular",
+  "top-rated",
+  "top-weekly",
+  "top-monthly",
 ];
 
 export default function VideosPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read URL query parameters as the source of truth
-  const queryParam = searchParams.get('query') || '';
-  const pageParam = parseInt(searchParams.get('page') || '1', 10);
+  const queryParam = searchParams.get("query") || "";
+  const pageParam = parseInt(searchParams.get("page") || "1", 10);
   const currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
-  const orderParamRaw = searchParams.get('order');
-  const currentOrder: VideoOrder = VALID_ORDERS.includes(orderParamRaw as VideoOrder)
+  const orderParamRaw = searchParams.get("order");
+  const currentOrder: VideoOrder = VALID_ORDERS.includes(
+    orderParamRaw as VideoOrder,
+  )
     ? (orderParamRaw as VideoOrder)
-    : 'latest';
+    : "latest";
 
   const { user } = useAuth();
-  const isOwner = user?.role === 'owner';
-  const topPerformersQuery = usePerformanceList(1, 10, '', isOwner);
+  const isOwner = user?.role === "owner";
+  const topPerformersQuery = usePerformanceList(1, 10, "", isOwner);
   const topPerformers = topPerformersQuery.data?.data ?? [];
 
-  const [activeTab, setActiveTab] = useState<'search' | 'saved'>('search');
+  const [activeTab, setActiveTab] = useState<"search" | "saved">("search");
   const [queryInput, setQueryInput] = useState(queryParam);
-  const videoSearchQuery = useVideoSearch(queryParam, currentPage, currentOrder, activeTab === 'search');
+  const videoSearchQuery = useVideoSearch(
+    queryParam,
+    currentPage,
+    currentOrder,
+    activeTab === "search",
+  );
   const videos: EPVideo[] = videoSearchQuery.data?.videos ?? [];
   const totalVideos = Number(videoSearchQuery.data?.total_count ?? 0);
   const loading = videoSearchQuery.isLoading;
   const error = videoSearchQuery.error;
 
   // Cached Saved Videos Hook (no unnecessary refetch on navigation)
-  const { savedVideos, savedLoading, refresh: loadSaved } = useSavedVideos(activeTab === 'saved');
+  const {
+    savedVideos,
+    savedLoading,
+    refresh: loadSaved,
+  } = useSavedVideos(activeTab === "saved");
 
   // Synchronize local search input when URL query changes
   useEffect(() => {
     setQueryInput(queryParam);
     if (queryParam.trim()) {
-      sessionStorage.setItem('last_video_search_query', queryParam.trim());
+      sessionStorage.setItem("last_video_search_query", queryParam.trim());
     }
   }, [queryParam]);
 
   const handleOrderChange = (newOrder: VideoOrder) => {
     if (newOrder === currentOrder) return;
     const nextParams = new URLSearchParams(searchParams);
-    if (queryParam) nextParams.set('query', queryParam);
-    if (newOrder === 'latest') {
-      nextParams.delete('order');
+    if (queryParam) nextParams.set("query", queryParam);
+    if (newOrder === "latest") {
+      nextParams.delete("order");
     } else {
-      nextParams.set('order', newOrder);
+      nextParams.set("order", newOrder);
     }
-    nextParams.set('page', '1');
+    nextParams.set("page", "1");
     setSearchParams(nextParams);
   };
 
@@ -74,12 +94,12 @@ export default function VideosPage() {
     e.preventDefault();
     const nextParams = new URLSearchParams();
     if (queryInput.trim()) {
-      nextParams.set('query', queryInput.trim());
-      if (currentOrder !== 'latest') {
-        nextParams.set('order', currentOrder);
+      nextParams.set("query", queryInput.trim());
+      if (currentOrder !== "latest") {
+        nextParams.set("order", currentOrder);
       }
-      nextParams.set('page', '1');
-      sessionStorage.setItem('last_video_search_query', queryInput.trim());
+      nextParams.set("page", "1");
+      sessionStorage.setItem("last_video_search_query", queryInput.trim());
     }
     setSearchParams(nextParams);
   };
@@ -87,29 +107,34 @@ export default function VideosPage() {
   const handlePerformerSelect = (name: string) => {
     setQueryInput(name);
     const nextParams = new URLSearchParams();
-    nextParams.set('query', name);
-    if (currentOrder !== 'latest') {
-      nextParams.set('order', currentOrder);
+    nextParams.set("query", name);
+    if (currentOrder !== "latest") {
+      nextParams.set("order", currentOrder);
     }
-    nextParams.set('page', '1');
-    sessionStorage.setItem('last_video_search_query', name);
+    nextParams.set("page", "1");
+    sessionStorage.setItem("last_video_search_query", name);
     setSearchParams(nextParams);
   };
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage === currentPage) return;
     const nextParams = new URLSearchParams(searchParams);
-    if (queryParam) nextParams.set('query', queryParam);
-    if (currentOrder !== 'latest') nextParams.set('order', currentOrder);
-    nextParams.set('page', String(newPage));
+    if (queryParam) nextParams.set("query", queryParam);
+    if (currentOrder !== "latest") nextParams.set("order", currentOrder);
+    nextParams.set("page", String(newPage));
     setSearchParams(nextParams);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const totalPages = useMemo(() => Math.ceil(totalVideos / 20) || 1, [totalVideos]);
+  const totalPages = useMemo(
+    () => Math.ceil(totalVideos / 20) || 1,
+    [totalVideos],
+  );
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', color: 'var(--text-primary)' }}>
+    <div
+      style={{ fontFamily: "var(--font-sans)", color: "var(--text-primary)" }}
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
@@ -124,22 +149,22 @@ export default function VideosPage() {
         {/* Search / Saved Tabs */}
         <div className="flex rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] p-1">
           <button
-            onClick={() => setActiveTab('search')}
+            onClick={() => setActiveTab("search")}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-              activeTab === 'search'
-                ? 'bg-[var(--accent-glow)] text-[var(--accent)]'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              activeTab === "search"
+                ? "bg-[var(--accent-glow)] text-[var(--accent)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <Film size={14} />
             Search
           </button>
           <button
-            onClick={() => setActiveTab('saved')}
+            onClick={() => setActiveTab("saved")}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
-              activeTab === 'saved'
-                ? 'bg-[var(--accent-glow)] text-[var(--accent)]'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              activeTab === "saved"
+                ? "bg-[var(--accent-glow)] text-[var(--accent)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             }`}
           >
             <Bookmark size={14} />
@@ -149,20 +174,20 @@ export default function VideosPage() {
       </div>
 
       {/* Main Content Areas */}
-      {activeTab === 'search' ? (
+      {activeTab === "search" ? (
         <div className="space-y-6">
           {/* Search Bar */}
           <form onSubmit={handleSearchSubmit} className="flex gap-2">
             <SearchInput
               size="lg"
               width="standard"
-              placeholder="Search by video title, model, or keyword…"
+              placeholder={t("videos.search")}
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
-              onClear={() => setQueryInput('')}
+              onClear={() => setQueryInput("")}
             />
             <Button type="submit" variant="primary" disabled={loading}>
-              {loading ? 'Searching…' : 'Search'}
+              {loading ? "Searching…" : "Search"}
             </Button>
           </form>
 
@@ -179,8 +204,8 @@ export default function VideosPage() {
                     onClick={() => handlePerformerSelect(p.full_name)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                       queryParam.toLowerCase() === p.full_name.toLowerCase()
-                        ? 'border-[var(--accent)] bg-[var(--accent-glow)] text-[var(--text-primary)]'
-                        : 'border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-border)]'
+                        ? "border-[var(--accent)] bg-[var(--accent-glow)] text-[var(--text-primary)]"
+                        : "border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-border)]"
                     }`}
                   >
                     {/* {p.thumbnail_url && (
@@ -210,8 +235,11 @@ export default function VideosPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[var(--text-faint)] border-b border-[var(--border)] pb-3">
               <div className="flex items-center gap-3">
                 <span>
-                  «<strong className="text-[var(--text-primary)]">{queryParam}</strong>» found for:{' '}
-                  {totalVideos} videos
+                  «
+                  <strong className="text-[var(--text-primary)]">
+                    {queryParam}
+                  </strong>
+                  » found for: {totalVideos} videos
                 </span>
                 {totalPages > 1 && (
                   <span className="text-[var(--text-muted)]">
@@ -232,13 +260,13 @@ export default function VideosPage() {
                   disabled={loading}
                   ariaLabel="Sort videos"
                   options={[
-                    { value: 'latest', label: 'Latest' },
-                    { value: 'longest', label: 'Longest' },
-                    { value: 'shortest', label: 'Shortest' },
-                    { value: 'most-popular', label: 'Most Popular' },
-                    { value: 'top-rated', label: 'Top Rated' },
-                    { value: 'top-weekly', label: 'Top Weekly' },
-                    { value: 'top-monthly', label: 'Top Monthly' },
+                    { value: "latest", label: "Latest" },
+                    { value: "longest", label: "Longest" },
+                    { value: "shortest", label: "Shortest" },
+                    { value: "most-popular", label: "Most Popular" },
+                    { value: "top-rated", label: "Top Rated" },
+                    { value: "top-weekly", label: "Top Weekly" },
+                    { value: "top-monthly", label: "Top Monthly" },
                   ]}
                 />
               </div>
@@ -275,15 +303,29 @@ export default function VideosPage() {
             </div>
           ) : queryParam ? (
             <div className="py-16 text-center text-[var(--text-muted)] border border-dashed border-[var(--border)] rounded-2xl">
-              <Film size={32} className="mx-auto mb-2 opacity-30 text-[var(--accent)]" />
-              <p className="text-base text-[var(--text-primary)]">No video found.</p>
-              <p className="text-xs mt-1">Try searching with another word or name.</p>
+              <Film
+                size={32}
+                className="mx-auto mb-2 opacity-30 text-[var(--accent)]"
+              />
+              <p className="text-base text-[var(--text-primary)]">
+                No video found.
+              </p>
+              <p className="text-xs mt-1">
+                Try searching with another word or name.
+              </p>
             </div>
           ) : (
             <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--border)] rounded-2xl">
-              <Search size={36} className="mx-auto mb-3 opacity-30 text-[var(--accent)]" />
-              <p className="text-base text-[var(--text-primary)] font-medium">Global Search</p>
-              <p className="text-xs mt-1">Type in the search bar or select one of the performance above.</p>
+              <Search
+                size={36}
+                className="mx-auto mb-3 opacity-30 text-[var(--accent)]"
+              />
+              <p className="text-base text-[var(--text-primary)] font-medium">
+                Global Search
+              </p>
+              <p className="text-xs mt-1">
+                Type in the search bar or select one of the performance above.
+              </p>
             </div>
           )}
 
@@ -309,8 +351,16 @@ export default function VideosPage() {
             <h2 className="text-sm font-medium text-[var(--text-muted)]">
               The collection of videos you saved ({savedVideos.length})
             </h2>
-            <Button variant="ghost" size="sm" onClick={() => loadSaved()} disabled={savedLoading}>
-              <RefreshCw size={13} className={savedLoading ? 'animate-spin' : ''} />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => loadSaved()}
+              disabled={savedLoading}
+            >
+              <RefreshCw
+                size={13}
+                className={savedLoading ? "animate-spin" : ""}
+              />
               Refresh
             </Button>
           </div>
@@ -331,19 +381,19 @@ export default function VideosPage() {
                 const mappedVideo: EPVideo = {
                   id: sv.videoId,
                   title: sv.title,
-                  url: '',
+                  url: "",
                   default_thumb: {
                     src: sv.defaultThumb,
-                    size: 'big',
+                    size: "big",
                     width: 640,
                     height: 360,
                   },
                   length_sec: 0,
                   length_min: sv.lengthMin,
-                  views: parseInt(sv.views || '0', 10) || 0,
-                  rate: sv.rate || '0.00',
-                  keywords: '',
-                  embed: '',
+                  views: parseInt(sv.views || "0", 10) || 0,
+                  rate: sv.rate || "0.00",
+                  keywords: "",
+                  embed: "",
                   thumbs: [],
                 };
                 return <VideoCard key={sv.videoId} video={mappedVideo} />;
@@ -351,10 +401,16 @@ export default function VideosPage() {
             </div>
           ) : (
             <div className="py-20 text-center text-[var(--text-muted)] border border-dashed border-[var(--border)] rounded-2xl">
-              <Bookmark size={36} className="mx-auto mb-3 opacity-30 text-[var(--accent)]" />
-              <p className="text-base text-[var(--text-primary)] font-medium">No saved videos</p>
+              <Bookmark
+                size={36}
+                className="mx-auto mb-3 opacity-30 text-[var(--accent)]"
+              />
+              <p className="text-base text-[var(--text-primary)] font-medium">
+                No saved videos
+              </p>
               <p className="text-xs mt-1">
-                You can add videos here by pressing the "Save" button while watching them.
+                You can add videos here by pressing the "Save" button while
+                watching them.
               </p>
             </div>
           )}

@@ -1,28 +1,30 @@
-import { useState, memo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Clock, Eye, Star } from 'lucide-react';
-import HoverPreview from './HoverPreview';
-import type { EPVideo } from '@/features/videos/types/video';
+import { useTranslation } from "react-i18next";
+import { useState, memo } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Clock, Eye, Star } from "lucide-react";
+import HoverPreview from "./HoverPreview";
+import type { EPVideo } from "@/features/videos/types/video";
 
 interface VideoCardProps {
   video: EPVideo;
 }
 
 function VideoCard({ video }: VideoCardProps) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isHovered, setIsHovered] = useState(false);
 
-  const thumbUrl = video.default_thumb?.src || '';
-  const rating = parseFloat(video.rate || '0').toFixed(1);
+  const thumbUrl = video.default_thumb?.src || "";
+  const rating = parseFloat(video.rate || "0").toFixed(1);
 
   // Format views count
   const formattedViews = video.views
     ? video.views >= 1000000
       ? `${(video.views / 1000000).toFixed(1)}M`
       : video.views >= 1000
-      ? `${(video.views / 1000).toFixed(0)}K`
-      : String(video.views)
-    : '0';
+        ? `${(video.views / 1000).toFixed(0)}K`
+        : String(video.views)
+    : "0";
 
   return (
     <div
@@ -48,7 +50,7 @@ function VideoCard({ video }: VideoCardProps) {
           {/* Duration Badge */}
           <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 rounded-md bg-black/75 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[var(--text-primary)]">
             <Clock size={10} />
-            {video.length_min || '0:00'}
+            {video.length_min || "0:00"}
           </div>
         </div>
 
@@ -56,8 +58,12 @@ function VideoCard({ video }: VideoCardProps) {
         <div className="flex flex-1 flex-col p-4">
           <h3
             className="line-clamp-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:text-[var(--accent)]"
-            style={{ minHeight: '2.5rem', lineHeight: '1.25rem', marginBottom: 12 }}
-            title={video.title}
+            style={{
+              minHeight: "2.5rem",
+              lineHeight: "1.25rem",
+              marginBottom: 12,
+            }}
+            title={t("videos.preview")}
           >
             {video.title}
           </h3>
@@ -65,7 +71,10 @@ function VideoCard({ video }: VideoCardProps) {
           <div className="mt-auto flex items-center justify-between text-xs text-[var(--text-faint)]">
             {/* Rating */}
             <div className="flex items-center gap-1 font-semibold text-[#F2EDE6]">
-              <Star size={12} className="fill-[var(--accent)] stroke-[var(--accent)]" />
+              <Star
+                size={12}
+                className="fill-[var(--accent)] stroke-[var(--accent)]"
+              />
               <span>{rating}</span>
             </div>
 

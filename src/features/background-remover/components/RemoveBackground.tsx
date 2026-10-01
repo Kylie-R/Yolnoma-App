@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react';
-import { Upload, Download, Wand2, Loader2, ImageOff, X } from 'lucide-react';
-import { toast } from '@/shared/ui/Toast';
+import { useTranslation } from "react-i18next";
+import { useRef, useState } from "react";
+import { Upload, Download, Wand2, Loader2, ImageOff, X } from "lucide-react";
+import { toast } from "@/shared/ui/Toast";
 
 export default function RemoveBackground() {
+  const { t } = useTranslation();
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [bgRemove, setBgRemove] = useState<string | null>(null);
@@ -31,23 +33,25 @@ export default function RemoveBackground() {
     if (!image) return;
 
     const apiKey = import.meta.env.VITE_REMOVE_BG_API_KEY as string;
-    const apiUrl = 'https://api.remove.bg/v1.0/removebg';
+    const apiUrl = "https://api.remove.bg/v1.0/removebg";
 
     const formData = new FormData();
-    formData.append('image_file', image, image.name);
-    formData.append('size', 'auto');
+    formData.append("image_file", image, image.name);
+    formData.append("size", "auto");
 
     setLoading(true);
     setError(null);
 
     try {
       if (!apiKey) {
-        throw new Error('Remove.bg API Key is missing. Please check your .env configuration.');
+        throw new Error(
+          "Remove.bg API Key is missing. Please check your .env configuration.",
+        );
       }
 
       const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'X-Api-Key': apiKey },
+        method: "POST",
+        headers: { "X-Api-Key": apiKey },
         body: formData,
       });
 
@@ -55,10 +59,14 @@ export default function RemoveBackground() {
         let message = `Request failed (${res.status})`;
         try {
           const errData = await res.json();
-          if (errData?.errors && Array.isArray(errData.errors) && errData.errors[0]) {
+          if (
+            errData?.errors &&
+            Array.isArray(errData.errors) &&
+            errData.errors[0]
+          ) {
             const firstErr = errData.errors[0];
             message = firstErr.title
-              ? `${firstErr.title}${firstErr.detail ? `: ${firstErr.detail}` : ''}`
+              ? `${firstErr.title}${firstErr.detail ? `: ${firstErr.detail}` : ""}`
               : message;
           }
         } catch {}
@@ -79,9 +87,9 @@ export default function RemoveBackground() {
   return (
     <div
       style={{
-        minHeight: '85vh',
+        minHeight: "85vh",
         background:
-          'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217,119,87,0.10), transparent), #14110E',
+          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217,119,87,0.10), transparent), #14110E",
       }}
       className="text-[#F2EDE6] flex items-center justify-center p-8"
     >
@@ -116,17 +124,19 @@ export default function RemoveBackground() {
                        px-8 py-16 text-center cursor-pointer transition-colors duration-150
                        ${
                          dragOver
-                           ? 'border-[#D97757]/60 bg-[#D97757]/[0.06]'
-                           : 'border-white/15 hover:border-white/25 bg-white/[0.02]'
+                           ? "border-[#D97757]/60 bg-[#D97757]/[0.06]"
+                           : "border-white/15 hover:border-white/25 bg-white/[0.02]"
                        }`}
           >
             <div className="h-12 w-12 rounded-full bg-white/[0.05] flex items-center justify-center">
               <Upload size={20} strokeWidth={1.75} className="text-white/50" />
             </div>
             <p className="text-sm text-[#F2EDE6] font-medium">
-              Select a file or drop it here
+              {t("backgroundRemover.selectFile")}
             </p>
-            <p className="text-xs text-white/35">PNG, JPG — maximum 12 MB</p>
+            <p className="text-xs text-white/35">
+              {t("backgroundRemover.fileHint")}
+            </p>
             <input
               ref={fileInputRef}
               type="file"
@@ -142,15 +152,13 @@ export default function RemoveBackground() {
         {previewUrl && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-white/45">
-                {image?.name}
-              </p>
+              <p className="text-sm text-white/45">{image?.name}</p>
               <button
                 onClick={reset}
                 className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-[#F2EDE6] transition-colors"
               >
                 <X size={13} strokeWidth={2} />
-                Another picture
+                {t("backgroundRemover.anotherPicture")}
               </button>
             </div>
 
@@ -160,7 +168,11 @@ export default function RemoveBackground() {
                   Original
                 </p>
                 <div className="aspect-square rounded-2xl overflow-hidden border border-white/[0.08] bg-[#181410] flex items-center justify-center">
-                  <img src={previewUrl} alt="Original" className="w-full h-full object-contain" />
+                  <img
+                    src={previewUrl}
+                    alt={t("backgroundRemover.originalAlt")}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
 
@@ -172,25 +184,36 @@ export default function RemoveBackground() {
                   className="aspect-square rounded-2xl overflow-hidden border border-white/[0.08] flex items-center justify-center relative"
                   style={{
                     backgroundImage:
-                      'linear-gradient(45deg, #1B1713 25%, transparent 25%), linear-gradient(-45deg, #1B1713 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1B1713 75%), linear-gradient(-45deg, transparent 75%, #1B1713 75%)',
-                    backgroundSize: '20px 20px',
-                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                    backgroundColor: '#100E0C',
+                      "linear-gradient(45deg, #1B1713 25%, transparent 25%), linear-gradient(-45deg, #1B1713 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1B1713 75%), linear-gradient(-45deg, transparent 75%, #1B1713 75%)",
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
+                    backgroundColor: "#100E0C",
                   }}
                 >
                   {loading && (
                     <div className="flex flex-col items-center gap-2 text-white/50">
-                      <Loader2 size={22} className="animate-spin text-[#D97757]" />
-                      <p className="text-xs">Removing background…</p>
+                      <Loader2
+                        size={22}
+                        className="animate-spin text-[#D97757]"
+                      />
+                      <p className="text-xs">
+                        {t("backgroundRemover.removing")}
+                      </p>
                     </div>
                   )}
                   {!loading && bgRemove && (
-                    <img src={bgRemove} alt="Background removed" className="w-full h-full object-contain" />
+                    <img
+                      src={bgRemove}
+                      alt={t("backgroundRemover.removedAlt")}
+                      className="w-full h-full object-contain"
+                    />
                   )}
                   {!loading && !bgRemove && (
                     <div className="flex flex-col items-center gap-2 text-white/25">
                       <ImageOff size={22} strokeWidth={1.5} />
-                      <p className="text-xs">There are no results yet</p>
+                      <p className="text-xs">
+                        {t("backgroundRemover.noResults")}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -216,13 +239,15 @@ export default function RemoveBackground() {
                 ) : (
                   <Wand2 size={15} strokeWidth={1.75} />
                 )}
-                {loading ? 'In progress…' : 'Remove background'}
+                {loading
+                  ? t("backgroundRemover.inProgress")
+                  : t("backgroundRemover.remove")}
               </button>
 
               {bgRemove && (
                 <a href={bgRemove} download="background_removed_image.png">
                   <button
-                    onClick={() => toast.success('Image saved to your Downloads folder')}
+                    onClick={() => toast.success(t("backgroundRemover.saved"))}
                     className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-5 py-2.5 text-sm
                                font-medium text-white/80 hover:text-[#F2EDE6] hover:border-[#D97757]/40
                                hover:bg-[#D97757]/[0.08] transition-colors"

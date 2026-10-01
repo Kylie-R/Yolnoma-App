@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   Loader2,
@@ -41,6 +42,7 @@ const DNS_RESOLVER_OPTIONS = DNS_PROVIDERS.map((p) => ({
 }));
 
 export const DnsLookupTab: React.FC = () => {
+  const { t } = useTranslation();
   const {
     domain,
     setDomain,
@@ -103,7 +105,7 @@ export const DnsLookupTab: React.FC = () => {
           {/* Domain Input */}
           <div className="lg:col-span-6 space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center justify-between">
-              <span>Domain or Hostname</span>
+              <span>{t("dns.domain")}</span>
               {history.length > 0 && (
                 <button
                   type="button"
@@ -111,7 +113,9 @@ export const DnsLookupTab: React.FC = () => {
                   className="inline-flex items-center gap-1 text-[11px] font-normal text-[var(--accent)] hover:underline capitalize"
                 >
                   <History size={11} />{" "}
-                  {showHistory ? "Hide Recent" : `Recent (${history.length})`}
+                  {showHistory
+                    ? t("dns.hideRecent")
+                    : t("dns.recent", { count: history.length })}
                 </button>
               )}
             </label>
@@ -134,13 +138,13 @@ export const DnsLookupTab: React.FC = () => {
           {/* Record Type Select */}
           <div className="lg:col-span-2 space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              Record Type
+              {t("dns.type")}
             </label>
             <SelectMenu
               value={queryType}
               options={RECORD_TYPE_OPTIONS}
               onChange={(val) => setQueryType(val as DnsQueryType)}
-              ariaLabel="Select Record Type"
+              ariaLabel={t("dns.selectType")}
               disabled={loading}
             />
           </div>
@@ -148,13 +152,13 @@ export const DnsLookupTab: React.FC = () => {
           {/* Provider Select */}
           <div className="lg:col-span-2 space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-              DNS Resolver
+              {t("dns.resolver")}
             </label>
             <SelectMenu
               value={provider}
               options={DNS_RESOLVER_OPTIONS}
               onChange={(val) => setProvider(val as DnsProvider)}
-              ariaLabel="Select DNS Resolver"
+              ariaLabel={t("dns.selectResolver")}
               disabled={loading}
             />
           </div>
@@ -169,12 +173,12 @@ export const DnsLookupTab: React.FC = () => {
               {loading ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Resolving...
+                  {t("dns.resolving")}
                 </>
               ) : (
                 <>
                   <Search size={16} />
-                  Lookup
+                  {t("dns.lookup")}
                 </>
               )}
             </button>
@@ -186,14 +190,14 @@ export const DnsLookupTab: React.FC = () => {
           <div className="rounded-xl border border-white/[0.08] bg-black/40 p-3 space-y-2">
             <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
               <span className="font-semibold uppercase tracking-wider text-[10px]">
-                Recent Searches
+                {t("dns.recentSearches")}
               </span>
               <button
                 type="button"
                 onClick={clearHistory}
                 className="flex items-center gap-1 text-[11px] text-rose-400 hover:text-rose-300 transition-colors"
               >
-                <Trash2 size={11} /> Clear History
+                <Trash2 size={11} /> {t("dns.clear")}
               </button>
             </div>
             <div className="flex flex-wrap gap-2 pt-1">
@@ -277,7 +281,7 @@ export const DnsLookupTab: React.FC = () => {
                   type="text"
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  placeholder="Filter records..."
+                  placeholder={t("dns.filter")}
                   className="pl-7 pr-3 py-1.5 rounded-lg bg-white/[0.03] border border-[var(--border)] text-xs text-white placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent)]/50"
                 />
               </div>
@@ -289,7 +293,7 @@ export const DnsLookupTab: React.FC = () => {
                   onClick={() => setShowExportMenu(!showExportMenu)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-[var(--border)] text-xs font-medium text-[var(--text-primary)] hover:border-[var(--accent)]/40 hover:text-[var(--accent)] transition-all"
                 >
-                  <Share2 size={13} /> Export
+                  <Share2 size={13} /> {t("dns.export")}
                 </button>
 
                 {showExportMenu && (
@@ -299,16 +303,16 @@ export const DnsLookupTab: React.FC = () => {
                       onClick={() => handleCopyExport("json")}
                       className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs text-[var(--text-primary)] hover:bg-white/[0.06] flex items-center gap-2"
                     >
-                      <FileJson size={13} className="text-amber-400" /> Copy
-                      JSON
+                      <FileJson size={13} className="text-amber-400" />{" "}
+                      {t("dns.copyJson")}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleCopyExport("bind")}
                       className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs text-[var(--text-primary)] hover:bg-white/[0.06] flex items-center gap-2"
                     >
-                      <FileCode2 size={13} className="text-blue-400" /> Copy
-                      BIND Zone
+                      <FileCode2 size={13} className="text-blue-400" />{" "}
+                      {t("dns.copyBind")}
                     </button>
                     <button
                       type="button"
@@ -316,7 +320,7 @@ export const DnsLookupTab: React.FC = () => {
                       className="w-full px-2.5 py-1.5 rounded-lg text-left text-xs text-[var(--text-primary)] hover:bg-white/[0.06] flex items-center gap-2"
                     >
                       <FileSpreadsheet size={13} className="text-emerald-400" />{" "}
-                      Copy CSV Table
+                      {t("dns.copyCsv")}
                     </button>
                   </div>
                 )}
@@ -333,7 +337,7 @@ export const DnsLookupTab: React.FC = () => {
             </div>
           ) : (
             <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-8 text-center text-sm text-[var(--text-muted)]">
-              No DNS records matching the current filter.
+              {t("dns.noRecords")}
             </div>
           )}
         </div>

@@ -1,8 +1,10 @@
 import { ArrowRight, Download, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import Button from "./Button";
 
 export default function UpdateModal() {
+  const { t } = useTranslation();
   const {
     status,
     updateInfo,
@@ -29,7 +31,7 @@ export default function UpdateModal() {
           type="button"
           onClick={closeModal}
           className="absolute right-4 top-4 rounded-full p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
-          aria-label="Close update dialog"
+          aria-label={t("updater.dialogClose")}
         >
           <X size={17} />
         </button>
@@ -38,16 +40,16 @@ export default function UpdateModal() {
           <Download size={20} />
         </div>
         <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#f3b39c]">
-          Yolnoma update
+          {t("updater.label")}
         </p>
         <h1
           id="update-available-title"
           className="mt-2 text-2xl font-semibold tracking-tight"
         >
-          A new version is ready
+          {t("updater.newVersion")}
         </h1>
         <p className="mt-2 text-sm leading-6 text-white/55">
-          Update Yolnoma now or continue working and do it later.
+          {t("updater.description")}
         </p>
 
         <div className="mt-6 flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm">
@@ -77,7 +79,7 @@ export default function UpdateModal() {
             className="gap-2"
           >
             <Download size={14} />
-            {hasError ? "Retry update" : "Update now"}
+            {hasError ? t("updater.retry") : t("updater.now")}
           </Button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { listen } from "@tauri-apps/api/event";
@@ -32,6 +33,7 @@ export default function LoginPage({
   preview = false,
   onClosePreview,
 }: LoginPageProps) {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [isWaitingForBrowser, setIsWaitingForBrowser] = useState(false);
   const [error, setError] = useState("");
@@ -239,7 +241,7 @@ export default function LoginPage({
   const handleManualCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualCode.trim()) {
-      setError("Please enter the code.");
+      setError(t("auth.invalidCode"));
       return;
     }
     if (preview) {
@@ -264,8 +266,8 @@ export default function LoginPage({
           type="button"
           onClick={onClosePreview}
           className="absolute right-4 top-4 z-20 rounded-full border border-white/10 bg-black/30 p-2 text-white/50 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
-          aria-label="Close login preview"
-          title="Close login preview"
+          aria-label={t("auth.login")}
+          title={t("auth.login")}
         >
           <X size={18} />
         </button>
@@ -373,7 +375,7 @@ export default function LoginPage({
               <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] text-center space-y-2 animate-pulse">
                 <div className="flex items-center justify-center gap-2 text-[#D97757] text-xs font-medium">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Verify your account in the browser...</span>
+                  <span>{t("auth.verifyBrowser")}</span>
                 </div>
                 <p className="text-[11px] text-white/35">
                   Once the setup is complete, the program will open
@@ -407,7 +409,7 @@ export default function LoginPage({
                       type="text"
                       value={manualCode}
                       onChange={(e) => setManualCode(e.target.value)}
-                      placeholder="Enter the code from yolnoma://auth?code=..."
+                      placeholder={t("auth.codePlaceholder")}
                       className="w-full bg-white/[0.04] border border-white/10 rounded-xl py-2.5 px-3.5 text-xs text-[#F2EDE6]
                                  placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-[#D97757]/40
                                  focus:border-[#D97757]/50 transition-all font-mono"
@@ -424,7 +426,7 @@ export default function LoginPage({
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
-                        <span>Confirmation</span>
+                        <span>{t("auth.login")}</span>
                         <ArrowRight size={13} />
                       </>
                     )}

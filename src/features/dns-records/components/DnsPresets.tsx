@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import type { DnsQueryType } from "../types";
 
@@ -21,10 +22,11 @@ export const DnsPresets: React.FC<DnsPresetsProps> = ({
   onSelectDomain,
   disabled,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 flex-wrap text-xs">
       <span className="text-[var(--text-faint)] flex items-center gap-1 font-medium">
-        <Sparkles size={12} className="text-[var(--accent)]" /> Quick Presets:
+        <Sparkles size={12} className="text-[var(--accent)]" /> {t("dns.quick")}
       </span>
       {PRESET_DOMAINS.map(({ domain, label }) => (
         <button

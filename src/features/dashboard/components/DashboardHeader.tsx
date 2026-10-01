@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 interface DashboardHeaderProps {
   displayName: string;
   greeting: string;
@@ -9,10 +10,11 @@ export default function DashboardHeader({
   greeting,
   osName,
 }: DashboardHeaderProps) {
+  const { t } = useTranslation();
   return (
     <div>
       <p className="text-[11px] tracking-[0.18em] uppercase text-[var(--accent)] mb-2 font-semibold flex items-center gap-2">
-        <span>CONTROL PANEL</span>
+        <span>{t("dashboard.greeting")}</span>
         {osName && <span className="text-white/30 lowercase">• {osName}</span>}
       </p>
       <h1 className="font-serif text-4xl md:text-5xl font-medium tracking-tight text-white m-0 leading-tight">

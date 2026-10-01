@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   Clock,
@@ -9,14 +10,14 @@ import {
   Calendar,
   Tag,
   Server,
-} from 'lucide-react';
-import { videoApi } from '@/features/videos/api/videoApi';
-import { getEmbedUrl } from '@/features/videos/api/encrypt';
-import SaveVideoButton from '@/features/videos/components/SaveVideoButton';
-import VideoGallery from '@/features/videos/components/VideoGallery';
-import { Button } from '@/shared/ui';
-import { LineSkeleton } from '@/shared/ui/Skeleton';
-import type { EPVideo } from '@/features/videos/types/video';
+} from "lucide-react";
+import { videoApi } from "@/features/videos/api/videoApi";
+import { getEmbedUrl } from "@/features/videos/api/encrypt";
+import SaveVideoButton from "@/features/videos/components/SaveVideoButton";
+import VideoGallery from "@/features/videos/components/VideoGallery";
+import { Button } from "@/shared/ui";
+import { LineSkeleton } from "@/shared/ui/Skeleton";
+import type { EPVideo } from "@/features/videos/types/video";
 
 /** Skeleton matching VideoDetailPage layout while data loads. */
 function VideoDetailSkeleton() {
@@ -67,8 +68,8 @@ function VideoDetailSkeleton() {
       {/* Gallery */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
           gap: 12,
         }}
       >
@@ -76,7 +77,7 @@ function VideoDetailSkeleton() {
           <div
             key={i}
             className="skeleton"
-            style={{ aspectRatio: '16/9', borderRadius: 10 }}
+            style={{ aspectRatio: "16/9", borderRadius: 10 }}
           />
         ))}
       </div>
@@ -85,21 +86,22 @@ function VideoDetailSkeleton() {
 }
 
 export default function VideoDetailPage() {
+  const { t } = useTranslation();
   const { videoId } = useParams<{ videoId: string }>();
   const location = useLocation();
 
   const [video, setVideo] = useState<EPVideo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [server, setServer] = useState<'www' | 'es'>(() => {
+  const [server, setServer] = useState<"www" | "es">(() => {
     try {
       const saved = sessionStorage.getItem(`yolnoma_video_server_${videoId}`);
-      if (saved === 'www' || saved === 'es') return saved;
+      if (saved === "www" || saved === "es") return saved;
     } catch {}
-    return 'www';
+    return "www";
   });
 
-  const changeServer = (newServer: 'www' | 'es') => {
+  const changeServer = (newServer: "www" | "es") => {
     setServer(newServer);
     try {
       sessionStorage.setItem(`yolnoma_video_server_${videoId}`, newServer);
@@ -108,9 +110,9 @@ export default function VideoDetailPage() {
 
   const backTarget =
     location.state?.from ||
-    (sessionStorage.getItem('last_video_search_query')
-      ? `/videos?query=${encodeURIComponent(sessionStorage.getItem('last_video_search_query')!)}`
-      : '/videos');
+    (sessionStorage.getItem("last_video_search_query")
+      ? `/videos?query=${encodeURIComponent(sessionStorage.getItem("last_video_search_query")!)}`
+      : "/videos");
 
   const loadVideo = useCallback(async () => {
     if (!videoId) return;
@@ -134,10 +136,10 @@ export default function VideoDetailPage() {
     if (!video) return [];
     const defaultThumbSrc =
       video.default_thumb?.src ||
-      (typeof video.default_thumb === 'string' ? video.default_thumb : '');
+      (typeof video.default_thumb === "string" ? video.default_thumb : "");
 
     const thumbList = (video.thumbs || []).map((t: any) =>
-      typeof t === 'string' ? t : t?.src || '',
+      typeof t === "string" ? t : t?.src || "",
     );
 
     const combined = [defaultThumbSrc, ...thumbList].filter(Boolean);
@@ -147,7 +149,7 @@ export default function VideoDetailPage() {
   const tags = useMemo(() => {
     if (!video?.keywords) return [];
     return video.keywords
-      .split(',')
+      .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
   }, [video]);
@@ -172,7 +174,7 @@ export default function VideoDetailPage() {
             An error occurred while uploading the video.
           </p>
           <p className="text-sm text-red-300/70 mb-5">
-            {error || 'Video topilmadi.'}
+            {error || "Video topilmadi."}
           </p>
           <Button variant="ghost" onClick={loadVideo}>
             Retry
@@ -188,14 +190,14 @@ export default function VideoDetailPage() {
       : video.views >= 1000
         ? `${(video.views / 1000).toFixed(0)}K`
         : String(video.views)
-    : '0';
+    : "0";
 
-  const rating = parseFloat(video.rate || '0').toFixed(1);
+  const rating = parseFloat(video.rate || "0").toFixed(1);
 
   return (
     <div
       className="max-w-5xl mx-auto space-y-8"
-      style={{ fontFamily: 'var(--font-sans)' }}
+      style={{ fontFamily: "var(--font-sans)" }}
     >
       {/* Navigation & Action Row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -242,25 +244,25 @@ export default function VideoDetailPage() {
         <div className="flex gap-2 items-center justify-between flex-wrap text-xs text-[var(--text-faint)]">
           <div className="flex items-center gap-2">
             <Server size={13} />
-            <span>If the video does not open, switch the server:</span>
+            <span>{t("videos.details")}:</span>
           </div>
           <div className="flex gap-1.5">
             <button
-              onClick={() => changeServer('www')}
+              onClick={() => changeServer("www")}
               className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${
-                server === 'www'
-                  ? 'bg-[var(--accent)] text-white font-bold'
-                  : 'bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-muted)] hover:text-white'
+                server === "www"
+                  ? "bg-[var(--accent)] text-white font-bold"
+                  : "bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-muted)] hover:text-white"
               }`}
             >
               Server 1 (WWW)
             </button>
             <button
-              onClick={() => changeServer('es')}
+              onClick={() => changeServer("es")}
               className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${
-                server === 'es'
-                  ? 'bg-[var(--accent)] text-white font-bold'
-                  : 'bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-muted)] hover:text-white'
+                server === "es"
+                  ? "bg-[var(--accent)] text-white font-bold"
+                  : "bg-[var(--bg-elevated)] border border-[var(--border)] text-[var(--text-muted)] hover:text-white"
               }`}
             >
               Server 2 (ES)
@@ -299,9 +301,9 @@ export default function VideoDetailPage() {
           <div className="flex items-center gap-1.5">
             <Clock size={14} className="text-[var(--accent)]" />
             <span>
-              Duration:{' '}
+              Duration:{" "}
               <strong className="text-[var(--text-primary)]">
-                {video.length_min || '0:00'}
+                {video.length_min || "0:00"}
               </strong>
             </span>
           </div>
@@ -320,7 +322,7 @@ export default function VideoDetailPage() {
           <div className="space-y-2 pt-1">
             <div className="flex items-center gap-1.5 text-xs text-[var(--text-faint)] uppercase tracking-wider font-semibold">
               <Tag size={12} />
-              <span>Tags and keywords:</span>
+              <span>{t("videos.details")}</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {tags.map((tag) => (

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Cloud,
@@ -34,14 +35,15 @@ type WeatherResponse = {
 
 type Location = { latitude: number; longitude: number; label: string };
 
-const weatherLabel = (code: number) => {
-  if (code === 0) return "Open Sky";
-  if (code <= 3) return "Cloudy";
-  if (code <= 48) return "Foggy";
-  if (code <= 67 || (code >= 80 && code <= 82)) return "Rainy";
-  if (code >= 71 && code <= 77) return "Snowy";
-  if (code >= 95) return "Thunderstorm";
-  return "Variable";
+const weatherLabel = (code: number, translate: (key: string) => string) => {
+  if (code === 0) return translate("dashboard.openSky");
+  if (code <= 3) return translate("dashboard.cloudy");
+  if (code <= 48) return translate("dashboard.foggy");
+  if (code <= 67 || (code >= 80 && code <= 82))
+    return translate("dashboard.rainy");
+  if (code >= 71 && code <= 77) return translate("dashboard.snowy");
+  if (code >= 95) return translate("dashboard.thunderstorm");
+  return translate("dashboard.variable");
 };
 
 const weatherIcon = (code: number, size = 22) => {
@@ -61,6 +63,7 @@ const dayLabel = (date: string, index: number) => {
 };
 
 export default function WeatherCard() {
+  const { t } = useTranslation();
   const savedLocation = useAccountConfigStore(
     (state) => state.config.weatherLocation,
   );
@@ -95,7 +98,7 @@ export default function WeatherCard() {
       if (!response.ok) throw new Error("Weather service returned an error");
       setWeather((await response.json()) as WeatherResponse);
     } catch {
-      setError("Unable to load weather information. Please try again.");
+      setError(t("dashboard.weatherError"));
     } finally {
       setLoading(false);
     }
@@ -107,7 +110,7 @@ export default function WeatherCard() {
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
-      setError("This device does not have geolocation.");
+      setError(t("dashboard.geolocationError"));
       return;
     }
     setUsingGps(true);
@@ -170,7 +173,7 @@ export default function WeatherCard() {
               onClick={requestLocation}
               disabled={usingGps}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-medium text-white/70 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
-              title="GPS orqali joylashuvni aniqlash"
+              title={t("dashboard.refreshLocation")}
             >
               <LocateFixed
                 size={14}
@@ -183,7 +186,7 @@ export default function WeatherCard() {
               onClick={requestLocation}
               disabled={loading || usingGps}
               className="rounded-xl border border-white/10 bg-white/[0.05] p-2 text-white/60 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
-              title="Refresh location"
+              title={t("dashboard.refreshLocation")}
             >
               <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             </button>
@@ -202,7 +205,9 @@ export default function WeatherCard() {
               size={28}
               className="mx-auto mb-3 text-[var(--accent)]"
             />
-            <p className="text-sm font-medium text-white">Location needed</p>
+            <p className="text-sm font-medium text-white">
+              {t("dashboard.locationNeeded")}
+            </p>
             <p className="mx-auto mt-1 max-w-md text-xs text-white/45">
               Confirm your location to display the weather.
             </p>
@@ -229,7 +234,7 @@ export default function WeatherCard() {
                     {Math.round(current.temperature_2m)}°
                   </p>
                   <p className="text-sm text-white/60">
-                    {weatherLabel(current.weather_code)} · being felt{" "}
+                    {weatherLabel(current.weather_code, t)} · being felt{" "}
                     {Math.round(current.apparent_temperature)}°
                   </p>
                 </div>
@@ -238,17 +243,17 @@ export default function WeatherCard() {
                 <div>
                   <Thermometer size={14} className="mb-1 text-rose-300" />
                   <span>{Math.round(current.apparent_temperature)}°</span>
-                  <p>Being felt</p>
+                  <p>{t("dashboard.feelsLikeLabel")}</p>
                 </div>
                 <div>
                   <Droplets size={14} className="mb-1 text-cyan-300" />
                   <span>{current.relative_humidity_2m}%</span>
-                  <p>Humidity</p>
+                  <p>{t("dashboard.humidity")}</p>
                 </div>
                 <div>
                   <Wind size={14} className="mb-1 text-emerald-300" />
                   <span>{Math.round(current.wind_speed_10m)} km/s</span>
-                  <p>Wind</p>
+                  <p>{t("dashboard.wind")}</p>
                 </div>
               </div>
             </div>

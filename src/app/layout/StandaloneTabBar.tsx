@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { listen } from '@tauri-apps/api/event';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   ChevronLeft,
   ChevronRight,
@@ -20,26 +20,35 @@ import {
   Settings,
   Compass,
   Activity,
-} from 'lucide-react';
-import { TabItem, formatRouteTitle, generateTabId } from '@/shared/lib/tabs';
-import { toast } from '@/shared/ui/Toast';
-import { images } from '@/shared/assets/images';
+} from "lucide-react";
+import { TabItem, formatRouteTitle, generateTabId } from "@/shared/lib/tabs";
+import { toast } from "@/shared/ui/Toast";
+import { images } from "@/shared/assets/images";
+import { useTranslation } from "react-i18next";
 
 function getTabIcon(pathname: string) {
-  if (pathname.includes('/videos')) return <Film size={12} className="text-[#D97757]" />;
-  if (pathname.includes('/performances')) return <Theater size={12} className="text-[#D97757]" />;
-  if (pathname.includes('/tools')) return <Wrench size={12} className="text-[#D97757]" />;
-  if (pathname.includes('/users')) return <Users size={12} className="text-[#D97757]" />;
-  if (pathname.includes('/profile')) return <User size={12} className="text-[#D97757]" />;
-  if (pathname.includes('/settings')) return <Settings size={12} className="text-[#D97757]" />;
-  if (pathname === '/' || pathname === '') return <Home size={12} className="text-[#D97757]" />;
+  if (pathname.includes("/videos"))
+    return <Film size={12} className="text-[#D97757]" />;
+  if (pathname.includes("/performances"))
+    return <Theater size={12} className="text-[#D97757]" />;
+  if (pathname.includes("/tools"))
+    return <Wrench size={12} className="text-[#D97757]" />;
+  if (pathname.includes("/users"))
+    return <Users size={12} className="text-[#D97757]" />;
+  if (pathname.includes("/profile"))
+    return <User size={12} className="text-[#D97757]" />;
+  if (pathname.includes("/settings"))
+    return <Settings size={12} className="text-[#D97757]" />;
+  if (pathname === "/" || pathname === "")
+    return <Home size={12} className="text-[#D97757]" />;
   return <Compass size={12} className="text-[#D97757]" />;
 }
 
-const TABS_STORAGE_KEY = 'yolnoma_standalone_tabs';
-const ACTIVE_TAB_STORAGE_KEY = 'yolnoma_standalone_active_tab';
+const TABS_STORAGE_KEY = "yolnoma_standalone_tabs";
+const ACTIVE_TAB_STORAGE_KEY = "yolnoma_standalone_active_tab";
 
 export default function StandaloneTabBar() {
+  const { t } = useTranslation("common");
   const location = useLocation();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
@@ -58,18 +67,18 @@ export default function StandaloneTabBar() {
 
     const initialId = generateTabId();
     let initialPath = location.pathname;
-    let initialSearch = location.search || '';
+    let initialSearch = location.search || "";
 
     if (window.location.hash) {
       let hash = window.location.hash;
-      if (hash.startsWith('#/')) hash = hash.slice(1);
-      else if (hash.startsWith('#')) hash = hash.slice(1);
+      if (hash.startsWith("#/")) hash = hash.slice(1);
+      else if (hash.startsWith("#")) hash = hash.slice(1);
 
-      if (hash.includes('?')) {
-        const parts = hash.split('?');
-        initialPath = parts[0] || '/';
-        initialSearch = '?' + parts.slice(1).join('?');
-      } else if (hash.startsWith('/')) {
+      if (hash.includes("?")) {
+        const parts = hash.split("?");
+        initialPath = parts[0] || "/";
+        initialSearch = "?" + parts.slice(1).join("?");
+      } else if (hash.startsWith("/")) {
         initialPath = hash;
       }
     }
@@ -78,7 +87,7 @@ export default function StandaloneTabBar() {
       {
         id: initialId,
         title: formatRouteTitle(initialPath),
-        path: initialPath || '/',
+        path: initialPath || "/",
         search: initialSearch,
       },
     ];
@@ -98,7 +107,7 @@ export default function StandaloneTabBar() {
         return savedActive;
       }
     } catch {}
-    return tabs[0]?.id || '';
+    return tabs[0]?.id || "";
   });
 
   // Ref to track active tab ID inside event callbacks
@@ -138,7 +147,7 @@ export default function StandaloneTabBar() {
           };
         }
         return tab;
-      })
+      }),
     );
   }, [location.pathname, location.search]);
 
@@ -146,23 +155,27 @@ export default function StandaloneTabBar() {
   useEffect(() => {
     let unlisten: (() => void) | null = null;
 
-    listen<{ url: string; title?: string }>('add-new-tab', (event) => {
+    listen<{ url: string; title?: string }>("add-new-tab", (event) => {
       if (event.payload?.url) {
         let rawUrl = event.payload.url.trim();
         // Convert hash path to router path
-        if (rawUrl.startsWith('#/')) rawUrl = rawUrl.slice(1);
-        if (rawUrl.startsWith('#')) rawUrl = rawUrl.slice(1);
-        if (!rawUrl.startsWith('/')) rawUrl = '/' + rawUrl;
+        if (rawUrl.startsWith("#/")) rawUrl = rawUrl.slice(1);
+        if (rawUrl.startsWith("#")) rawUrl = rawUrl.slice(1);
+        if (!rawUrl.startsWith("/")) rawUrl = "/" + rawUrl;
 
-        const pathWithoutSearch = rawUrl.split('?')[0] || rawUrl;
-        const search = rawUrl.includes('?') ? '?' + rawUrl.split('?').slice(1).join('?') : '';
+        const pathWithoutSearch = rawUrl.split("?")[0] || rawUrl;
+        const search = rawUrl.includes("?")
+          ? "?" + rawUrl.split("?").slice(1).join("?")
+          : "";
 
         setTabs((prevTabs) => {
           // If a tab with the exact same path and search already exists, simply switch to it!
-          const existingTab = prevTabs.find((t) => t.path === pathWithoutSearch && (t.search || '') === search);
+          const existingTab = prevTabs.find(
+            (t) => t.path === pathWithoutSearch && (t.search || "") === search,
+          );
           if (existingTab) {
             setActiveTabId(existingTab.id);
-            navigate(existingTab.path + (existingTab.search || ''));
+            navigate(existingTab.path + (existingTab.search || ""));
             return prevTabs;
           }
 
@@ -196,7 +209,7 @@ export default function StandaloneTabBar() {
   const handleSelectTab = (tab: TabItem) => {
     if (tab.id === activeTabId) return;
     setActiveTabId(tab.id);
-    navigate(tab.path + (tab.search || ''));
+    navigate(tab.path + (tab.search || ""));
   };
 
   const handleCloseTab = useCallback(
@@ -207,7 +220,9 @@ export default function StandaloneTabBar() {
         const tabToClose = prevTabs.find((t) => t.id === tabId);
         if (tabToClose?.path) {
           window.dispatchEvent(
-            new CustomEvent('yolnoma:tab-closed', { detail: { path: tabToClose.path } })
+            new CustomEvent("yolnoma:tab-closed", {
+              detail: { path: tabToClose.path },
+            }),
           );
         }
 
@@ -232,24 +247,24 @@ export default function StandaloneTabBar() {
           const nextTab = remainingTabs[nextIndex];
           if (nextTab) {
             setActiveTabId(nextTab.id);
-            navigate(nextTab.path + (nextTab.search || ''));
+            navigate(nextTab.path + (nextTab.search || ""));
           }
         }
 
         return remainingTabs;
       });
     },
-    [navigate]
+    [navigate],
   );
 
   const handleAddNewTab = () => {
     const newId = generateTabId();
-    const defaultPath = '/';
+    const defaultPath = "/";
     const newTab: TabItem = {
       id: newId,
-      title: 'Bosh sahifa',
+      title: t("standalone.home"),
       path: defaultPath,
-      search: '',
+      search: "",
     };
 
     setTabs((prev) => [...prev, newTab]);
@@ -258,17 +273,19 @@ export default function StandaloneTabBar() {
   };
 
   // URL copy
-  const cleanPath = location.pathname.startsWith('/') ? location.pathname.slice(1) : location.pathname;
-  const currentAppUrl = `yolnoma://app/${cleanPath || 'dashboard'}${location.search}`;
+  const cleanPath = location.pathname.startsWith("/")
+    ? location.pathname.slice(1)
+    : location.pathname;
+  const currentAppUrl = `yolnoma://app/${cleanPath || "dashboard"}${location.search}`;
 
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(currentAppUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast.success('Havola nusxalandi');
+      toast.success(t("standalone.copied"));
     } catch {
-      toast.error('Nusxalab bo‘lmadi');
+      toast.error(t("standalone.copyFailed"));
     }
   };
 
@@ -295,11 +312,14 @@ export default function StandaloneTabBar() {
               onAuxClick={(e) => {
                 if (e.button === 1) handleCloseTab(e, tab.id);
               }}
-              title={`${tab.title} • (xotirada saqlangan: ~${tab.path.includes('/videos') ? '4.2' : '1.4'} MB)`}
+              title={t("standalone.memoryTitle", {
+                count: 1,
+                size: tab.path.includes("/videos") ? "4.2" : "1.4",
+              })}
               className={`group relative h-8 min-w-[130px] max-w-[200px] flex-1 px-3 rounded-t-lg flex items-center justify-between gap-2 text-xs font-medium cursor-pointer transition-all duration-150 border-t border-x ${
                 isActive
-                  ? 'bg-[#181410] text-[#F2EDE6] border-white/[0.08] border-b-transparent shadow-sm'
-                  : 'bg-transparent text-white/45 hover:text-white/80 hover:bg-white/[0.03] border-transparent'
+                  ? "bg-[#181410] text-[#F2EDE6] border-white/[0.08] border-b-transparent shadow-sm"
+                  : "bg-transparent text-white/45 hover:text-white/80 hover:bg-white/[0.03] border-transparent"
               }`}
             >
               {/* Active top glow indicator */}
@@ -318,10 +338,12 @@ export default function StandaloneTabBar() {
               <button
                 type="button"
                 onClick={(e) => handleCloseTab(e, tab.id)}
-                title="Tabni yopish"
-                aria-label="Close Tab"
+                title={t("standalone.closeTab")}
+                aria-label={t("standalone.closeTab")}
                 className={`p-0.5 rounded text-white/30 hover:text-white hover:bg-white/[0.1] transition-all shrink-0 ${
-                  isActive ? 'opacity-80 group-hover:opacity-100' : 'opacity-0 group-hover:opacity-80'
+                  isActive
+                    ? "opacity-80 group-hover:opacity-100"
+                    : "opacity-0 group-hover:opacity-80"
                 }`}
               >
                 <X size={12} strokeWidth={2.2} />
@@ -334,8 +356,8 @@ export default function StandaloneTabBar() {
         <button
           type="button"
           onClick={handleAddNewTab}
-          title="Open new tab"
-          aria-label="New Tab"
+          title={t("standalone.newTab")}
+          aria-label={t("standalone.newTabAria")}
           className="w-7 h-7 shrink-0 rounded-md flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all ml-0.5"
         >
           <Plus size={14} strokeWidth={2} />
@@ -347,14 +369,18 @@ export default function StandaloneTabBar() {
         {/* Navigation controls */}
         <div className="flex items-center gap-1 shrink-0">
           <div className="w-5 h-5 rounded bg-white/[0.04] flex items-center justify-center p-0.5 mr-0.5">
-            <img src={images.brands.logo_png} alt="Logo" className="w-full h-full object-contain" />
+            <img
+              src={images.brands.logo_png}
+              alt={t("standalone.logoAlt")}
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <button
             type="button"
             onClick={() => navigate(-1)}
             className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-            title="Orqaga"
+            title={t("standalone.backShort")}
           >
             <ChevronLeft size={14} strokeWidth={2} />
           </button>
@@ -363,7 +389,7 @@ export default function StandaloneTabBar() {
             type="button"
             onClick={() => navigate(1)}
             className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-            title="Oldinga"
+            title={t("standalone.forwardShort")}
           >
             <ChevronRight size={14} strokeWidth={2} />
           </button>
@@ -374,19 +400,27 @@ export default function StandaloneTabBar() {
             disabled={isRefreshing}
             className={`p-1 rounded-md transition-all ${
               isRefreshing
-                ? 'text-[var(--accent)] bg-white/[0.08] cursor-wait'
-                : 'text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1]'
+                ? "text-[var(--accent)] bg-white/[0.08] cursor-wait"
+                : "text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1]"
             }`}
-            title={isRefreshing ? 'Yangilanmoqda...' : 'Refresh'}
+            title={
+              isRefreshing
+                ? t("standalone.refreshing")
+                : t("standalone.refreshShort")
+            }
           >
-            <RotateCw size={12} strokeWidth={2} className={isRefreshing ? 'animate-spin' : ''} />
+            <RotateCw
+              size={12}
+              strokeWidth={2}
+              className={isRefreshing ? "animate-spin" : ""}
+            />
           </button>
 
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-            title="Bosh sahifa"
+            title={t("standalone.homeTitle")}
           >
             <Home size={12} strokeWidth={2} />
           </button>
@@ -397,16 +431,18 @@ export default function StandaloneTabBar() {
           <div
             className="h-7 px-2.5 rounded-lg flex items-center justify-between gap-2 border text-xs transition-all duration-200"
             style={{
-              background: 'rgba(24, 20, 16, 0.75)',
-              borderColor: 'rgba(255, 255, 255, 0.08)',
+              background: "rgba(24, 20, 16, 0.75)",
+              borderColor: "rgba(255, 255, 255, 0.08)",
             }}
           >
             <div className="flex items-center gap-1.5 min-w-0 text-white/40">
               <Globe size={11} className="shrink-0 text-[#D97757]" />
               <span className="font-mono text-[11px] truncate tracking-tight text-white/70">
                 <span className="text-[#D97757]/80">yolnoma://app/</span>
-                <span>{cleanPath || 'dashboard'}</span>
-                {location.search && <span className="text-white/40">{location.search}</span>}
+                <span>{cleanPath || "dashboard"}</span>
+                {location.search && (
+                  <span className="text-white/40">{location.search}</span>
+                )}
               </span>
             </div>
 
@@ -414,9 +450,13 @@ export default function StandaloneTabBar() {
               type="button"
               onClick={handleCopyUrl}
               className="shrink-0 p-0.5 text-white/40 hover:text-[#D97757] transition-colors rounded"
-              title="Havolani nusxalash"
+              title={t("standalone.copyUz")}
             >
-              {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={11} />}
+              {copied ? (
+                <Check size={12} className="text-emerald-400" />
+              ) : (
+                <Copy size={11} />
+              )}
             </button>
           </div>
         </div>
@@ -425,13 +465,17 @@ export default function StandaloneTabBar() {
         <div className="shrink-0 flex items-center gap-2">
           <div
             className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400 font-mono cursor-default hover:bg-emerald-500/15 transition-all"
-            title={`${tabs.length} ta tab xotirada saqlanmoqda (taxminan ~${(tabs.length * 1.6).toFixed(1)} MB). Tablar orasida o‘tganda video va sahifalar yangilanib ketmaydi.`}
+            title={t("standalone.memoryTitle", {
+              count: tabs.length,
+              size: (tabs.length * 1.6).toFixed(1),
+            })}
           >
             <Activity size={10} className="animate-pulse text-emerald-400" />
             <span>~{(tabs.length * 1.6).toFixed(1)} MB</span>
           </div>
           <span className="text-[10px] text-white/30 font-mono">
-            {tabs.length} {tabs.length === 1 ? 'tab' : 'tabs'}
+            {tabs.length}{" "}
+            {tabs.length === 1 ? t("standalone.tab") : t("standalone.tabs")}
           </span>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { History } from "lucide-react";
 
 export interface AuditEntry {
@@ -20,6 +21,7 @@ export function AuditLogPanel({
   open: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div style={{ position: "fixed", right: 24, bottom: 24, zIndex: 20 }}>
       <button
@@ -39,7 +41,8 @@ export function AuditLogPanel({
           boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
         }}
       >
-        <History size={14} /> Audit history ({entries.length})
+        <History size={14} />{" "}
+        {t("steam.auditHistory", { count: entries.length })}
       </button>
       {open && (
         <div
@@ -65,7 +68,7 @@ export function AuditLogPanel({
               color: "#F2EDE6",
             }}
           >
-            Recent Steam changes
+            {t("steam.recentChanges")}
           </p>
           {entries.length === 0 ? (
             <p
@@ -75,7 +78,7 @@ export function AuditLogPanel({
                 color: "rgba(242,237,230,0.45)",
               }}
             >
-              No changes recorded yet.
+              {t("steam.noChanges")}
             </p>
           ) : (
             entries.map((entry) => (

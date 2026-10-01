@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ShieldCheck,
   Lock,
@@ -33,6 +34,7 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
   scanResult,
   initialHost = "github.com",
 }) => {
+  const { t } = useTranslation();
   const [targetHost, setTargetHost] = useState(
     scanResult?.domain || initialHost,
   );
@@ -105,11 +107,10 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
             <ShieldCheck size={20} className="text-emerald-400" />
             <div>
               <h2 className="text-sm font-bold text-white">
-                Network, SSL Score & HTTP Headers Inspector
+                {t("dns.securityTitle")}
               </h2>
               <p className="text-[11px] text-[var(--text-muted)] font-sans">
-                Audit transport security, certificate health, and HTTP response
-                security headers.
+                {t("dns.securityDesc")}
               </p>
             </div>
           </div>
@@ -125,7 +126,7 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
                 type="text"
                 value={targetHost}
                 onChange={(e) => setTargetHost(e.target.value)}
-                placeholder="Domain or subdomain"
+                placeholder={t("dns.domain")}
                 className="pl-8 pr-3 py-1.5 rounded-lg bg-white/[0.03] border border-[var(--border)] text-xs text-white focus:outline-none focus:border-[var(--accent)]/50 font-mono w-48 sm:w-60"
               />
             </div>
@@ -140,7 +141,7 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
               ) : (
                 <Search size={13} />
               )}
-              Audit
+              {t("dns.audit")}
             </button>
           </div>
         </div>
@@ -155,7 +156,7 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
         {availableSubdomains.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-white/[0.04]">
             <span className="text-[10px] text-[var(--text-faint)] uppercase font-semibold mr-1">
-              Subdomains:
+              {t("dns.subdomainsLabel")}
             </span>
             {availableSubdomains.map((s) => (
               <button
@@ -291,7 +292,7 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <ShieldCheck size={16} className="text-emerald-400" />
-            Security Headers Audit Checklist
+            {t("dns.checklist")}
           </h3>
           {headersResult && (
             <button
@@ -373,11 +374,11 @@ export const SecurityAuditTab: React.FC<SecurityAuditTabProps> = ({
                 </span>
                 {item.present ? (
                   <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold">
-                    <CheckCircle2 size={12} /> Present
+                    <CheckCircle2 size={12} /> {t("dns.present")}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 text-[10px] text-amber-400 font-bold">
-                    <XCircle size={12} /> Missing
+                    <XCircle size={12} /> {t("dns.missing")}
                   </span>
                 )}
               </div>

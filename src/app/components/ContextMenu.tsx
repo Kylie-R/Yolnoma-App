@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ExternalLink,
   RotateCw,
   ArrowLeft,
   ArrowRight,
   Globe,
-} from 'lucide-react';
-import { openInNewWindow } from '@/shared/lib/window';
-import { toast } from '@/shared/ui/Toast';
-import { openUrl } from '@tauri-apps/plugin-opener';
+} from "lucide-react";
+import { openInNewWindow } from "@/shared/lib/window";
+import { toast } from "@/shared/ui/Toast";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 interface ContextMenuState {
   visible: boolean;
@@ -24,6 +25,7 @@ export function ContextMenuProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const [menu, setMenu] = useState<ContextMenuState>({
     visible: false,
     x: 0,
@@ -48,21 +50,21 @@ export function ContextMenuProvider({
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeMenu();
+      if (e.key === "Escape") closeMenu();
     };
 
     const handleScroll = () => closeMenu();
 
-    window.addEventListener('click', handleGlobalClick);
-    window.addEventListener('contextmenu', handleGlobalClick);
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener("click", handleGlobalClick);
+    window.addEventListener("contextmenu", handleGlobalClick);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", handleScroll, true);
 
     return () => {
-      window.removeEventListener('click', handleGlobalClick);
-      window.removeEventListener('contextmenu', handleGlobalClick);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener("click", handleGlobalClick);
+      window.removeEventListener("contextmenu", handleGlobalClick);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", handleScroll, true);
     };
   }, [closeMenu]);
 
@@ -73,26 +75,24 @@ export function ContextMenuProvider({
       const target = e.target as HTMLElement | null;
       if (!target) return;
 
-      const linkEl = target.closest('a[href], [data-link], [data-href]') as
-        | HTMLAnchorElement
-        | HTMLElement
-        | null;
+      const linkEl = target.closest("a[href], [data-link], [data-href]") as
+        HTMLAnchorElement | HTMLElement | null;
       let rawHref: string | null = null;
       let linkText: string | null = null;
 
       if (linkEl) {
         rawHref =
-          linkEl.getAttribute('href') ||
-          linkEl.getAttribute('data-link') ||
-          linkEl.getAttribute('data-href');
+          linkEl.getAttribute("href") ||
+          linkEl.getAttribute("data-link") ||
+          linkEl.getAttribute("data-href");
         linkText = linkEl.textContent?.trim() || null;
       }
 
       // Ignore pure hash resets like href="#"
       if (
-        rawHref === '#' ||
-        rawHref === 'javascript:void(0)' ||
-        rawHref === ''
+        rawHref === "#" ||
+        rawHref === "javascript:void(0)" ||
+        rawHref === ""
       ) {
         rawHref = null;
       }
@@ -104,12 +104,12 @@ export function ContextMenuProvider({
 
       if (targetUrl) {
         if (
-          targetUrl.startsWith('http://') ||
-          targetUrl.startsWith('https://')
+          targetUrl.startsWith("http://") ||
+          targetUrl.startsWith("https://")
         ) {
           // If it points to localhost app url, treat as internal hash route
-          if (targetUrl.includes('/#')) {
-            targetUrl = targetUrl.substring(targetUrl.indexOf('/#'));
+          if (targetUrl.includes("/#")) {
+            targetUrl = targetUrl.substring(targetUrl.indexOf("/#"));
           } else {
             isExternal = true;
           }
@@ -142,8 +142,8 @@ export function ContextMenuProvider({
       });
     };
 
-    window.addEventListener('contextmenu', handleContextMenu);
-    return () => window.removeEventListener('contextmenu', handleContextMenu);
+    window.addEventListener("contextmenu", handleContextMenu);
+    return () => window.removeEventListener("contextmenu", handleContextMenu);
   }, []);
 
   // Middle-click (mouse wheel click) & Ctrl+Click handler for opening links in new windows
@@ -153,16 +153,14 @@ export function ContextMenuProvider({
       if (e.button === 1) {
         const target = e.target as HTMLElement | null;
         if (!target) return;
-        const linkEl = target.closest('a[href], [data-link], [data-href]') as
-          | HTMLAnchorElement
-          | HTMLElement
-          | null;
+        const linkEl = target.closest("a[href], [data-link], [data-href]") as
+          HTMLAnchorElement | HTMLElement | null;
         if (linkEl) {
           const href =
-            linkEl.getAttribute('href') ||
-            linkEl.getAttribute('data-link') ||
-            linkEl.getAttribute('data-href');
-          if (href && href !== '#' && href !== 'javascript:void(0)') {
+            linkEl.getAttribute("href") ||
+            linkEl.getAttribute("data-link") ||
+            linkEl.getAttribute("data-href");
+          if (href && href !== "#" && href !== "javascript:void(0)") {
             e.preventDefault();
             e.stopPropagation();
             openInNewWindow(href);
@@ -175,16 +173,14 @@ export function ContextMenuProvider({
       if (e.ctrlKey || e.metaKey) {
         const target = e.target as HTMLElement | null;
         if (!target) return;
-        const linkEl = target.closest('a[href], [data-link], [data-href]') as
-          | HTMLAnchorElement
-          | HTMLElement
-          | null;
+        const linkEl = target.closest("a[href], [data-link], [data-href]") as
+          HTMLAnchorElement | HTMLElement | null;
         if (linkEl) {
           const href =
-            linkEl.getAttribute('href') ||
-            linkEl.getAttribute('data-link') ||
-            linkEl.getAttribute('data-href');
-          if (href && href !== '#' && href !== 'javascript:void(0)') {
+            linkEl.getAttribute("href") ||
+            linkEl.getAttribute("data-link") ||
+            linkEl.getAttribute("data-href");
+          if (href && href !== "#" && href !== "javascript:void(0)") {
             e.preventDefault();
             e.stopPropagation();
             openInNewWindow(href);
@@ -193,12 +189,12 @@ export function ContextMenuProvider({
       }
     };
 
-    window.addEventListener('auxclick', handleAuxClick);
-    window.addEventListener('click', handleClick, true);
+    window.addEventListener("auxclick", handleAuxClick);
+    window.addEventListener("click", handleClick, true);
 
     return () => {
-      window.removeEventListener('auxclick', handleAuxClick);
-      window.removeEventListener('click', handleClick, true);
+      window.removeEventListener("auxclick", handleAuxClick);
+      window.removeEventListener("click", handleClick, true);
     };
   }, []);
 
@@ -207,7 +203,7 @@ export function ContextMenuProvider({
     const originalOpen = window.open;
     window.open = (url?: string | URL, target?: string, features?: string) => {
       if (url) {
-        const urlStr = typeof url === 'string' ? url : url.toString();
+        const urlStr = typeof url === "string" ? url : url.toString();
         openInNewWindow(urlStr);
         return null;
       }
@@ -232,7 +228,7 @@ export function ContextMenuProvider({
       try {
         await openUrl(menu.targetUrl);
       } catch {
-        toast.error('Could not open in the browser');
+        toast.error(t("contextMenu.browser"));
       }
     }
     closeMenu();
@@ -262,14 +258,14 @@ export function ContextMenuProvider({
           ref={menuRef}
           className="w-56 py-1.5  border select-none text-xs text-[#F2EDE6] shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-100"
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: `${menu.y}px`,
             left: `${menu.x}px`,
             zIndex: 99999,
-            background: 'rgba(24, 20, 16, 0.95)',
-            borderColor: 'rgba(255, 255, 255, 0.10)',
+            background: "rgba(24, 20, 16, 0.95)",
+            borderColor: "rgba(255, 255, 255, 0.10)",
             boxShadow:
-              '0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(217, 119, 87, 0.08)',
+              "0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(217, 119, 87, 0.08)",
           }}
         >
           {/* Subtle top sheen */}
@@ -288,7 +284,7 @@ export function ContextMenuProvider({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-[12px] text-[#F2EDE6]">
-                    Open in new tab
+                    {t("contextMenu.newTab")}
                   </div>
                   <div className="text-[10px] text-white/40 truncate">
                     {menu.linkText || menu.targetUrl}
@@ -303,7 +299,7 @@ export function ContextMenuProvider({
                   className="w-full px-3 py-2 flex items-center gap-2.5 hover:bg-white/[0.08] text-left text-white/70 hover:text-white transition-colors"
                 >
                   <Globe size={13} className="text-white/40" />
-                  <span>Open in browser</span>
+                  <span>{t("contextMenu.openBrowser")}</span>
                 </button>
               )}
 
@@ -320,7 +316,7 @@ export function ContextMenuProvider({
           >
             <div className="flex items-center gap-2">
               <RotateCw size={12} className="text-white/40" />
-              <span>Refresh</span>
+              <span>{t("contextMenu.refresh")}</span>
             </div>
             <span className="text-[10px] text-white/30 font-mono">F5</span>
           </button>
@@ -332,7 +328,7 @@ export function ContextMenuProvider({
           >
             <div className="flex items-center gap-2">
               <ArrowLeft size={12} className="text-white/40" />
-              <span>Back</span>
+              <span>{t("contextMenu.back")}</span>
             </div>
             <span className="text-[10px] text-white/30 font-mono">Alt+←</span>
           </button>
@@ -344,7 +340,7 @@ export function ContextMenuProvider({
           >
             <div className="flex items-center gap-2">
               <ArrowRight size={12} className="text-white/40" />
-              <span>Forward</span>
+              <span>{t("contextMenu.forward")}</span>
             </div>
             <span className="text-[10px] text-white/30 font-mono">Alt+→</span>
           </button>

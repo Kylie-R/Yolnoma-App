@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useRef, type DragEvent } from "react";
 import { Link } from "react-router-dom";
 import { GripVertical } from "lucide-react";
@@ -15,6 +16,7 @@ export default function PinnedToolsSection({
   pinnedTools,
   reorderPinnedTools,
 }: PinnedToolsSectionProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [draggedToolId, setDraggedToolId] = useState<string | null>(null);
   const [dragOverToolId, setDragOverToolId] = useState<string | null>(null);
@@ -135,10 +137,10 @@ export default function PinnedToolsSection({
                   </div>
                 </Link>
                 <div
-                  title="Drag to reorder"
+                  title={t("dashboard.open")}
                   className="ml-auto shrink-0 p-1 cursor-grab active:cursor-grabbing text-white/35 hover:text-[var(--accent)] transition-colors"
                 >
-                  <GripVertical size={18} aria-label="Drag to reorder" />
+                  <GripVertical size={18} aria-label={t("dashboard.open")} />
                 </div>
               </div>
             );

@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { invoke } from "@tauri-apps/api/core";
 import {
   Crosshair,
   Play,
@@ -20,7 +21,7 @@ import {
   Share2,
   BookmarkPlus,
   Trash2,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   CrosshairConfig,
   CrosshairType,
@@ -30,8 +31,8 @@ import {
   getCrosshairNumericId,
   generateCrosshairCode,
   parseCrosshairCode,
-} from '../types';
-import { CrosshairSVG } from '../components/CrosshairSVG';
+} from "../types";
+import { CrosshairSVG } from "../components/CrosshairSVG";
 
 interface CustomSavedPreset {
   id: string;
@@ -41,9 +42,10 @@ interface CustomSavedPreset {
 }
 
 export default function CrosshairPage() {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<CrosshairConfig>(() => {
     try {
-      const saved = localStorage.getItem('yolnoma_crosshair_config');
+      const saved = localStorage.getItem("yolnoma_crosshair_config");
       if (saved) return JSON.parse(saved);
     } catch {
       // ignore
@@ -52,31 +54,33 @@ export default function CrosshairPage() {
   });
 
   const [isActive, setIsActive] = useState<boolean>(false);
-  const [previewBg, setPreviewBg] = useState<'dark' | 'grid' | 'cs-dust' | 'valorant'>('dark');
+  const [previewBg, setPreviewBg] = useState<
+    "dark" | "grid" | "cs-dust" | "valorant"
+  >("dark");
   const [copiedId, setCopiedId] = useState<boolean>(false);
-  const [importCodeInput, setImportCodeInput] = useState<string>('');
-  const [importError, setImportError] = useState<string>('');
+  const [importCodeInput, setImportCodeInput] = useState<string>("");
+  const [importError, setImportError] = useState<string>("");
   const [importSuccess, setImportSuccess] = useState<boolean>(false);
 
   // Custom user saved slots
   const [savedSlots, setSavedSlots] = useState<CustomSavedPreset[]>(() => {
     try {
-      const saved = localStorage.getItem('yolnoma_crosshair_user_slots');
+      const saved = localStorage.getItem("yolnoma_crosshair_user_slots");
       if (saved) return JSON.parse(saved);
     } catch {
       // ignore
     }
     return [];
   });
-  const [newSlotName, setNewSlotName] = useState<string>('');
+  const [newSlotName, setNewSlotName] = useState<string>("");
 
   // Check initial active status and load saved config from Rust/Disk
   useEffect(() => {
-    invoke<boolean>('is_crosshair_active')
+    invoke<boolean>("is_crosshair_active")
       .then((active) => setIsActive(active))
       .catch(() => setIsActive(false));
 
-    invoke<CrosshairConfig | null>('get_saved_crosshair_config')
+    invoke<CrosshairConfig | null>("get_saved_crosshair_config")
       .then((saved) => {
         if (saved) {
           setConfig(saved);
@@ -87,34 +91,40 @@ export default function CrosshairPage() {
 
   // Save to localStorage & Rust disk & sync with active overlay in real-time
   const updateConfig = useCallback(
-    (newConfig: CrosshairConfig | ((prev: CrosshairConfig) => CrosshairConfig)) => {
+    (
+      newConfig: CrosshairConfig | ((prev: CrosshairConfig) => CrosshairConfig),
+    ) => {
       setConfig((prev) => {
-        const updated = typeof newConfig === 'function' ? newConfig(prev) : newConfig;
-        localStorage.setItem('yolnoma_crosshair_config', JSON.stringify(updated));
+        const updated =
+          typeof newConfig === "function" ? newConfig(prev) : newConfig;
+        localStorage.setItem(
+          "yolnoma_crosshair_config",
+          JSON.stringify(updated),
+        );
 
         // Sync with Rust backend & disk
-        invoke('update_crosshair_config', { config: updated }).catch((err) => {
-          console.debug('Failed to sync crosshair update:', err);
+        invoke("update_crosshair_config", { config: updated }).catch((err) => {
+          console.debug("Failed to sync crosshair update:", err);
         });
 
         return updated;
       });
     },
-    []
+    [],
   );
 
   // Toggle overlay on/off
   const handleToggleOverlay = async () => {
     try {
       if (isActive) {
-        await invoke('stop_crosshair_overlay');
+        await invoke("stop_crosshair_overlay");
         setIsActive(false);
       } else {
-        await invoke('start_crosshair_overlay', { config });
+        await invoke("start_crosshair_overlay", { config });
         setIsActive(true);
       }
     } catch (err) {
-      console.error('Failed to toggle crosshair overlay:', err);
+      console.error("Failed to toggle crosshair overlay:", err);
     }
   };
 
@@ -138,11 +148,11 @@ export default function CrosshairPage() {
 
   // Import Crosshair by ID / Code
   const handleImportCode = () => {
-    setImportError('');
+    setImportError("");
     setImportSuccess(false);
 
     if (!importCodeInput.trim()) {
-      setImportError('Please enter a Crosshair ID or Share Code.');
+      setImportError(t("crosshair.errors.enterCode"));
       return;
     }
 
@@ -152,16 +162,18 @@ export default function CrosshairPage() {
       setImportSuccess(true);
       setTimeout(() => {
         setImportSuccess(false);
-        setImportCodeInput('');
+        setImportCodeInput("");
       }, 2500);
     } else {
-      setImportError('Invalid Crosshair ID or Share Code format.');
+      setImportError(t("crosshair.errors.invalidCode"));
     }
   };
 
   // Save current setup as a custom slot
   const handleSaveCurrentSlot = () => {
-    const name = newSlotName.trim() || `My Crosshair #${savedSlots.length + 1}`;
+    const name =
+      newSlotName.trim() ||
+      t("crosshair.defaultSlotName", { count: savedSlots.length + 1 });
     const newSlot: CustomSavedPreset = {
       id: `slot-${Date.now()}`,
       name,
@@ -170,15 +182,21 @@ export default function CrosshairPage() {
     };
     const updated = [newSlot, ...savedSlots];
     setSavedSlots(updated);
-    localStorage.setItem('yolnoma_crosshair_user_slots', JSON.stringify(updated));
-    setNewSlotName('');
+    localStorage.setItem(
+      "yolnoma_crosshair_user_slots",
+      JSON.stringify(updated),
+    );
+    setNewSlotName("");
   };
 
   // Delete saved slot
   const handleDeleteSlot = (id: string) => {
     const updated = savedSlots.filter((s) => s.id !== id);
     setSavedSlots(updated);
-    localStorage.setItem('yolnoma_crosshair_user_slots', JSON.stringify(updated));
+    localStorage.setItem(
+      "yolnoma_crosshair_user_slots",
+      JSON.stringify(updated),
+    );
   };
 
   const currentNumericId = getCrosshairNumericId(config);
@@ -195,10 +213,10 @@ export default function CrosshairPage() {
             </div>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
-                Crosshair Overlay
+                {t("crosshair.title")}
               </h1>
               <p className="text-sm text-[var(--text-muted)] mt-0.5">
-                Ultra-lightweight, hardware-accelerated, transparent click-through crosshair for games and screen utilities.
+                {t("crosshair.description")}
               </p>
             </div>
           </div>
@@ -209,35 +227,35 @@ export default function CrosshairPage() {
           <div
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border ${
               isActive
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                : 'bg-zinc-800/40 text-zinc-400 border-zinc-700/40'
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]"
+                : "bg-zinc-800/40 text-zinc-400 border-zinc-700/40"
             }`}
           >
             <span
               className={`w-2 h-2 rounded-full ${
-                isActive ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'
+                isActive ? "bg-emerald-400 animate-pulse" : "bg-zinc-500"
               }`}
             />
-            {isActive ? 'Active on Screen' : 'Stopped'}
+            {isActive ? t("crosshair.active") : t("crosshair.stopped")}
           </div>
 
           <button
             onClick={handleToggleOverlay}
             className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 cursor-pointer shadow-lg active:scale-95 ${
               isActive
-                ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20'
-                : 'bg-emerald-500 hover:bg-emerald-600 text-black font-semibold shadow-emerald-500/25'
+                ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20"
+                : "bg-emerald-500 hover:bg-emerald-600 text-black font-semibold shadow-emerald-500/25"
             }`}
           >
             {isActive ? (
               <>
                 <Square size={16} fill="currentColor" />
-                Stop Crosshair
+                {t("crosshair.stop")}
               </>
             ) : (
               <>
                 <Play size={16} fill="currentColor" />
-                Start Crosshair
+                {t("crosshair.start")}
               </>
             )}
           </button>
@@ -249,77 +267,69 @@ export default function CrosshairPage() {
         <AlertTriangle size={19} className="text-amber-400 shrink-0 mt-0.5" />
         <div>
           <span className="font-semibold text-amber-300">
-            Important Note for Fullscreen Games:
-          </span>{' '}
-          In <strong className="text-white font-semibold">"Exclusive Fullscreen"</strong> mode, Windows may prevent external overlays from rendering properly, causing the crosshair to not appear or behave incorrectly. For 100% reliable, zero-flicker overlay rendering, please set your game's display mode to{' '}
-          <strong className="text-white underline decoration-amber-400 font-semibold">
-            "Borderless Fullscreen"
-          </strong>{' '}
-          or{' '}
-          <strong className="text-white underline decoration-amber-400 font-semibold">
-            "Windowed Fullscreen"
-          </strong>{' '}
-          in the in-game video settings.
+            {t("crosshair.fullscreen.title")}
+          </span>{" "}
+          {t("crosshair.fullscreen.description")}
         </div>
       </div>
 
       {/* ── Main 2-Column Layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* ── Left Column: Live Preview & ID Management (5 Cols) ── */}
+        {/* ── Left Column: {t('crosshair.livePreview')} & ID Management (5 Cols) ── */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Interactive Live Preview Box */}
+          {/* Interactive {t('crosshair.livePreview')} Box */}
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] overflow-hidden shadow-md">
             <div className="px-5 py-3.5 border-b border-[var(--border)] flex items-center justify-between bg-[var(--bg-elevated)]">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                 <Eye size={14} />
-                Live Preview
+                {t("crosshair.livePreview")}
               </div>
 
               {/* Background Theme Selector */}
               <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-[var(--border)]">
                 <button
-                  onClick={() => setPreviewBg('dark')}
+                  onClick={() => setPreviewBg("dark")}
                   className={`px-2 py-0.5 text-[11px] rounded transition-colors ${
-                    previewBg === 'dark'
-                      ? 'bg-[var(--accent)] text-white font-medium'
-                      : 'text-[var(--text-muted)] hover:text-white'
+                    previewBg === "dark"
+                      ? "bg-[var(--accent)] text-white font-medium"
+                      : "text-[var(--text-muted)] hover:text-white"
                   }`}
-                  title="Dark background"
+                  title={t("crosshair.background.darkTitle")}
                 >
-                  Dark
+                  {t("crosshair.background.dark")}
                 </button>
                 <button
-                  onClick={() => setPreviewBg('grid')}
+                  onClick={() => setPreviewBg("grid")}
                   className={`px-2 py-0.5 text-[11px] rounded transition-colors ${
-                    previewBg === 'grid'
-                      ? 'bg-[var(--accent)] text-white font-medium'
-                      : 'text-[var(--text-muted)] hover:text-white'
+                    previewBg === "grid"
+                      ? "bg-[var(--accent)] text-white font-medium"
+                      : "text-[var(--text-muted)] hover:text-white"
                   }`}
-                  title="Grid background"
+                  title={t("crosshair.background.gridTitle")}
                 >
-                  Grid
+                  {t("crosshair.background.grid")}
                 </button>
                 <button
-                  onClick={() => setPreviewBg('cs-dust')}
+                  onClick={() => setPreviewBg("cs-dust")}
                   className={`px-2 py-0.5 text-[11px] rounded transition-colors ${
-                    previewBg === 'cs-dust'
-                      ? 'bg-[var(--accent)] text-white font-medium'
-                      : 'text-[var(--text-muted)] hover:text-white'
+                    previewBg === "cs-dust"
+                      ? "bg-[var(--accent)] text-white font-medium"
+                      : "text-[var(--text-muted)] hover:text-white"
                   }`}
-                  title="CS2 Dust background simulation"
+                  title={t("crosshair.background.dustTitle")}
                 >
-                  Dust
+                  {t("crosshair.background.dust")}
                 </button>
                 <button
-                  onClick={() => setPreviewBg('valorant')}
+                  onClick={() => setPreviewBg("valorant")}
                   className={`px-2 py-0.5 text-[11px] rounded transition-colors ${
-                    previewBg === 'valorant'
-                      ? 'bg-[var(--accent)] text-white font-medium'
-                      : 'text-[var(--text-muted)] hover:text-white'
+                    previewBg === "valorant"
+                      ? "bg-[var(--accent)] text-white font-medium"
+                      : "text-[var(--text-muted)] hover:text-white"
                   }`}
-                  title="Bright sky background simulation"
+                  title={t("crosshair.background.brightTitle")}
                 >
-                  Bright
+                  {t("crosshair.background.bright")}
                 </button>
               </div>
             </div>
@@ -327,13 +337,13 @@ export default function CrosshairPage() {
             {/* Preview Viewport */}
             <div
               className={`relative h-72 w-full flex items-center justify-center select-none overflow-hidden transition-colors ${
-                previewBg === 'dark'
-                  ? 'bg-[#0f1115]'
-                  : previewBg === 'grid'
-                  ? 'bg-[#12161f] bg-[radial-gradient(#273349_1px,transparent_1px)] [background-size:16px_16px]'
-                  : previewBg === 'cs-dust'
-                  ? 'bg-gradient-to-tr from-[#685338] via-[#a38758] to-[#d8be8d]'
-                  : 'bg-gradient-to-tr from-[#3b5998] via-[#5b7fc2] to-[#88b5ea]'
+                previewBg === "dark"
+                  ? "bg-[#0f1115]"
+                  : previewBg === "grid"
+                    ? "bg-[#12161f] bg-[radial-gradient(#273349_1px,transparent_1px)] [background-size:16px_16px]"
+                    : previewBg === "cs-dust"
+                      ? "bg-gradient-to-tr from-[#685338] via-[#a38758] to-[#d8be8d]"
+                      : "bg-gradient-to-tr from-[#3b5998] via-[#5b7fc2] to-[#88b5ea]"
               }`}
             >
               {/* Subtle Screen Center Guidelines */}
@@ -349,7 +359,9 @@ export default function CrosshairPage() {
 
               {/* Coordinate Info Tag */}
               <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-mono text-zinc-300 border border-white/10">
-                Center: X:{config.offsetX >= 0 ? `+${config.offsetX}` : config.offsetX}px, Y:
+                Center: X:
+                {config.offsetX >= 0 ? `+${config.offsetX}` : config.offsetX}px,
+                Y:
                 {config.offsetY >= 0 ? `+${config.offsetY}` : config.offsetY}px
               </div>
             </div>
@@ -358,14 +370,14 @@ export default function CrosshairPage() {
             <div className="p-4 bg-[var(--bg-elevated)] border-t border-[var(--border)] flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                 <ShieldCheck size={14} className="text-emerald-400" />
-                Anti-Cheat Safe (Zero memory hooks, ban-safe)
+                {t("crosshair.antiCheatSafe")}
               </div>
               <button
                 onClick={handleReset}
                 className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               >
                 <RotateCcw size={13} />
-                Reset Defaults
+                {t("crosshair.resetDefaults")}
               </button>
             </div>
           </div>
@@ -375,7 +387,7 @@ export default function CrosshairPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
                 <Hash size={16} className="text-[var(--accent)]" />
-                Digital Crosshair ID & Share Code
+                {t("crosshair.share.title")}
               </div>
             </div>
 
@@ -383,7 +395,7 @@ export default function CrosshairPage() {
             <div className="p-3.5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] flex items-center justify-between gap-3">
               <div>
                 <div className="text-[10px] uppercase font-semibold text-[var(--text-faint)] tracking-wider">
-                  Crosshair Numeric ID
+                  {t("crosshair.numericId")}
                 </div>
                 <div className="text-base font-mono font-bold text-[var(--accent)] mt-0.5">
                   {currentNumericId}
@@ -395,20 +407,20 @@ export default function CrosshairPage() {
                   onClick={() => handleCopyCode(currentShareCode)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                     copiedId
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                      : 'bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700'
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                      : "bg-zinc-800 text-zinc-200 border-zinc-700 hover:bg-zinc-700"
                   }`}
-                  title="Copy complete Share Code to clipboard"
+                  title={t("crosshair.share.copyCode")}
                 >
                   {copiedId ? (
                     <>
                       <Check size={14} className="text-emerald-400" />
-                      Copied!
+                      {t("crosshair.copied")}
                     </>
                   ) : (
                     <>
                       <Share2 size={13} />
-                      Copy Share Code
+                      {t("crosshair.copyShareCode")}
                     </>
                   )}
                 </button>
@@ -418,16 +430,16 @@ export default function CrosshairPage() {
             {/* Import Crosshair by Code / ID */}
             <div className="space-y-2 pt-1">
               <span className="text-xs text-[var(--text-muted)]">
-                Import instantly via ID or Share Code:
+                {t("crosshair.importHint")}
               </span>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="e.g. YNC-eyJ... or YN-849201"
+                  placeholder={t("crosshair.share.importPlaceholder")}
                   value={importCodeInput}
                   onChange={(e) => {
                     setImportCodeInput(e.target.value);
-                    setImportError('');
+                    setImportError("");
                   }}
                   className="flex-1 px-3 py-1.5 text-xs font-mono rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
                 />
@@ -436,14 +448,16 @@ export default function CrosshairPage() {
                   className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-medium transition-colors cursor-pointer shrink-0"
                 >
                   <Download size={13} />
-                  Import
+                  {t("crosshair.import")}
                 </button>
               </div>
 
-              {importError && <p className="text-[11px] text-rose-400">{importError}</p>}
+              {importError && (
+                <p className="text-[11px] text-rose-400">{importError}</p>
+              )}
               {importSuccess && (
                 <p className="text-[11px] text-emerald-400 flex items-center gap-1">
-                  <Check size={12} /> Crosshair configuration applied successfully!
+                  <Check size={12} /> {t("crosshair.importSuccess")}
                 </p>
               )}
             </div>
@@ -451,12 +465,12 @@ export default function CrosshairPage() {
             {/* Save current slot */}
             <div className="pt-2 border-t border-[var(--border)] space-y-2">
               <span className="text-xs text-[var(--text-muted)]">
-                Save current crosshair to your library:
+                {t("crosshair.saveToLibrary")}
               </span>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Profile Name (e.g. My CS2 Custom)"
+                  placeholder={t("crosshair.share.profilePlaceholder")}
                   value={newSlotName}
                   onChange={(e) => setNewSlotName(e.target.value)}
                   className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
@@ -466,7 +480,7 @@ export default function CrosshairPage() {
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-xs font-medium transition-colors cursor-pointer shrink-0"
                 >
                   <BookmarkPlus size={13} />
-                  Save
+                  {t("crosshair.save")}
                 </button>
               </div>
 
@@ -488,14 +502,14 @@ export default function CrosshairPage() {
                         <button
                           onClick={() => handleCopyCode(slot.code)}
                           className="text-zinc-400 hover:text-white"
-                          title="Copy share code"
+                          title={t("crosshair.share.copy")}
                         >
                           <Copy size={13} />
                         </button>
                         <button
                           onClick={() => handleDeleteSlot(slot.id)}
                           className="text-zinc-400 hover:text-rose-400"
-                          title="Delete profile"
+                          title={t("crosshair.share.delete")}
                         >
                           <Trash2 size={13} />
                         </button>
@@ -511,7 +525,7 @@ export default function CrosshairPage() {
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-5 space-y-4">
             <div className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
               <Sparkles size={16} className="text-[var(--accent)]" />
-              Presets & Popular Setups
+              {t("crosshair.presetsTitle")}
             </div>
 
             <div className="grid grid-cols-1 gap-2.5">
@@ -528,8 +542,8 @@ export default function CrosshairPage() {
                     onClick={() => handleApplyPreset(preset.config)}
                     className={`flex items-center gap-3.5 p-3 rounded-xl border text-left transition-all duration-150 cursor-pointer ${
                       isCurrent
-                        ? 'bg-[var(--accent-glow)] border-[var(--accent-border)] shadow-sm'
-                        : 'bg-[var(--bg-elevated)] border-[var(--border)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-hover)]'
+                        ? "bg-[var(--accent-glow)] border-[var(--accent-border)] shadow-sm"
+                        : "bg-[var(--bg-elevated)] border-[var(--border)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-hover)]"
                     }`}
                   >
                     <div className="w-11 h-11 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center shrink-0">
@@ -539,18 +553,27 @@ export default function CrosshairPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-[var(--text-primary)] truncate">
-                          {preset.name}
+                          {t(`crosshair.presetNames.${preset.id}`, {
+                            defaultValue: preset.name,
+                          })}
                         </span>
                         <span className="text-[10px] uppercase font-semibold tracking-wider text-[var(--text-faint)]">
-                          {preset.category}
+                          {t(`crosshair.categories.${preset.category}`)}
                         </span>
                       </div>
                       <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">
-                        {preset.description}
+                        {t(`crosshair.presetDescriptions.${preset.id}`, {
+                          defaultValue: preset.description,
+                        })}
                       </p>
                     </div>
 
-                    {isCurrent && <Check size={16} className="text-[var(--accent)] shrink-0" />}
+                    {isCurrent && (
+                      <Check
+                        size={16}
+                        className="text-[var(--accent)] shrink-0"
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -565,34 +588,62 @@ export default function CrosshairPage() {
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
                 <Target size={16} className="text-[var(--accent)]" />
-                Crosshair Style
+                {t("crosshair.style.title")}
               </label>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {[
-                { id: 'classic' as CrosshairType, label: 'Classic Cross', desc: '4-way lines' },
-                { id: 'dot' as CrosshairType, label: 'Precision Dot', desc: 'Clean pinpoint' },
-                { id: 't-shape' as CrosshairType, label: 'T-Shape', desc: 'Tactical headshot' },
-                { id: 'circle-dot' as CrosshairType, label: 'Circle + Dot', desc: 'Ring and spot' },
+                {
+                  id: "classic" as CrosshairType,
+                  label: t("crosshair.style.classic"),
+                  desc: t("crosshair.style.classicDesc"),
+                },
+                {
+                  id: "dot" as CrosshairType,
+                  label: t("crosshair.style.dot"),
+                  desc: t("crosshair.style.dotDesc"),
+                },
+                {
+                  id: "t-shape" as CrosshairType,
+                  label: t("crosshair.style.tShape"),
+                  desc: t("crosshair.style.tShapeDesc"),
+                },
+                {
+                  id: "circle-dot" as CrosshairType,
+                  label: t("crosshair.style.circleDot"),
+                  desc: t("crosshair.style.circleDotDesc"),
+                },
               ].map((style) => (
                 <button
                   key={style.id}
-                  onClick={() => updateConfig((prev) => ({ ...prev, type: style.id }))}
+                  onClick={() =>
+                    updateConfig((prev) => ({ ...prev, type: style.id }))
+                  }
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer ${
                     config.type === style.id
-                      ? 'bg-[var(--accent-glow)] border-[var(--accent)] text-[var(--text-primary)] font-semibold shadow-sm'
-                      : 'bg-[var(--bg-elevated)] border-[var(--border)] hover:border-[var(--border-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                      ? "bg-[var(--accent-glow)] border-[var(--accent)] text-[var(--text-primary)] font-semibold shadow-sm"
+                      : "bg-[var(--bg-elevated)] border-[var(--border)] hover:border-[var(--border-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   <div className="w-10 h-10 flex items-center justify-center">
                     <CrosshairSVG
-                      config={{ ...config, type: style.id, size: 8, thickness: 2, gap: 3 }}
+                      config={{
+                        ...config,
+                        type: style.id,
+                        size: 8,
+                        thickness: 2,
+                        gap: 3,
+                      }}
                       size={36}
                     />
                   </div>
-                  <span className="text-xs mt-1.5 font-medium">{style.label}</span>
-                  <span className="text-[10px] text-[var(--text-faint)]">{style.desc}</span>
+                  <span className="text-xs mt-1.5 font-medium">
+                    {style.label}
+                  </span>
+                  <span className="text-[10px] text-[var(--text-faint)]">
+                    {style.desc}
+                  </span>
                 </button>
               ))}
             </div>
@@ -603,22 +654,26 @@ export default function CrosshairPage() {
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <label className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
                 <Palette size={16} className="text-[var(--accent)]" />
-                Color & Appearance
+                {t("crosshair.appearance.title")}
               </label>
             </div>
 
             {/* Quick Color Chips */}
             <div className="space-y-2">
-              <span className="text-xs text-[var(--text-muted)]">Popular Quick Colors:</span>
+              <span className="text-xs text-[var(--text-muted)]">
+                {t("crosshair.colors.popular")}
+              </span>
               <div className="flex flex-wrap items-center gap-2.5">
                 {PRESET_COLORS.map((c) => (
                   <button
                     key={c.hex}
-                    onClick={() => updateConfig((prev) => ({ ...prev, color: c.hex }))}
+                    onClick={() =>
+                      updateConfig((prev) => ({ ...prev, color: c.hex }))
+                    }
                     className={`group relative w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer flex items-center justify-center ${
                       config.color.toLowerCase() === c.hex.toLowerCase()
-                        ? 'border-white ring-2 ring-[var(--accent)] scale-110'
-                        : 'border-transparent'
+                        ? "border-white ring-2 ring-[var(--accent)] scale-110"
+                        : "border-transparent"
                     }`}
                     style={{ backgroundColor: c.hex }}
                     title={c.name}
@@ -627,7 +682,9 @@ export default function CrosshairPage() {
                       <Check
                         size={14}
                         className={
-                          c.hex === '#FFFFFF' || c.hex === '#FFE600' ? 'text-black' : 'text-white'
+                          c.hex === "#FFFFFF" || c.hex === "#FFE600"
+                            ? "text-black"
+                            : "text-white"
                         }
                       />
                     )}
@@ -639,14 +696,24 @@ export default function CrosshairPage() {
                   <input
                     type="color"
                     value={config.color}
-                    onChange={(e) => updateConfig((prev) => ({ ...prev, color: e.target.value }))}
+                    onChange={(e) =>
+                      updateConfig((prev) => ({
+                        ...prev,
+                        color: e.target.value,
+                      }))
+                    }
                     className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
-                    title="Choose custom color"
+                    title={t("crosshair.colors.choose")}
                   />
                   <input
                     type="text"
                     value={config.color}
-                    onChange={(e) => updateConfig((prev) => ({ ...prev, color: e.target.value }))}
+                    onChange={(e) =>
+                      updateConfig((prev) => ({
+                        ...prev,
+                        color: e.target.value,
+                      }))
+                    }
                     className="w-20 px-2 py-1 text-xs font-mono rounded-lg border border-[var(--border)] bg-[var(--bg-elevated)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
                     maxLength={7}
                   />
@@ -659,7 +726,9 @@ export default function CrosshairPage() {
               {/* Opacity Slider */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Opacity</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.opacity")}
+                  </span>
                   <span className="font-mono font-medium text-[var(--text-primary)]">
                     {Math.round(config.opacity * 100)}%
                   </span>
@@ -671,7 +740,10 @@ export default function CrosshairPage() {
                   step="0.05"
                   value={config.opacity}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, opacity: parseFloat(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      opacity: parseFloat(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer"
                 />
@@ -680,22 +752,30 @@ export default function CrosshairPage() {
               {/* Outline Toggle */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Black Outline (High Contrast)</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.blackOutline")}
+                  </span>
                   <button
-                    onClick={() => updateConfig((prev) => ({ ...prev, outline: !prev.outline }))}
+                    onClick={() =>
+                      updateConfig((prev) => ({
+                        ...prev,
+                        outline: !prev.outline,
+                      }))
+                    }
                     className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      config.outline ? 'bg-[var(--accent)]' : 'bg-zinc-700'
+                      config.outline ? "bg-[var(--accent)]" : "bg-zinc-700"
                     }`}
                   >
                     <span
                       className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        config.outline ? 'translate-x-4' : 'translate-x-0'
+                        config.outline ? "translate-x-4" : "translate-x-0"
                       }`}
                     />
                   </button>
                 </div>
                 <p className="text-[11px] text-[var(--text-faint)]">
-                  Prevents crosshair from blending into bright skies or dark corners.
+                  Prevents crosshair from blending into bright skies or dark
+                  corners.
                 </p>
               </div>
             </div>
@@ -714,8 +794,12 @@ export default function CrosshairPage() {
               {/* Line Size / Length */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Line Length</span>
-                  <span className="font-mono text-[var(--text-primary)]">{config.size}px</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.lineLength")}
+                  </span>
+                  <span className="font-mono text-[var(--text-primary)]">
+                    {config.size}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -723,7 +807,10 @@ export default function CrosshairPage() {
                   max="24"
                   value={config.size}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, size: parseInt(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      size: parseInt(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer"
                 />
@@ -732,8 +819,12 @@ export default function CrosshairPage() {
               {/* Line Thickness */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Thickness</span>
-                  <span className="font-mono text-[var(--text-primary)]">{config.thickness}px</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.thickness")}
+                  </span>
+                  <span className="font-mono text-[var(--text-primary)]">
+                    {config.thickness}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -741,7 +832,10 @@ export default function CrosshairPage() {
                   max="8"
                   value={config.thickness}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, thickness: parseInt(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      thickness: parseInt(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer"
                 />
@@ -750,8 +844,12 @@ export default function CrosshairPage() {
               {/* Center Gap */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Center Gap</span>
-                  <span className="font-mono text-[var(--text-primary)]">{config.gap}px</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.centerGap")}
+                  </span>
+                  <span className="font-mono text-[var(--text-primary)]">
+                    {config.gap}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -759,7 +857,10 @@ export default function CrosshairPage() {
                   max="20"
                   value={config.gap}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, gap: parseInt(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      gap: parseInt(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer"
                 />
@@ -769,37 +870,51 @@ export default function CrosshairPage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="text-[var(--text-muted)]">Center Dot</span>
+                    <span className="text-[var(--text-muted)]">
+                      {t("crosshair.controls.centerDot")}
+                    </span>
                     <input
                       type="checkbox"
                       checked={config.dot}
                       onChange={(e) =>
-                        updateConfig((prev) => ({ ...prev, dot: e.target.checked }))
+                        updateConfig((prev) => ({
+                          ...prev,
+                          dot: e.target.checked,
+                        }))
                       }
                       className="accent-[var(--accent)] cursor-pointer rounded"
                     />
                   </div>
-                  <span className="font-mono text-[var(--text-primary)]">{config.dotSize}px</span>
+                  <span className="font-mono text-[var(--text-primary)]">
+                    {config.dotSize}px
+                  </span>
                 </div>
                 <input
                   type="range"
                   min="1"
                   max="6"
-                  disabled={!config.dot && config.type !== 'dot'}
+                  disabled={!config.dot && config.type !== "dot"}
                   value={config.dotSize}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, dotSize: parseInt(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      dotSize: parseInt(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer disabled:opacity-40"
                 />
               </div>
 
               {/* Ring Radius (if circle style) */}
-              {(config.type === 'circle-dot' || config.showRing) && (
+              {(config.type === "circle-dot" || config.showRing) && (
                 <div className="space-y-1.5 sm:col-span-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[var(--text-muted)]">Circle Radius</span>
-                    <span className="font-mono text-[var(--text-primary)]">{config.ringRadius}px</span>
+                    <span className="text-[var(--text-muted)]">
+                      {t("crosshair.controls.circleRadius")}
+                    </span>
+                    <span className="font-mono text-[var(--text-primary)]">
+                      {config.ringRadius}px
+                    </span>
                   </div>
                   <input
                     type="range"
@@ -807,7 +922,10 @@ export default function CrosshairPage() {
                     max="28"
                     value={config.ringRadius}
                     onChange={(e) =>
-                      updateConfig((prev) => ({ ...prev, ringRadius: parseInt(e.target.value) }))
+                      updateConfig((prev) => ({
+                        ...prev,
+                        ringRadius: parseInt(e.target.value),
+                      }))
                     }
                     className="w-full accent-[var(--accent)] cursor-pointer"
                   />
@@ -821,14 +939,20 @@ export default function CrosshairPage() {
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
               <label className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
                 <Maximize2 size={16} className="text-[var(--accent)]" />
-                Screen Center Position Offset
+                {t("crosshair.controls.screenOffset")}
               </label>
               {(config.offsetX !== 0 || config.offsetY !== 0) && (
                 <button
-                  onClick={() => updateConfig((prev) => ({ ...prev, offsetX: 0, offsetY: 0 }))}
+                  onClick={() =>
+                    updateConfig((prev) => ({
+                      ...prev,
+                      offsetX: 0,
+                      offsetY: 0,
+                    }))
+                  }
                   className="text-xs text-[var(--accent)] hover:underline cursor-pointer"
                 >
-                  Reset to Center (0, 0)
+                  {t("crosshair.controls.resetCenter")}
                 </button>
               )}
             </div>
@@ -836,8 +960,12 @@ export default function CrosshairPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Horizontal (X Offset)</span>
-                  <span className="font-mono text-[var(--text-primary)]">{config.offsetX}px</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.horizontalOffset")}
+                  </span>
+                  <span className="font-mono text-[var(--text-primary)]">
+                    {config.offsetX}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -845,7 +973,10 @@ export default function CrosshairPage() {
                   max="30"
                   value={config.offsetX}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, offsetX: parseInt(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      offsetX: parseInt(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer"
                 />
@@ -853,8 +984,12 @@ export default function CrosshairPage() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[var(--text-muted)]">Vertical (Y Offset)</span>
-                  <span className="font-mono text-[var(--text-primary)]">{config.offsetY}px</span>
+                  <span className="text-[var(--text-muted)]">
+                    {t("crosshair.controls.verticalOffset")}
+                  </span>
+                  <span className="font-mono text-[var(--text-primary)]">
+                    {config.offsetY}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -862,7 +997,10 @@ export default function CrosshairPage() {
                   max="30"
                   value={config.offsetY}
                   onChange={(e) =>
-                    updateConfig((prev) => ({ ...prev, offsetY: parseInt(e.target.value) }))
+                    updateConfig((prev) => ({
+                      ...prev,
+                      offsetY: parseInt(e.target.value),
+                    }))
                   }
                   className="w-full accent-[var(--accent)] cursor-pointer"
                 />

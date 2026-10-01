@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import {
@@ -110,6 +111,7 @@ export default function CommitGenerator({
   onFolderChange: (path: string) => void;
   onRefresh: (path?: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [loadingChanges, setLoadingChanges] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -204,7 +206,7 @@ export default function CommitGenerator({
     await saveApiKey(user?.id ?? "", cleanKey);
     setApiKey(cleanKey);
     setShowKeyModal(false);
-    toast.success("OpenRouter API key saved securely");
+    toast.success(t("git.apiSaved"));
   };
 
   const generateCommit = async () => {
@@ -244,7 +246,7 @@ export default function CommitGenerator({
             setFallbackNote(
               `Primary model limit reached. Continued automatically with ${model}.`,
             );
-          toast.success("4 commit variants generated");
+          toast.success(t("git.variants"));
           return;
         }
         lastError = providerError;
@@ -260,7 +262,7 @@ export default function CommitGenerator({
 
   const copyMessage = async (message: string) => {
     await navigator.clipboard.writeText(message);
-    toast.success("Commit message copied");
+    toast.success(t("git.copied"));
   };
 
   const changedFiles = useMemo(
@@ -428,7 +430,9 @@ export default function CommitGenerator({
                       <button
                         type="button"
                         onClick={() => void copyMessage(variant.message)}
-                        aria-label={`Copy ${variant.title} commit message`}
+                        aria-label={t("git.copyVariant", {
+                          title: variant.title,
+                        })}
                         className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 text-[11px] font-medium text-white/65 transition hover:border-white/25 hover:bg-white/[0.05] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20"
                       >
                         <Copy size={12} /> Copy
@@ -454,7 +458,7 @@ export default function CommitGenerator({
             <Clock size={12} /> Recent folders
           </div>
           {recentFolders.length === 0 ? (
-            <p className="text-[11px] text-white/30">No folder selected yet.</p>
+            <p className="text-[11px] text-white/30">{t("git.noFolder")}</p>
           ) : (
             <div className="grid grid-cols-1 gap-1.5">
               {recentFolders.map((path) => (
@@ -477,7 +481,7 @@ export default function CommitGenerator({
                   <button
                     type="button"
                     aria-label={`Remove ${path} from recent folders`}
-                    title="Remove from recent folders"
+                    title={t("git.removeRecent")}
                     className="shrink-0 opacity-0 transition hover:text-red-300 group-hover:opacity-70 hover:!opacity-100"
                     onClick={(event) => removeRecentFolder(path, event)}
                   >

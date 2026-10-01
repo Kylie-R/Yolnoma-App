@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowRight,
   Blocks,
@@ -213,6 +214,51 @@ const COMMAND_ITEMS: CommandItem[] = [
   ...WORKSPACE_ITEMS,
   ...ROUTE_ITEMS,
 ];
+const COMMAND_TRANSLATIONS: Record<string, [string, string]> = {
+  "action-keyboard-shortcuts": [
+    "commandCenter.itemShortcuts",
+    "commandCenter.itemShortcutsDesc",
+  ],
+  "action-toggle-sidebar": [
+    "commandCenter.itemSidebar",
+    "commandCenter.itemSidebarDesc",
+  ],
+  "action-open-dropzone": [
+    "commandCenter.itemDropzone",
+    "commandCenter.itemDropzoneDesc",
+  ],
+  "action-agent-window": [
+    "commandCenter.itemAgent",
+    "commandCenter.itemAgentDesc",
+  ],
+  "action-reload": ["commandCenter.itemReload", "commandCenter.itemReloadDesc"],
+  "dns-records-subdomains": [
+    "commandCenter.itemSubdomains",
+    "commandCenter.itemSubdomainsDesc",
+  ],
+  "dns-records-security-audit": [
+    "commandCenter.itemSecurity",
+    "commandCenter.itemSecurityDesc",
+  ],
+  "git-commit-generator": [
+    "commandCenter.itemCommit",
+    "commandCenter.itemCommitDesc",
+  ],
+  "git-history": ["commandCenter.itemHistory", "commandCenter.itemHistoryDesc"],
+  "developer-tools": [
+    "commandCenter.itemDeveloper",
+    "commandCenter.itemDeveloperDesc",
+  ],
+  "ai-tools": ["commandCenter.itemAi", "commandCenter.itemAiDesc"],
+  "ai-database-generator": [
+    "commandCenter.itemDatabase",
+    "commandCenter.itemDatabaseDesc",
+  ],
+  "ai-readme-generator": [
+    "commandCenter.itemReadme",
+    "commandCenter.itemReadmeDesc",
+  ],
+};
 const RECENT_COMMANDS_KEY = "yolnoma_command_center_recent";
 const MAX_RECENT_COMMANDS = 8;
 
@@ -240,6 +286,21 @@ function rememberCommand(id: string) {
 }
 
 export default function CommandCenter() {
+  const { t } = useTranslation();
+  const commandItems = useMemo(
+    () =>
+      COMMAND_ITEMS.map((item) => {
+        const keys = COMMAND_TRANSLATIONS[item.id];
+        return keys
+          ? {
+              ...item,
+              label: t(keys[0], { defaultValue: item.label }),
+              description: t(keys[1], { defaultValue: item.description }),
+            }
+          : item;
+      }),
+    [t],
+  );
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -250,28 +311,29 @@ export default function CommandCenter() {
     const normalized = query.trim().toLowerCase();
     if (!normalized) {
       const recent = recentIds
-        .map((id) => COMMAND_ITEMS.find((item) => item.id === id))
+        .map((id) => commandItems.find((item) => item.id === id))
         .filter((item): item is CommandItem => Boolean(item));
       const recentSet = new Set(recent.map((item) => item.id));
       return [
         ...recent,
-        ...COMMAND_ITEMS.filter((item) => !recentSet.has(item.id)),
+        ...commandItems.filter((item) => !recentSet.has(item.id)),
       ];
     }
-    return COMMAND_ITEMS.map((item) => {
-      const isLabelMatch = item.label.toLowerCase().includes(normalized);
-      const isKeywordMatch = item.keywords.toLowerCase().includes(normalized);
-      const startsWith = item.label.toLowerCase().startsWith(normalized);
-      let score = 0;
-      if (startsWith) score = 3;
-      else if (isLabelMatch) score = 2;
-      else if (isKeywordMatch) score = 1;
-      return { item, score };
-    })
+    return commandItems
+      .map((item) => {
+        const isLabelMatch = item.label.toLowerCase().includes(normalized);
+        const isKeywordMatch = item.keywords.toLowerCase().includes(normalized);
+        const startsWith = item.label.toLowerCase().startsWith(normalized);
+        let score = 0;
+        if (startsWith) score = 3;
+        else if (isLabelMatch) score = 2;
+        else if (isKeywordMatch) score = 1;
+        return { item, score };
+      })
       .filter(({ score }) => score > 0)
       .sort((left, right) => right.score - left.score)
       .map(({ item }) => item);
-  }, [query, recentIds]);
+  }, [commandItems, query, recentIds]);
 
   const openCommand = (item: CommandItem) => {
     rememberCommand(item.id);
@@ -337,7 +399,7 @@ export default function CommandCenter() {
         onMouseDown={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="Command Center"
+        aria-label={t("commandCenter.aria")}
       >
         <div className="flex items-center gap-3 border-b border-white/[0.08] px-5 py-4">
           <Search size={19} className="shrink-0 text-[var(--accent)]" />
@@ -345,15 +407,17 @@ export default function CommandCenter() {
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search tools, actions, Git, workspaces… (or press Esc to close)"
+            placeholder={t("commandCenter.placeholder")}
             className="min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/30"
-            aria-label="Search commands"
+            aria-label={t("commandCenter.search", {
+              defaultValue: "Search commands",
+            })}
           />
           <button
             type="button"
             onClick={() => setOpen(false)}
             className="rounded-md p-1.5 text-white/35 transition hover:bg-white/[0.07] hover:text-white"
-            aria-label="Close command center"
+            aria-label={t("commandCenter.close")}
           >
             <X size={17} />
           </button>
@@ -362,18 +426,18 @@ export default function CommandCenter() {
         <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/30">
           <span>
             {query.trim()
-              ? `Search results (${results.length})`
-              : "Quick actions & Recently opened"}
+              ? t("commandCenter.results", { count: results.length })
+              : t("commandCenter.quick")}
           </span>
           <span className="flex items-center gap-1 normal-case tracking-normal text-white/25">
-            <Command size={11} /> K to toggle
+            <Command size={11} /> {t("commandCenter.toggle")}
           </span>
         </div>
 
         <div className="max-h-[55vh] overflow-y-auto p-2 custom-scrollbar">
           {results.length === 0 ? (
             <div className="px-4 py-12 text-center text-sm text-white/35">
-              No matching tools or commands found.
+              {t("commandCenter.none")}
             </div>
           ) : (
             results.map((item, index) => {
@@ -406,7 +470,7 @@ export default function CommandCenter() {
                       {item.label}
                       {isAction && (
                         <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide">
-                          Action
+                          {t("commandCenter.action")}
                         </span>
                       )}
                     </span>
@@ -419,7 +483,7 @@ export default function CommandCenter() {
                       {!query.trim() && recentIds.includes(item.id) ? (
                         <Clock3 size={12} />
                       ) : (
-                        item.group
+                        t(`commandCenter.${item.group}`)
                       )}
                     </span>
                     <ArrowRight
@@ -439,9 +503,9 @@ export default function CommandCenter() {
 
         <div className="flex items-center justify-between border-t border-white/[0.06] px-5 py-2.5 text-[10px] text-white/30 bg-black/20">
           <div className="flex items-center gap-4">
-            <span>↑↓ Navigate</span>
-            <span>Enter Select</span>
-            <span>Esc Close</span>
+            <span>{t("commandCenter.navigate")}</span>
+            <span>{t("commandCenter.select")}</span>
+            <span>{t("commandCenter.esc")}</span>
           </div>
           <button
             type="button"
@@ -452,7 +516,7 @@ export default function CommandCenter() {
             className="flex items-center gap-1.5 text-white/40 hover:text-[var(--accent)] transition-colors"
           >
             <Keyboard size={12} />
-            <span>Shortcuts (Ctrl + /)</span>
+            <span>{t("commandCenter.shortcuts")}</span>
           </button>
         </div>
       </section>

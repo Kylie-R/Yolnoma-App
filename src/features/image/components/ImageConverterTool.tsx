@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
-import { getCurrentWebview } from '@tauri-apps/api/webview';
+import { useTranslation } from "react-i18next";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import {
   ImageIcon,
   Upload,
@@ -22,25 +23,18 @@ import {
   Sliders,
   X,
   Plus,
-} from 'lucide-react';
-import { formatBytes } from '@/shared/lib/files';
+} from "lucide-react";
+import { formatBytes } from "@/shared/lib/files";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type SupportedFormat =
-  | 'png'
-  | 'jpeg'
-  | 'jpg'
-  | 'bmp'
-  | 'webp'
-  | 'gif'
-  | 'ico'
-  | 'tiff';
+  "png" | "jpeg" | "jpg" | "bmp" | "webp" | "gif" | "ico" | "tiff";
 
 interface FormatMeta {
   id: SupportedFormat;
   label: string;
-  category: 'Raster' | 'Web' | 'Icon / Special';
+  category: "Raster" | "Web" | "Icon / Special";
   desc: string;
 }
 
@@ -70,56 +64,102 @@ interface FileItem {
   name: string;
   detectedFormat: string;
   info?: ImageInfo;
-  status: 'ready' | 'converting' | 'done' | 'error';
+  status: "ready" | "converting" | "done" | "error";
   result?: ConvertResult;
 }
 
 // ─── Format Catalog ───────────────────────────────────────────────────────────
 
 const ALL_FORMATS: FormatMeta[] = [
-  { id: 'png', label: 'PNG', category: 'Raster', desc: 'Portable Network Graphics (Lossless)' },
-  { id: 'jpeg', label: 'JPEG', category: 'Raster', desc: 'Joint Photographic Experts Group' },
-  { id: 'jpg', label: 'JPG', category: 'Raster', desc: 'Standard JPEG photo format' },
-  { id: 'bmp', label: 'BMP', category: 'Raster', desc: 'Bitmap Image file (Uncompressed)' },
-  { id: 'webp', label: 'WEBP', category: 'Web', desc: 'Modern high compression web format' },
-  { id: 'gif', label: 'GIF', category: 'Raster', desc: 'Graphics Interchange Format' },
-  { id: 'ico', label: 'ICO', category: 'Icon / Special', desc: 'Windows Icon resource file' },
-  { id: 'tiff', label: 'TIFF', category: 'Raster', desc: 'Tagged Image File Format' },
+  {
+    id: "png",
+    label: "PNG",
+    category: "Raster",
+    desc: "Portable Network Graphics (Lossless)",
+  },
+  {
+    id: "jpeg",
+    label: "JPEG",
+    category: "Raster",
+    desc: "Joint Photographic Experts Group",
+  },
+  {
+    id: "jpg",
+    label: "JPG",
+    category: "Raster",
+    desc: "Standard JPEG photo format",
+  },
+  {
+    id: "bmp",
+    label: "BMP",
+    category: "Raster",
+    desc: "Bitmap Image file (Uncompressed)",
+  },
+  {
+    id: "webp",
+    label: "WEBP",
+    category: "Web",
+    desc: "Modern high compression web format",
+  },
+  {
+    id: "gif",
+    label: "GIF",
+    category: "Raster",
+    desc: "Graphics Interchange Format",
+  },
+  {
+    id: "ico",
+    label: "ICO",
+    category: "Icon / Special",
+    desc: "Windows Icon resource file",
+  },
+  {
+    id: "tiff",
+    label: "TIFF",
+    category: "Raster",
+    desc: "Tagged Image File Format",
+  },
 ];
 
-const CATEGORIES = ['All', 'Raster', 'Web', 'Icon / Special'] as const;
+const CATEGORIES = ["All", "Raster", "Web", "Icon / Special"] as const;
 
 function detectFormatFromExtension(path: string): string {
-  const ext = path.split('.').pop()?.toLowerCase() || '';
-  if (['jpg', 'jpeg'].includes(ext)) return 'jpeg';
-  if (['png', 'bmp', 'webp', 'gif', 'ico', 'tiff', 'tif'].includes(ext)) {
-    return ext === 'tif' ? 'tiff' : ext;
+  const ext = path.split(".").pop()?.toLowerCase() || "";
+  if (["jpg", "jpeg"].includes(ext)) return "jpeg";
+  if (["png", "bmp", "webp", "gif", "ico", "tiff", "tif"].includes(ext)) {
+    return ext === "tif" ? "tiff" : ext;
   }
-  return ext || 'unknown';
+  return ext || "unknown";
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ImageConverterPage() {
+  const { t } = useTranslation();
   const [files, setFiles] = useState<FileItem[]>([]);
-  const [sourceFormat, setSourceFormat] = useState<string>('AUTO');
-  const [targetFormat, setTargetFormat] = useState<SupportedFormat>('webp');
+  const [sourceFormat, setSourceFormat] = useState<string>("AUTO");
+  const [targetFormat, setTargetFormat] = useState<SupportedFormat>("webp");
   const [jpegQuality, setJpegQuality] = useState(90);
-  const [outputDir, setOutputDir] = useState<string>('');
+  const [outputDir, setOutputDir] = useState<string>("");
   const [isConverting, setIsConverting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   // Modal / Popover state for format selection
-  const [formatModalOpen, setFormatModalOpen] = useState<'source' | 'target' | null>(null);
-  const [formatSearch, setFormatSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [formatModalOpen, setFormatModalOpen] = useState<
+    "source" | "target" | null
+  >(null);
+  const [formatSearch, setFormatSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
 
   // Preview Modal
-  const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
+  const [previewImage, setPreviewImage] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
 
   // Fetch initial default download folder once on mount
   useEffect(() => {
-    invoke<string>('get_default_output_dir')
+    invoke<string>("get_default_output_dir")
       .then((dir) => setOutputDir(dir))
       .catch(() => {});
   }, []);
@@ -127,10 +167,20 @@ export default function ImageConverterPage() {
   // ── File Management Callback ────────────────────────────────────────────────
 
   const handleNewFilePaths = useCallback(async (paths: string[]) => {
-    const validImageExts = ['png', 'jpg', 'jpeg', 'bmp', 'webp', 'gif', 'ico', 'tiff', 'tif'];
+    const validImageExts = [
+      "png",
+      "jpg",
+      "jpeg",
+      "bmp",
+      "webp",
+      "gif",
+      "ico",
+      "tiff",
+      "tif",
+    ];
 
     const filtered = paths.filter((p) => {
-      const ext = p.split('.').pop()?.toLowerCase() || '';
+      const ext = p.split(".").pop()?.toLowerCase() || "";
       return validImageExts.includes(ext);
     });
 
@@ -139,7 +189,9 @@ export default function ImageConverterPage() {
     // Add unique files immediately with status: 'ready'
     setFiles((prev) => {
       const existingPaths = new Set(prev.map((f) => f.path.toLowerCase()));
-      const unique = filtered.filter((p) => !existingPaths.has(p.toLowerCase()));
+      const unique = filtered.filter(
+        (p) => !existingPaths.has(p.toLowerCase()),
+      );
       if (unique.length === 0) return prev;
 
       const placeholders: FileItem[] = unique.map((p) => {
@@ -149,7 +201,7 @@ export default function ImageConverterPage() {
           path: p,
           name: p.split(/[\\/]/).pop() ?? p,
           detectedFormat: det.toUpperCase(),
-          status: 'ready', // Instantly ready for conversion
+          status: "ready", // Instantly ready for conversion
         };
       });
 
@@ -163,18 +215,22 @@ export default function ImageConverterPage() {
     // Load Image Metadata & Base64 thumbnails asynchronously
     for (const p of filtered) {
       try {
-        const info = await invoke<ImageInfo>('get_image_info', { inputPath: p });
+        const info = await invoke<ImageInfo>("get_image_info", {
+          inputPath: p,
+        });
         setFiles((prev) =>
           prev.map((f) =>
             f.path.toLowerCase() === p.toLowerCase()
               ? {
                   ...f,
                   info,
-                  detectedFormat: info.format ? info.format.toUpperCase() : f.detectedFormat,
-                  status: 'ready',
+                  detectedFormat: info.format
+                    ? info.format.toUpperCase()
+                    : f.detectedFormat,
+                  status: "ready",
                 }
-              : f
-          )
+              : f,
+          ),
         );
       } catch (err) {
         console.error(`Failed to read info for ${p}:`, err);
@@ -199,11 +255,11 @@ export default function ImageConverterPage() {
         const webview = getCurrentWebview();
         const unlisten = await webview.onDragDropEvent((event) => {
           if (!isMounted) return;
-          if (event.payload.type === 'enter' || event.payload.type === 'over') {
+          if (event.payload.type === "enter" || event.payload.type === "over") {
             setIsDragging(true);
-          } else if (event.payload.type === 'leave') {
+          } else if (event.payload.type === "leave") {
             setIsDragging(false);
-          } else if (event.payload.type === 'drop') {
+          } else if (event.payload.type === "drop") {
             setIsDragging(false);
             if (event.payload.paths && event.payload.paths.length > 0) {
               handleNewFilePathsRef.current(event.payload.paths);
@@ -217,7 +273,7 @@ export default function ImageConverterPage() {
           unlisten();
         }
       } catch (e) {
-        console.error('Failed to setup Tauri drag-drop listener:', e);
+        console.error("Failed to setup Tauri drag-drop listener:", e);
       }
     }
 
@@ -237,8 +293,18 @@ export default function ImageConverterPage() {
         multiple: true,
         filters: [
           {
-            name: 'Image Files',
-            extensions: ['png', 'jpg', 'jpeg', 'bmp', 'webp', 'gif', 'ico', 'tiff', 'tif'],
+            name: "Image Files",
+            extensions: [
+              "png",
+              "jpg",
+              "jpeg",
+              "bmp",
+              "webp",
+              "gif",
+              "ico",
+              "tiff",
+              "tif",
+            ],
           },
         ],
       });
@@ -246,33 +312,33 @@ export default function ImageConverterPage() {
       const paths = Array.isArray(selected) ? selected : [selected];
       await handleNewFilePaths(paths);
     } catch (e) {
-      console.error('File picker error:', e);
+      console.error("File picker error:", e);
     }
   };
 
   const handlePickOutputDir = async () => {
     try {
       const dir = await open({ directory: true, defaultPath: outputDir });
-      if (dir && typeof dir === 'string') {
+      if (dir && typeof dir === "string") {
         setOutputDir(dir);
       }
     } catch (e) {
-      console.error('Directory picker error:', e);
+      console.error("Directory picker error:", e);
     }
   };
 
   const handleOpenFolder = async () => {
     try {
-      await invoke('open_output_folder', { path: outputDir || null });
+      await invoke("open_output_folder", { path: outputDir || null });
     } catch (e) {
-      console.error('Open folder error:', e);
+      console.error("Open folder error:", e);
     }
   };
 
   const handleRemoveFile = (id: string) => {
     setFiles((prev) => {
       const next = prev.filter((f) => f.id !== id);
-      if (next.length === 0) setSourceFormat('AUTO');
+      if (next.length === 0) setSourceFormat("AUTO");
       return next;
     });
   };
@@ -284,44 +350,46 @@ export default function ImageConverterPage() {
 
     setIsConverting(true);
 
-    setFiles((prev) =>
-      prev.map((f) => ({ ...f, status: 'converting' }))
-    );
+    setFiles((prev) => prev.map((f) => ({ ...f, status: "converting" })));
 
     const conversions = files.map((f) => ({
       input_path: f.path,
       output_dir: outputDir ? outputDir : undefined,
       output_format: targetFormat,
-      quality: ['jpeg', 'jpg'].includes(targetFormat) ? jpegQuality : undefined,
+      quality: ["jpeg", "jpg"].includes(targetFormat) ? jpegQuality : undefined,
     }));
 
     try {
-      const results = await invoke<ConvertResult[]>('convert_images_batch', { conversions });
+      const results = await invoke<ConvertResult[]>("convert_images_batch", {
+        conversions,
+      });
 
       setFiles((prev) =>
         prev.map((f) => {
-          const res = results.find((r) => r.input_path.toLowerCase() === f.path.toLowerCase());
+          const res = results.find(
+            (r) => r.input_path.toLowerCase() === f.path.toLowerCase(),
+          );
           if (!res) return f;
           return {
             ...f,
-            status: res.success ? 'done' : 'error',
+            status: res.success ? "done" : "error",
             result: res,
           };
-        })
+        }),
       );
     } catch (err) {
-      console.error('Batch convert failed:', err);
+      console.error("Batch convert failed:", err);
       setFiles((prev) =>
         prev.map((f) => ({
           ...f,
-          status: 'error',
+          status: "error",
           result: {
             input_path: f.path,
-            output_path: '',
+            output_path: "",
             success: false,
             error: String(err),
           },
-        }))
+        })),
       );
     } finally {
       setIsConverting(false);
@@ -329,7 +397,7 @@ export default function ImageConverterPage() {
   };
 
   const filteredModalFormats = ALL_FORMATS.filter((f) => {
-    const matchCat = activeCategory === 'All' || f.category === activeCategory;
+    const matchCat = activeCategory === "All" || f.category === activeCategory;
     const matchSearch =
       f.label.toLowerCase().includes(formatSearch.toLowerCase()) ||
       f.desc.toLowerCase().includes(formatSearch.toLowerCase());
@@ -345,7 +413,7 @@ export default function ImageConverterPage() {
           {/* Warm background glow */}
           <div
             className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-3xl opacity-20"
-            style={{ background: 'var(--accent)' }}
+            style={{ background: "var(--accent)" }}
           />
 
           <div className="relative flex items-center justify-center gap-4 sm:gap-8 w-full max-w-2xl py-2">
@@ -355,10 +423,13 @@ export default function ImageConverterPage() {
               className="flex-1 flex flex-col items-center justify-center p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all cursor-pointer group shadow-lg min-w-[140px]"
             >
               <div className="w-12 h-12 rounded-xl bg-[var(--bg-base)] group-hover:bg-[var(--bg-hover)] flex items-center justify-center mb-3 transition-colors border border-[var(--border)]">
-                <FileImage size={24} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)]" />
+                <FileImage
+                  size={24}
+                  className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)]"
+                />
               </div>
               <span className="text-xs uppercase tracking-wider text-[var(--text-faint)] mb-0.5 font-medium">
-                {files.length > 0 ? `${files.length} file(s)` : 'Input Format'}
+                {files.length > 0 ? `${files.length} file(s)` : "Input Format"}
               </span>
               <div className="flex items-center gap-1.5">
                 <span className="text-lg font-bold font-mono text-[var(--text-primary)] tracking-wide">
@@ -373,12 +444,12 @@ export default function ImageConverterPage() {
               <div className="relative flex items-center justify-center">
                 <div
                   className="absolute w-12 h-12 rounded-full blur-md opacity-40 animate-pulse"
-                  style={{ background: 'var(--accent)' }}
+                  style={{ background: "var(--accent)" }}
                 />
                 <button
-                  onClick={() => setFormatModalOpen('target')}
+                  onClick={() => setFormatModalOpen("target")}
                   className="relative w-11 h-11 rounded-full text-black font-bold flex items-center justify-center shadow-lg hover:scale-105 transition-transform cursor-pointer border border-[var(--accent-border)]"
-                  style={{ background: 'var(--accent)' }}
+                  style={{ background: "var(--accent)" }}
                 >
                   <RefreshCw size={18} className="text-[#14110E]" />
                 </button>
@@ -390,7 +461,7 @@ export default function ImageConverterPage() {
 
             {/* Right Card: Output / Target format */}
             <div
-              onClick={() => setFormatModalOpen('target')}
+              onClick={() => setFormatModalOpen("target")}
               className="flex-1 flex flex-col items-center justify-center p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--accent-border)] hover:border-[var(--accent-hover)] transition-all cursor-pointer group shadow-lg min-w-[140px]"
             >
               <div className="w-12 h-12 rounded-xl bg-[var(--accent-dim)] group-hover:bg-[var(--accent-hover)] flex items-center justify-center mb-3 transition-colors border border-[var(--accent-border)]">
@@ -410,15 +481,17 @@ export default function ImageConverterPage() {
 
           {/* Quick Format Badges Row */}
           <div className="flex items-center gap-2 mt-4 pt-4 border-t border-[var(--border)] flex-wrap justify-center">
-            <span className="text-[11px] text-[var(--text-faint)] mr-1 font-medium">Quick Select:</span>
+            <span className="text-[11px] text-[var(--text-faint)] mr-1 font-medium">
+              Quick Select:
+            </span>
             {ALL_FORMATS.map((fmt) => (
               <button
                 key={fmt.id}
                 onClick={() => setTargetFormat(fmt.id)}
                 className={`px-3 py-1 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer ${
                   targetFormat === fmt.id
-                    ? 'bg-[var(--accent)] text-black shadow-md scale-105'
-                    : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]'
+                    ? "bg-[var(--accent)] text-black shadow-md scale-105"
+                    : "bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]"
                 }`}
               >
                 {fmt.label}
@@ -434,21 +507,28 @@ export default function ImageConverterPage() {
             onClick={handlePickFiles}
             className={`flex-1 min-h-[280px] rounded-none border-2 border-dashed flex flex-col items-center justify-center p-8 text-center cursor-pointer transition-all ${
               isDragging
-                ? 'border-[var(--accent)] bg-[var(--accent-glow)] scale-[1.01]'
-                : 'border-[var(--border)] hover:border-[var(--accent-border)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-card)]'
+                ? "border-[var(--accent)] bg-[var(--accent-glow)] scale-[1.01]"
+                : "border-[var(--border)] hover:border-[var(--accent-border)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-card)]"
             }`}
           >
             <div className="p-4 rounded-2xl bg-[var(--bg-base)] mb-4 border border-[var(--border)] shadow-inner">
               <Upload
                 size={36}
-                className={isDragging ? 'text-[var(--accent)] animate-bounce' : 'text-[var(--text-faint)]'}
+                className={
+                  isDragging
+                    ? "text-[var(--accent)] animate-bounce"
+                    : "text-[var(--text-faint)]"
+                }
               />
             </div>
             <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">
-              {isDragging ? 'Drop your images here!' : 'Choose files or drag & drop them here'}
+              {isDragging
+                ? "Drop your images here!"
+                : "Choose files or drag & drop them here"}
             </h3>
             <p className="text-xs text-[var(--text-muted)] max-w-md mb-4">
-              Supports PNG, JPG, JPEG, BMP, WEBP, GIF, ICO, TIFF. Fast multi-file batch conversion!
+              Supports PNG, JPG, JPEG, BMP, WEBP, GIF, ICO, TIFF. Fast
+              multi-file batch conversion!
             </p>
             <button className="btn btn-primary text-xs px-5 py-2">
               Browse Images
@@ -462,19 +542,23 @@ export default function ImageConverterPage() {
               <div className="flex items-center gap-4 flex-wrap">
                 {/* Destination Directory info */}
                 <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                  <span className="text-[var(--text-faint)] font-medium">Save to:</span>
+                  <span className="text-[var(--text-faint)] font-medium">
+                    Save to:
+                  </span>
                   <button
                     onClick={handlePickOutputDir}
-                    title="Click to change output folder"
+                    title={t("image.changeFolder")}
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border)] text-[var(--accent)] font-mono text-[11px] transition-colors cursor-pointer max-w-xs truncate"
                   >
                     <FolderOpen size={12} className="shrink-0" />
-                    <span className="truncate">{outputDir || 'Downloads/YolnomaDownloads/Images'}</span>
+                    <span className="truncate">
+                      {outputDir || "Downloads/YolnomaDownloads/Images"}
+                    </span>
                   </button>
                 </div>
 
                 {/* Quality Slider (for JPEG) */}
-                {['jpeg', 'jpg'].includes(targetFormat) && (
+                {["jpeg", "jpg"].includes(targetFormat) && (
                   <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] pl-3 border-l border-[var(--border)]">
                     <Sliders size={13} className="text-[var(--text-faint)]" />
                     <span>Quality: {jpegQuality}%</span>
@@ -513,7 +597,10 @@ export default function ImageConverterPage() {
                   ) : (
                     <>
                       <Play size={14} />
-                      <span>Convert All to {targetFormat.toUpperCase()} ({files.length})</span>
+                      <span>
+                        Convert All to {targetFormat.toUpperCase()} (
+                        {files.length})
+                      </span>
                     </>
                   )}
                 </button>
@@ -560,10 +647,13 @@ export default function ImageConverterPage() {
             {/* Search Input */}
             <div className="p-4 border-b border-[var(--border)]">
               <div className="relative">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faint)]" />
+                <Search
+                  size={15}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faint)]"
+                />
                 <input
                   type="text"
-                  placeholder="Search Format (PNG, JPEG, BMP, WEBP, ICO...)"
+                  placeholder={t("image.searchFormat")}
                   value={formatSearch}
                   onChange={(e) => setFormatSearch(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border)] text-xs text-[var(--text-primary)] placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent-border)] transition-colors"
@@ -582,8 +672,8 @@ export default function ImageConverterPage() {
                     onClick={() => setActiveCategory(cat)}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                       activeCategory === cat
-                        ? 'bg-[var(--accent-dim)] text-[var(--accent)] border border-[var(--accent-border)]'
-                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                        ? "bg-[var(--accent-dim)] text-[var(--accent)] border border-[var(--accent-border)]"
+                        : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                     }`}
                   >
                     {cat}
@@ -605,14 +695,18 @@ export default function ImageConverterPage() {
                         }}
                         className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-[var(--accent)] text-black border-[var(--accent)] shadow-lg scale-[1.02]'
-                            : 'bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border-[var(--border)] hover:border-[var(--border-hover)] text-[var(--text-primary)]'
+                            ? "bg-[var(--accent)] text-black border-[var(--accent)] shadow-lg scale-[1.02]"
+                            : "bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border-[var(--border)] hover:border-[var(--border-hover)] text-[var(--text-primary)]"
                         }`}
                       >
-                        <span className="text-sm font-bold font-mono">{fmt.label}</span>
+                        <span className="text-sm font-bold font-mono">
+                          {fmt.label}
+                        </span>
                         <span
                           className={`text-[10px] mt-1 leading-tight line-clamp-2 ${
-                            isSelected ? 'text-black/80 font-medium' : 'text-[var(--text-faint)]'
+                            isSelected
+                              ? "text-black/80 font-medium"
+                              : "text-[var(--text-faint)]"
                           }`}
                         >
                           {fmt.desc}
@@ -675,20 +769,21 @@ function FileRowCard({
   onPreview: (url: string, title: string) => void;
   onOpenFolder: () => void;
 }) {
-  const isDone = file.status === 'done';
-  const isError = file.status === 'error';
-  const isConverting = file.status === 'converting';
+  const { t } = useTranslation();
+  const isDone = file.status === "done";
+  const isError = file.status === "error";
+  const isConverting = file.status === "converting";
 
   return (
     <div
       className={`rounded-xl border p-4 transition-all ${
         isDone
-          ? 'border-emerald-500/30 bg-emerald-500/[0.04]'
+          ? "border-emerald-500/30 bg-emerald-500/[0.04]"
           : isError
-          ? 'border-red-500/30 bg-red-500/[0.04]'
-          : isConverting
-          ? 'border-[var(--accent-border)] bg-[var(--accent-glow)]'
-          : 'border-[var(--border)] bg-[var(--bg-card)]'
+            ? "border-red-500/30 bg-red-500/[0.04]"
+            : isConverting
+              ? "border-[var(--accent-border)] bg-[var(--accent-glow)]"
+              : "border-[var(--border)] bg-[var(--bg-card)]"
       }`}
     >
       <div className="flex items-center gap-4">
@@ -701,13 +796,23 @@ function FileRowCard({
             }
           }}
           className={`w-14 h-14 rounded-lg bg-[var(--bg-base)] border border-[var(--border)] flex items-center justify-center overflow-hidden shrink-0 relative group ${
-            file.info?.thumbnail || file.result?.thumbnail ? 'cursor-pointer' : ''
+            file.info?.thumbnail || file.result?.thumbnail
+              ? "cursor-pointer"
+              : ""
           }`}
         >
           {file.result?.thumbnail ? (
-            <img src={file.result.thumbnail} alt="output" className="w-full h-full object-cover" />
+            <img
+              src={file.result.thumbnail}
+              alt="output"
+              className="w-full h-full object-cover"
+            />
           ) : file.info?.thumbnail ? (
-            <img src={file.info.thumbnail} alt="input" className="w-full h-full object-cover" />
+            <img
+              src={file.info.thumbnail}
+              alt="input"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <ImageIcon size={22} className="text-[var(--text-faint)]" />
           )}
@@ -722,7 +827,10 @@ function FileRowCard({
         {/* File Details */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-[var(--text-primary)] truncate max-w-sm" title={file.name}>
+            <h4
+              className="text-sm font-semibold text-[var(--text-primary)] truncate max-w-sm"
+              title={file.name}
+            >
               {file.name}
             </h4>
             <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--bg-base)] text-[var(--text-muted)] border border-[var(--border)]">
@@ -737,7 +845,8 @@ function FileRowCard({
           <div className="flex items-center gap-3 mt-1 text-xs text-[var(--text-muted)] flex-wrap">
             {file.info && (
               <span>
-                {file.info.width} × {file.info.height} px · {formatBytes(file.info.file_size)}
+                {file.info.width} × {file.info.height} px ·{" "}
+                {formatBytes(file.info.file_size)}
               </span>
             )}
             {isDone && file.result?.file_size && (
@@ -753,7 +862,10 @@ function FileRowCard({
           </div>
 
           {isError && file.result?.error && (
-            <p className="text-xs text-red-400 mt-1 truncate" title={file.result.error}>
+            <p
+              className="text-xs text-red-400 mt-1 truncate"
+              title={file.result.error}
+            >
               ⚠️ Error: {file.result.error}
             </p>
           )}
@@ -774,7 +886,7 @@ function FileRowCard({
             <button
               onClick={onOpenFolder}
               className="p-2 rounded-lg text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors cursor-pointer"
-              title="Open Folder"
+              title={t("image.openFolder")}
             >
               <ExternalLink size={16} />
             </button>
@@ -786,7 +898,7 @@ function FileRowCard({
           <button
             onClick={onRemove}
             className="p-2 rounded-lg text-[var(--text-faint)] hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-            title="Remove"
+            title={t("image.remove")}
           >
             <Trash2 size={15} />
           </button>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Copy,
   Check,
@@ -19,6 +20,7 @@ interface DnsRecordCardProps {
 }
 
 export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
+  const { t } = useTranslation("common");
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -26,7 +28,9 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
     navigator.clipboard.writeText(record.data);
     setCopied(true);
     toast.success(
-      `Copied: ${record.data.slice(0, 40)}${record.data.length > 40 ? "..." : ""}`,
+      t("dnsRecord.copied", {
+        value: `${record.data.slice(0, 40)}${record.data.length > 40 ? "..." : ""}`,
+      }),
     );
     setTimeout(() => setCopied(false), 1600);
   };
@@ -48,20 +52,26 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
               {record.type === "MX" &&
                 record.parsed?.priority !== undefined && (
                   <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 font-mono text-[11px] font-semibold text-amber-400 border border-amber-500/20">
-                    <Mail size={11} /> Priority: {record.parsed.priority}
+                    <Mail size={11} />{" "}
+                    {t("dnsRecord.priority", { value: record.parsed.priority })}
                   </span>
                 )}
 
               {record.type === "CAA" && record.parsed?.tag && (
                 <span className="inline-flex items-center gap-1 rounded bg-violet-500/15 px-2 py-0.5 font-mono text-[11px] font-semibold text-violet-400 border border-violet-500/20">
-                  <ShieldAlert size={11} /> Tag: {record.parsed.tag}
+                  <ShieldAlert size={11} />{" "}
+                  {t("dnsRecord.tag", { value: record.parsed.tag })}
                 </span>
               )}
 
               {record.type === "SRV" && record.parsed?.port && (
                 <span className="inline-flex items-center gap-1 rounded bg-orange-500/15 px-2 py-0.5 font-mono text-[11px] font-semibold text-orange-400 border border-orange-500/20">
-                  <Server size={11} /> Port: {record.parsed.port} (Pri:{" "}
-                  {record.parsed.priority}, Wgt: {record.parsed.weight})
+                  <Server size={11} />{" "}
+                  {t("dnsRecord.port", {
+                    port: record.parsed.port,
+                    priority: record.parsed.priority,
+                    weight: record.parsed.weight,
+                  })}
                 </span>
               )}
             </div>
@@ -69,7 +79,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
             <div className="mt-1 flex items-center gap-3 text-xs text-[var(--text-muted)]">
               <span className="inline-flex items-center gap-1">
                 <Clock size={12} className="text-[var(--text-faint)]" />
-                TTL: {formatTTL(record.ttl)}
+                {t("dnsRecord.ttl", { value: formatTTL(record.ttl) })}
               </span>
             </div>
           </div>
@@ -84,14 +94,14 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
               className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-xs text-[var(--text-muted)] hover:text-white transition-colors"
             >
               {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-              {expanded ? "Less" : "More"}
+              {expanded ? t("dnsRecord.less") : t("dnsRecord.more")}
             </button>
           )}
 
           <button
             type="button"
             onClick={handleCopy}
-            title="Copy record data"
+            title={t("dnsRecord.copyTitle")}
             className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] p-1.5 text-xs text-[var(--text-muted)] hover:border-[var(--accent)]/40 hover:text-[var(--accent)] transition-colors"
           >
             {copied ? (
@@ -118,7 +128,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
           <div className="mt-3 pt-3 border-t border-white/[0.08] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
             <div className="rounded bg-white/[0.02] p-2 border border-white/[0.04]">
               <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">
-                Primary Nameserver
+                {t("dnsRecord.primaryNameserver")}
               </span>
               <span className="font-mono text-white/80 break-all">
                 {record.parsed.mname || "—"}
@@ -126,7 +136,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
             </div>
             <div className="rounded bg-white/[0.02] p-2 border border-white/[0.04]">
               <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">
-                Responsible Email
+                {t("dnsRecord.responsibleEmail")}
               </span>
               <span className="font-mono text-white/80 break-all">
                 {record.parsed.rname || "—"}
@@ -134,7 +144,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
             </div>
             <div className="rounded bg-white/[0.02] p-2 border border-white/[0.04]">
               <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">
-                Serial
+                {t("dnsRecord.serial")}
               </span>
               <span className="font-mono text-white/80">
                 {record.parsed.serial ?? "—"}
@@ -142,7 +152,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
             </div>
             <div className="rounded bg-white/[0.02] p-2 border border-white/[0.04]">
               <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">
-                Refresh
+                {t("dnsRecord.refresh")}
               </span>
               <span className="font-mono text-white/80">
                 {record.parsed.refresh ? formatTTL(record.parsed.refresh) : "—"}
@@ -150,7 +160,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
             </div>
             <div className="rounded bg-white/[0.02] p-2 border border-white/[0.04]">
               <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">
-                Retry
+                {t("dnsRecord.retry")}
               </span>
               <span className="font-mono text-white/80">
                 {record.parsed.retry ? formatTTL(record.parsed.retry) : "—"}
@@ -158,7 +168,7 @@ export const DnsRecordCard: React.FC<DnsRecordCardProps> = ({ record }) => {
             </div>
             <div className="rounded bg-white/[0.02] p-2 border border-white/[0.04]">
               <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] block">
-                Expire
+                {t("dnsRecord.expire")}
               </span>
               <span className="font-mono text-white/80">
                 {record.parsed.expire ? formatTTL(record.parsed.expire) : "—"}

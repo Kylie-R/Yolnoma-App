@@ -1,6 +1,7 @@
 import { Loader2, MessageSquare, Pencil, RotateCcw } from "lucide-react";
 import type { ChatMessage, OpenRouterModel } from "../types";
 import MarkdownContent from "./MarkdownContent";
+import { useTranslation } from "react-i18next";
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
@@ -23,6 +24,7 @@ export default function ChatMessages({
   onRegenerateAssistantMessage,
   regeneratingMessageId,
 }: ChatMessagesProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-4">
       {!messages.length ? (
@@ -84,8 +86,8 @@ export default function ChatMessages({
                   {message.role === "user" ? (
                     <button
                       type="button"
-                      title="Edit and resend"
-                      aria-label="Edit and resend message"
+                      title={t("ai.editResend")}
+                      aria-label={t("ai.editResend")}
                       onClick={() => onEditUserMessage(message)}
                       className="rounded-md p-1.5 text-white/35 hover:bg-white/[0.08] hover:text-white"
                     >
@@ -94,8 +96,8 @@ export default function ChatMessages({
                   ) : (
                     <button
                       type="button"
-                      title="Regenerate response"
-                      aria-label="Regenerate response"
+                      title={t("ai.regenerate")}
+                      aria-label={t("ai.regenerate")}
                       disabled={Boolean(regeneratingMessageId)}
                       onClick={() => onRegenerateAssistantMessage(message)}
                       className="rounded-md p-1.5 text-white/35 hover:bg-white/[0.08] hover:text-white disabled:opacity-40"

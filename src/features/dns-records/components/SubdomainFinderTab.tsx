@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   Loader2,
@@ -42,6 +43,7 @@ const PRESET_DOMAINS = [
 ];
 
 export const SubdomainFinderTab: React.FC = () => {
+  const { t } = useTranslation();
   const {
     domain,
     setDomain,
@@ -102,9 +104,9 @@ export const SubdomainFinderTab: React.FC = () => {
         >
           <div className="lg:col-span-9 space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center justify-between">
-              <span>Target Domain</span>
+              <span>{t("dns.subdomainTarget")}</span>
               <span className="text-[11px] text-[var(--text-faint)] font-normal">
-                Discovers active subdomains via Certificate Transparency & DoH
+                {t("dns.subdomainMethod")}
               </span>
             </label>
             <div className="relative">
@@ -132,12 +134,12 @@ export const SubdomainFinderTab: React.FC = () => {
               {scanning ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Scanning...
+                  {t("dns.scanning")}
                 </>
               ) : (
                 <>
                   <Search size={16} />
-                  Find Subdomains
+                  {t("dns.find")}
                 </>
               )}
             </button>
@@ -147,7 +149,7 @@ export const SubdomainFinderTab: React.FC = () => {
                 type="button"
                 onClick={cancelScan}
                 className="py-2.5 px-3 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 text-xs font-semibold flex items-center gap-1 transition-colors"
-                title="Cancel Scan"
+                title={t("dns.cancelScan")}
               >
                 <XCircle size={16} />
               </button>
@@ -176,8 +178,8 @@ export const SubdomainFinderTab: React.FC = () => {
         {/* Preset Domains */}
         <div className="flex items-center gap-2 flex-wrap text-xs">
           <span className="text-[var(--text-faint)] flex items-center gap-1 font-medium">
-            <Sparkles size={12} className="text-[var(--accent)]" /> Target
-            Presets:
+            <Sparkles size={12} className="text-[var(--accent)]" />{" "}
+            {t("dns.presets")}
           </span>
           {PRESET_DOMAINS.map((p) => (
             <button
@@ -208,29 +210,30 @@ export const SubdomainFinderTab: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-xl border border-[var(--border)] bg-white/[0.02] p-3.5 flex flex-col justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
-                <Globe size={13} className="text-blue-400" /> Discovered
+                <Globe size={13} className="text-blue-400" />{" "}
+                {t("dns.discovered")}
               </span>
               <div className="mt-2">
                 <p className="font-mono text-2xl font-bold text-white">
                   {scanResult.totalFound}
                 </p>
                 <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                  total subdomains found
+                  {t("dns.total")}
                 </p>
               </div>
             </div>
 
             <div className="rounded-xl border border-[var(--border)] bg-white/[0.02] p-3.5 flex flex-col justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
-                <CheckCircle2 size={13} className="text-emerald-400" /> Active /
-                Live
+                <CheckCircle2 size={13} className="text-emerald-400" />{" "}
+                {t("dns.live")}
               </span>
               <div className="mt-2">
                 <p className="font-mono text-2xl font-bold text-emerald-400">
                   {scanResult.liveCount}
                 </p>
                 <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                  resolving to public IPs
+                  {t("dns.liveDesc")}
                 </p>
               </div>
             </div>
@@ -244,22 +247,22 @@ export const SubdomainFinderTab: React.FC = () => {
                   {scanResult.totalFound - scanResult.liveCount}
                 </p>
                 <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                  historical / inactive
+                  {t("dns.unresolvedDesc")}
                 </p>
               </div>
             </div>
 
             <div className="rounded-xl border border-[var(--border)] bg-white/[0.02] p-3.5 flex flex-col justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
-                <Activity size={13} className="text-[var(--accent)]" /> Scan
-                Duration
+                <Activity size={13} className="text-[var(--accent)]" />{" "}
+                {t("dns.duration")}
               </span>
               <div className="mt-2">
                 <p className="font-mono text-2xl font-bold text-[var(--accent)]">
                   {(scanResult.scanDurationMs / 1000).toFixed(1)}s
                 </p>
                 <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                  CT logs + DoH resolve
+                  {t("dns.durationDesc")}
                 </p>
               </div>
             </div>
@@ -280,7 +283,7 @@ export const SubdomainFinderTab: React.FC = () => {
                       : "text-[var(--text-muted)] hover:text-white"
                   }`}
                 >
-                  <ListTree size={14} /> Tree
+                  <ListTree size={14} /> {t("dns.tree")}
                 </button>
 
                 <button
@@ -292,7 +295,7 @@ export const SubdomainFinderTab: React.FC = () => {
                       : "text-[var(--text-muted)] hover:text-white"
                   }`}
                 >
-                  <Network size={14} /> Graph
+                  <Network size={14} /> {t("dns.graph")}
                 </button>
 
                 <button
@@ -304,7 +307,7 @@ export const SubdomainFinderTab: React.FC = () => {
                       : "text-[var(--text-muted)] hover:text-white"
                   }`}
                 >
-                  <LayoutGrid size={14} /> Grid
+                  <LayoutGrid size={14} /> {t("dns.grid")}
                 </button>
               </div>
 
@@ -337,7 +340,7 @@ export const SubdomainFinderTab: React.FC = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search subdomains..."
+                    placeholder={t("dns.searchSubdomains")}
                     className="pl-7 pr-3 py-1.5 rounded-lg bg-white/[0.03] border border-[var(--border)] text-xs text-white placeholder-[var(--text-faint)] focus:outline-none focus:border-[var(--accent)]/50"
                   />
                 </div>

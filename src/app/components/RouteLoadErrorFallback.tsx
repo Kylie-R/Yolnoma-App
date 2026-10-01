@@ -1,14 +1,20 @@
-import { AlertOctagon, RefreshCw } from 'lucide-react';
+import { AlertOctagon, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function RouteLoadErrorFallback() {
+  const { t } = useTranslation();
   return (
     <div className="flex h-full min-h-[calc(100vh-6rem)] w-full flex-col items-center justify-center gap-4 rounded-3xl border border-red-500/20 bg-gradient-to-b from-[#14110E] to-[#0B0908] px-6 py-16 text-center">
       <div className="flex h-12 w-12 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 text-red-400">
         <AlertOctagon size={22} />
       </div>
       <div>
-        <p className="text-base font-semibold text-[#F2EDE6]">Failed to load this tool</p>
-        <p className="mt-1 text-xs text-[#F2EDE6]/40">Something went wrong while opening this page.</p>
+        <p className="text-base font-semibold text-[#F2EDE6]">
+          {t("appShell.failed")}
+        </p>
+        <p className="mt-1 text-xs text-[#F2EDE6]/40">
+          {t("appShell.failedDesc")}
+        </p>
       </div>
       <button
         type="button"

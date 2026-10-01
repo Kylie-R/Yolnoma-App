@@ -1,5 +1,5 @@
-﻿import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+﻿import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,17 +8,21 @@ import {
   Check,
   Globe,
   Sparkles,
-} from 'lucide-react';
-import { images } from '@/shared/assets/images';
+} from "lucide-react";
+import { images } from "@/shared/assets/images";
+import { useTranslation } from "react-i18next";
 
 export default function StandaloneNavbar() {
+  const { t } = useTranslation("common");
   const location = useLocation();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
   // Clean path formatting for yolnoma:// URL
-  const cleanPath = location.pathname.startsWith('/') ? location.pathname.slice(1) : location.pathname;
-  const currentAppUrl = `yolnoma://app/${cleanPath || 'dashboard'}${location.search}`;
+  const cleanPath = location.pathname.startsWith("/")
+    ? location.pathname.slice(1)
+    : location.pathname;
+  const currentAppUrl = `yolnoma://app/${cleanPath || "dashboard"}${location.search}`;
 
   const handleCopyUrl = async () => {
     try {
@@ -27,11 +31,11 @@ export default function StandaloneNavbar() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback
-      const textarea = document.createElement('textarea');
+      const textarea = document.createElement("textarea");
       textarea.value = currentAppUrl;
       document.body.appendChild(textarea);
       textarea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(textarea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -45,20 +49,24 @@ export default function StandaloneNavbar() {
   return (
     <header
       className="h-11 shrink-0 border-b px-3 sm:px-4 flex items-center justify-between gap-3 select-none relative z-20 backdrop-blur-md bg-[#14110E]/90"
-      style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}
+      style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.06)" }}
     >
       {/* Left: Navigation controls (Steam/Tab style) */}
       <div className="flex items-center gap-1 shrink-0">
         <div className="w-6 h-6 rounded-md bg-white/[0.04] border border-white/[0.08] flex items-center justify-center p-1 mr-1">
-          <img src={images.brands.logo_png} alt="Yolnoma Logo" className="w-full h-full object-contain" />
+          <img
+            src={images.brands.logo_png}
+            alt={t("standalone.logoAlt")}
+            className="w-full h-full object-contain"
+          />
         </div>
 
         <button
           type="button"
           onClick={() => navigate(-1)}
           className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-          title="Return to previous page"
-          aria-label="Back"
+          title={t("standalone.back")}
+          aria-label={t("standalone.backShort")}
         >
           <ChevronLeft size={15} strokeWidth={2} />
         </button>
@@ -67,8 +75,8 @@ export default function StandaloneNavbar() {
           type="button"
           onClick={() => navigate(1)}
           className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-          title="Go forward"
-          aria-label="Forward"
+          title={t("standalone.forward")}
+          aria-label={t("standalone.forwardShort")}
         >
           <ChevronRight size={15} strokeWidth={2} />
         </button>
@@ -77,8 +85,8 @@ export default function StandaloneNavbar() {
           type="button"
           onClick={handleRefresh}
           className="p-1 rounded-md text-white/50 hover:text-white hover:bg-white/[0.06] active:bg-white/[0.1] transition-all"
-          title="Refresh page"
-          aria-label="Refresh"
+          title={t("standalone.refresh")}
+          aria-label={t("standalone.refreshShort")}
         >
           <RotateCw size={13} strokeWidth={2} />
         </button>
@@ -89,16 +97,18 @@ export default function StandaloneNavbar() {
         <div
           className="h-7 px-2.5 rounded-lg flex items-center justify-between gap-2 border text-xs transition-all duration-200"
           style={{
-            background: 'rgba(24, 20, 16, 0.65)',
-            borderColor: 'rgba(255, 255, 255, 0.08)',
+            background: "rgba(24, 20, 16, 0.65)",
+            borderColor: "rgba(255, 255, 255, 0.08)",
           }}
         >
           <div className="flex items-center gap-1.5 min-w-0 text-white/40">
             <Globe size={11} className="shrink-0 text-[#D97757]" />
             <span className="font-mono text-[11px] truncate tracking-tight text-white/70">
               <span className="text-[#D97757]/80">yolnoma://app/</span>
-              <span>{cleanPath || 'dashboard'}</span>
-              {location.search && <span className="text-white/40">{location.search}</span>}
+              <span>{cleanPath || "dashboard"}</span>
+              {location.search && (
+                <span className="text-white/40">{location.search}</span>
+              )}
             </span>
           </div>
 
@@ -106,8 +116,8 @@ export default function StandaloneNavbar() {
             type="button"
             onClick={handleCopyUrl}
             className="shrink-0 p-0.5 text-white/40 hover:text-[#D97757] transition-colors rounded"
-            title="Copy URL"
-            aria-label="Copy URL"
+            title={t("standalone.copyUrl")}
+            aria-label={t("standalone.copyUrl")}
           >
             {copied ? (
               <Check size={12} className="text-emerald-400" />
@@ -122,7 +132,7 @@ export default function StandaloneNavbar() {
       <div className="flex items-center gap-2 shrink-0">
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#D97757]/10 border border-[#D97757]/20 text-[#D97757] text-[10px] font-medium tracking-wide">
           <Sparkles size={9} />
-          <span>Standalone View</span>
+          <span>{t("standalone.view")}</span>
         </span>
       </div>
     </header>

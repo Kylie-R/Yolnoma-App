@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +22,7 @@ const NODE_LABELS = Object.fromEntries(
 ) as Record<string, string>;
 
 export default function World3DPage() {
+  const { t } = useTranslation();
   const isStandalone = useIsStandalone();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
@@ -37,14 +39,13 @@ export default function World3DPage() {
             <Trees size={38} />
           </div>
           <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.25em] text-amber-200/75">
-            Yolnoma World
+            {t("world3d.title")}
           </p>
           <h1 className="mt-3 font-serif text-4xl tracking-tight text-white">
-            Open the living desktop
+            {t("world3d.title")}
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-white/50">
-            View Open World in a separate full-screen tab. The sidebar will
-            close, and all workspaces around the tree will be fully visible.
+            {t("world3d.description")}
           </p>
           <button
             type="button"
@@ -53,7 +54,7 @@ export default function World3DPage() {
             }
             className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-amber-200 px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-200/10 transition hover:bg-amber-100"
           >
-            <Maximize2 size={17} /> Open 3D World
+            <Maximize2 size={17} /> {t("world3d.open")}
           </button>
         </div>
       </div>
@@ -70,11 +71,10 @@ export default function World3DPage() {
             <Trees size={14} /> Yolnoma World
           </p>
           <h1 className="mt-12 font-serif text-3xl tracking-tight text-white md:text-5xl">
-            The living desktop
+            {t("world3d.title")}
           </h1>
           <p className="mt-2 max-w-md text-xs leading-5 text-white/45">
-            A quiet place for your tools, your data and the weather above it
-            all.
+            {t("world3d.description")}
           </p>
         </div>
         <div className="pointer-events-auto flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function World3DPage() {
             to="/"
             className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs font-medium text-white/70 backdrop-blur-md transition hover:bg-white/10 hover:text-white"
           >
-            <ArrowLeft size={14} /> Classic dashboard
+            <ArrowLeft size={14} /> {t("dashboard.viewAll")}
           </Link>
         </div>
       </header>

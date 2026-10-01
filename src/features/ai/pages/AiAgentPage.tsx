@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -309,6 +310,7 @@ async function searchInProject(
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AiAgentPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   // Project state
@@ -906,10 +908,10 @@ export default function AiAgentPage() {
               type="button"
               onClick={() => setShowRecentsMenu((v) => !v)}
               className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-[11px] text-white/70 hover:border-[var(--accent-border)] hover:text-white transition-colors"
-              title="Recent Projects (So'nggi ochilgan loyihalar)"
+              title={t("ai.recentProjects")}
             >
               <History size={12} />
-              <span className="hidden sm:inline">Recents</span>
+              <span className="hidden sm:inline">{t("ai.recents")}</span>
               <ChevronDown
                 size={10}
                 className={`transition-transform ${showRecentsMenu ? "rotate-180" : ""}`}
@@ -950,7 +952,7 @@ export default function AiAgentPage() {
                         </div>
                         <button
                           type="button"
-                          title="Remove from recents"
+                          title={t("ai.removeRecent")}
                           onClick={(e) => {
                             e.stopPropagation();
                             setRecentProjects(removeRecentProject(p.path));
@@ -1054,7 +1056,7 @@ export default function AiAgentPage() {
                         </span>
                         <button
                           type="button"
-                          title="Remove from recents"
+                          title={t("ai.removeRecent")}
                           onClick={(e) => {
                             e.stopPropagation();
                             setRecentProjects(removeRecentProject(item.path));
@@ -1238,7 +1240,7 @@ export default function AiAgentPage() {
                 <div className="flex h-full items-center justify-center text-white/15">
                   <div className="text-center">
                     <FileText className="mx-auto mb-3 opacity-20" size={40} />
-                    <p className="text-sm">Select a file from Explorer</p>
+                    <p className="text-sm">{t("ai.selectFile")}</p>
                     <p className="mt-1 text-xs">
                       or click a changed file in Source Control to view diff
                     </p>

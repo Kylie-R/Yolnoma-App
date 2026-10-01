@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useRef, useState } from "react";
 import {
   Download,
@@ -275,6 +276,7 @@ function diagramSvg(schema: DatabaseSchema, scale = 1) {
 }
 
 export default function DatabaseGenWorkspace() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [prompt, setPrompt] = useState(SAMPLE_PROMPT);
   const [schema, setSchema] = useState<DatabaseSchema | null>(null);
@@ -316,7 +318,7 @@ export default function DatabaseGenWorkspace() {
     try {
       const apiKey = await getApiKey(user?.id ?? "");
       if (!apiKey) {
-        setError("OpenRouter API key not found. Add your key to continue.");
+        setError(t("aiTools.apiKeyMissing"));
         setShowKeyModal(true);
         return;
       }
@@ -457,7 +459,7 @@ export default function DatabaseGenWorkspace() {
               }}
               rows={2}
               maxLength={600}
-              placeholder="Describe your product or system…"
+              placeholder={t("aiTools.promptInput")}
               className="form-textarea w-full resize-none rounded-t-xl border-0 bg-transparent px-4 pt-3 pb-1 text-[13.5px] leading-relaxed text-white/90 shadow-none outline-none focus:border-0 focus:bg-transparent focus:ring-0 placeholder:text-white/25"
             />
 
@@ -555,7 +557,7 @@ export default function DatabaseGenWorkspace() {
                 type="button"
                 onClick={() => setZoom((value) => Math.min(1.5, value + 0.1))}
                 className="rounded-lg border border-white/15 p-2 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/25 transition-all"
-                title="Zoom in"
+                title={t("aiTools.zoomIn")}
               >
                 <ZoomIn size={15} />
               </button>
@@ -563,7 +565,7 @@ export default function DatabaseGenWorkspace() {
                 type="button"
                 onClick={() => setZoom((value) => Math.max(0.6, value - 0.1))}
                 className="rounded-lg border border-white/15 p-2 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/25 transition-all"
-                title="Zoom out"
+                title={t("aiTools.zoomOut")}
               >
                 <ZoomOut size={15} />
               </button>
@@ -604,7 +606,7 @@ export default function DatabaseGenWorkspace() {
                 type="button"
                 onClick={() => setSchema(null)}
                 className="rounded-lg border border-red-400/30 p-2 text-red-300/70 hover:text-red-200 hover:bg-red-400/10 hover:border-red-400/50 transition-all"
-                title="Clear workspace"
+                title={t("aiTools.clear")}
               >
                 <Trash2 size={15} />
               </button>

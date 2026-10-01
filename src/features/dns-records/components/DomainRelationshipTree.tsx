@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ZoomIn,
   ZoomOut,
@@ -30,6 +31,7 @@ interface IpGroup {
 export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
   scanResult,
 }) => {
+  const { t } = useTranslation("common");
   const [zoom, setZoom] = useState(1);
   const [activeInspector, setActiveInspector] = useState<{
     subdomain: SubdomainItem;
@@ -93,7 +95,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success(`Copied: ${text}`);
+    toast.success(t("dnsRecord.copied", { value: text }));
     setTimeout(() => setCopied(false), 1500);
   };
 
@@ -138,10 +140,10 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
         <div className="flex items-center gap-2.5">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="font-bold text-white text-xs tracking-wide">
-            Domain Relationship Tree
+            {t("relationshipTree.title")}
           </span>
           <span className="text-[11px] text-[var(--text-muted)] hidden sm:inline">
-            Interactive visualization of domain, IPs, and subdomains
+            {t("relationshipTree.description")}
           </span>
         </div>
 
@@ -151,7 +153,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             type="button"
             onClick={() => setZoom((z) => Math.min(z + 0.15, 1.6))}
             className="rounded p-1 text-white/70 hover:text-white"
-            title="Zoom In"
+            title={t("relationshipTree.zoomIn")}
           >
             <ZoomIn size={14} />
           </button>
@@ -159,7 +161,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             type="button"
             onClick={() => setZoom((z) => Math.max(z - 0.15, 0.6))}
             className="rounded p-1 text-white/70 hover:text-white"
-            title="Zoom Out"
+            title={t("relationshipTree.zoomOut")}
           >
             <ZoomOut size={14} />
           </button>
@@ -167,7 +169,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             type="button"
             onClick={() => setZoom(1)}
             className="rounded p-1 text-white/70 hover:text-white"
-            title="Reset Zoom"
+            title={t("relationshipTree.resetZoom")}
           >
             <RotateCcw size={14} />
           </button>
@@ -525,7 +527,9 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
                               fontSize="10"
                               fontFamily="monospace"
                             >
-                              Open Ports ({sub.ports?.length || 2})
+                              {t("relationshipTree.openPorts", {
+                                count: sub.ports?.length || 2,
+                              })}
                             </text>
                           </g>
 
@@ -543,7 +547,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
                               fontSize="10"
                               fontFamily="monospace"
                             >
-                              OS / Services / Banners...
+                              {t("relationshipTree.osServices")}
                             </text>
                           </g>
                         </g>
@@ -568,11 +572,12 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
                 </h3>
                 <p className="text-[11px] text-[var(--text-muted)] flex items-center gap-2 mt-0.5">
                   <span>
-                    IP: {activeInspector.subdomain.ip || "216.24.57.7"}
+                    {t("relationshipTree.ip")}{" "}
+                    {activeInspector.subdomain.ip || "216.24.57.7"}
                   </span>
                   <span>•</span>
                   <span>
-                    Provider:{" "}
+                    {t("relationshipTree.provider")}{" "}
                     {activeInspector.subdomain.asnOrg || "Render Cloud"}
                   </span>
                 </p>
@@ -590,7 +595,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
                 ) : (
                   <Copy size={12} />
                 )}{" "}
-                Copy
+                {t("relationshipTree.copy")}
               </button>
               <a
                 href={`https://${activeInspector.subdomain.fullDomain}`}
@@ -598,7 +603,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
                 rel="noopener noreferrer"
                 className="py-1 px-3 rounded-lg bg-[var(--accent)] text-[#1b120e] font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity"
               >
-                <ExternalLink size={12} /> Visit
+                <ExternalLink size={12} /> {t("relationshipTree.visit")}
               </a>
               <button
                 type="button"
@@ -616,16 +621,16 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             <div className="rounded-xl border border-white/[0.06] bg-black/40 p-3 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] flex items-center gap-1">
-                  <Lock size={11} className="text-emerald-400" /> SSL Health
-                  Score
+                  <Lock size={11} className="text-emerald-400" />{" "}
+                  {t("relationshipTree.sslHealth")}
                 </span>
                 <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-bold text-emerald-400 text-[10px]">
-                  Grade A+
+                  {t("relationshipTree.grade")}
                 </span>
               </div>
               <p className="text-white font-bold text-base">95 / 100</p>
               <p className="text-[10px] text-[var(--text-muted)]">
-                Issuer: Let&apos;s Encrypt / DigiCert
+                {t("relationshipTree.issuer")}
               </p>
             </div>
 
@@ -633,7 +638,8 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             <div className="rounded-xl border border-white/[0.06] bg-black/40 p-3 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] flex items-center gap-1">
-                  <Server size={11} className="text-blue-400" /> Web Server
+                  <Server size={11} className="text-blue-400" />{" "}
+                  {t("relationshipTree.webServer")}
                 </span>
                 <span className="rounded bg-blue-500/15 px-1.5 py-0.5 font-bold text-blue-400 text-[10px]">
                   200 OK
@@ -645,8 +651,8 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
               <p className="text-[10px] text-[var(--text-muted)]">
                 HSTS:{" "}
                 {activeInspector.headers?.securityHeaders?.hsts
-                  ? "Enabled"
-                  : "Active"}
+                  ? t("relationshipTree.hstsEnabled")
+                  : t("relationshipTree.hstsActive")}
               </p>
             </div>
 
@@ -654,17 +660,18 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             <div className="rounded-xl border border-white/[0.06] bg-black/40 p-3 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] flex items-center gap-1">
-                  <Shield size={11} className="text-amber-400" /> Open Ports
+                  <Shield size={11} className="text-amber-400" />{" "}
+                  {t("relationshipTree.openPortsTitle")}
                 </span>
                 <span className="rounded bg-amber-500/15 px-1.5 py-0.5 font-bold text-amber-400 text-[10px]">
-                  Active
+                  {t("relationshipTree.active")}
                 </span>
               </div>
               <p className="text-white font-mono text-xs">
                 {activeInspector.subdomain.ports?.join(", ") || "80, 443, 8080"}
               </p>
               <p className="text-[10px] text-[var(--text-muted)]">
-                Standard Web & TLS Endpoints
+                {t("relationshipTree.standardEndpoints")}
               </p>
             </div>
 
@@ -672,8 +679,8 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
             <div className="rounded-xl border border-white/[0.06] bg-black/40 p-3 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase font-semibold text-[var(--text-muted)] flex items-center gap-1">
-                  <Activity size={11} className="text-[var(--accent)]" /> DNS &
-                  Transport
+                  <Activity size={11} className="text-[var(--accent)]" />{" "}
+                  {t("relationshipTree.dnsTransport")}
                 </span>
                 <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-bold text-emerald-400 text-[10px]">
                   DoH
@@ -681,7 +688,7 @@ export const DomainRelationshipTree: React.FC<DomainRelationshipTreeProps> = ({
               </div>
               <p className="text-white font-bold text-xs">TLS 1.3 / HTTP/2</p>
               <p className="text-[10px] text-[var(--text-muted)]">
-                DNSSEC Validated • 24ms
+                {t("relationshipTree.dnsValidated")}
               </p>
             </div>
           </div>

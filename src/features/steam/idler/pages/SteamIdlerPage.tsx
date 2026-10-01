@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { memo, useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { SteamStatusBadge } from "../components/SteamStatusBadge";
@@ -366,6 +367,7 @@ const GameCard = memo(function GameCard({
 // ────────────────────────────────────────────────────────────────────────────
 
 export default function SteamIdlerPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // ── State
@@ -635,7 +637,7 @@ export default function SteamIdlerPage() {
     return matchSearch;
   });
 
-  // Pagination for "All Games" tab without search
+  // Pagination for all games tab without search
   const GAMES_PER_PAGE = 60;
   const isPaginated = tab === "all" && debouncedSearch.trim() === "";
   const totalPages = isPaginated
@@ -894,7 +896,7 @@ export default function SteamIdlerPage() {
           >
             <Clock size={12} />
             {cacheAgeMin === 0
-              ? "Just updated"
+              ? t("steam.justUpdated")
               : `Updated ${cacheAgeMin} min ago`}
             {secondsLeft > 0 && (
               <span
@@ -937,7 +939,7 @@ export default function SteamIdlerPage() {
           ) : (
             <RefreshCw size={14} />
           )}
-          {gamesRefreshing ? "Refreshing Library..." : "Refresh"}
+          {gamesRefreshing ? t("steam.refreshingLibrary") : "Refresh"}
         </Button>
       </div>
 
@@ -954,19 +956,19 @@ export default function SteamIdlerPage() {
         {[
           {
             key: "favorites",
-            label: "Favorite Games",
+            label: t("steam.favoriteGames"),
             count: favorites.size,
             icon: Star,
           },
           {
             key: "idling",
-            label: "Now Idling",
+            label: t("steam.nowIdling"),
             count: idlingIds.size,
             icon: Flame,
           },
           {
             key: "all",
-            label: "All Games",
+            label: t("steam.allGames"),
             count: games.length,
             icon: Gamepad2,
           },
@@ -1222,7 +1224,8 @@ export default function SteamIdlerPage() {
                   No Favorite Games
                 </p>
                 <p style={{ fontSize: 13, margin: "0 0 16px" }}>
-                  Switch to "All Games" and click the ⭐ icon to add favorites.
+                  Switch to {t("steam.allGames")} and click the ⭐ icon to add
+                  favorites.
                 </p>
                 <button
                   onClick={() => setTab("all")}
@@ -1256,7 +1259,7 @@ export default function SteamIdlerPage() {
                   No Games Currently Idling
                 </p>
                 <p style={{ fontSize: 13, margin: 0 }}>
-                  Start idling from the "Favorite Games" tab.
+                  Start idling from the {t("steam.favoriteGames")} tab.
                 </p>
               </>
             ) : (
@@ -1455,7 +1458,10 @@ export default function SteamIdlerPage() {
                       ["Steam ID", profile.steamId],
                       ["Steam Level", profile.steamLevel ?? "Unavailable"],
                       ["Real name", profile.realName ?? "Not public"],
-                      ["Country", profile.countryCode ?? "Not public"],
+                      [
+                        t("performance.country"),
+                        profile.countryCode ?? "Not public",
+                      ],
                     ].map(([label, value]) => (
                       <div
                         key={label}

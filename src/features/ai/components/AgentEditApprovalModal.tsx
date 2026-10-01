@@ -1,5 +1,6 @@
 import { Check, XCircle } from "lucide-react";
 import type { ToolCall } from "../types";
+import { useTranslation } from "react-i18next";
 
 export type PendingEdit = {
   call: ToolCall;
@@ -16,6 +17,7 @@ export default function AgentEditApprovalModal({
   pendingEdit,
   onApprove,
 }: AgentEditApprovalModalProps) {
+  const { t } = useTranslation();
   if (!pendingEdit) return null;
 
   return (
@@ -54,7 +56,7 @@ export default function AgentEditApprovalModal({
             onClick={() => onApprove(true)}
             className="inline-flex items-center gap-2 rounded bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-[#1b120e] hover:bg-[#e08a6b] transition-colors"
           >
-            <Check size={12} /> Approve and save
+            <Check size={12} /> {t("ai.approveSave")}
           </button>
         </div>
       </div>

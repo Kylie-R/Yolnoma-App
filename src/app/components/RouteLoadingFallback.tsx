@@ -1,6 +1,8 @@
 import { images } from "@/shared/assets/images";
+import { useTranslation } from "react-i18next";
 
 export default function RouteLoadingFallback() {
+  const { t } = useTranslation();
   return (
     <div className="flex h-full min-h-[calc(100vh-6rem)] w-full items-center justify-center rounded-3xl border border-[#F2EDE6]/10 bg-gradient-to-b from-[#14110E] to-[#0B0908] px-6 py-16">
       <div
@@ -22,7 +24,7 @@ export default function RouteLoadingFallback() {
           <p className="text-base font-semibold tracking-wide text-[#F2EDE6]">
             Opening tool
           </p>
-          <p className="text-xs text-[#F2EDE6]/40">Preparing this workspace…</p>
+          <p className="text-xs text-[#F2EDE6]/40">{t("appShell.preparing")}</p>
         </div>
       </div>
     </div>
