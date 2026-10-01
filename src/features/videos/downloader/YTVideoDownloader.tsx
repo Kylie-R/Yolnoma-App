@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -75,6 +76,7 @@ const QUALITIES = [
 ];
 
 export function VideoDownloader() {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState("best");
   const [qualityOpen, setQualityOpen] = useState(false);
@@ -372,7 +374,7 @@ export function VideoDownloader() {
         <div className="text-center space-y-1">
           <div className="inline-flex items-center justify-center gap-2 text-[#D97757] font-semibold text-xs uppercase tracking-[0.2em]">
             <Video size={16} strokeWidth={2} />
-            <span>Media Utility</span>
+            <span>{t("videos.mediaUtility")}</span>
           </div>
           <h1 className="font-serif text-3xl font-medium tracking-tight text-[#F2EDE6]">
             YouTube Video Downloader
@@ -414,7 +416,7 @@ export function VideoDownloader() {
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/[0.04] text-xs text-white/70 hover:bg-red-500/15 hover:border-red-500/30 hover:text-red-300 transition-all"
                   >
                     <X size={13} />
-                    <span>Cancel</span>
+                    <span>{t("videos.cancel")}</span>
                   </button>
                 </div>
 
@@ -469,7 +471,7 @@ export function VideoDownloader() {
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#D97757] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#D97757]/90 active:scale-95 transition-all shadow-lg shadow-[#D97757]/20"
                   >
                     <RefreshCw size={14} />
-                    <span>Retry Download</span>
+                    <span>{t("videos.retryDownload")}</span>
                   </button>
                 </div>
               </div>
@@ -531,7 +533,7 @@ export function VideoDownloader() {
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#D97757] px-6 py-2.5 text-xs font-semibold text-white hover:bg-[#D97757]/90 active:scale-95 transition-all shadow-lg shadow-[#D97757]/20"
                   >
                     <Download size={15} strokeWidth={2} />
-                    <span>Download Libraries (~144 MB)</span>
+                    <span>{t("videos.downloadLibraries")}</span>
                   </button>
                 </div>
               </div>
@@ -559,7 +561,7 @@ export function VideoDownloader() {
             {previewLoading && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs text-[#D97757]">
                 <div className="w-4 h-4 border-2 border-[#D97757]/30 border-t-[#D97757] rounded-full animate-spin" />
-                <span className="hidden sm:inline">Fetching…</span>
+                <span className="hidden sm:inline">{t("videos.fetching")}</span>
               </div>
             )}
           </div>
@@ -568,8 +570,8 @@ export function VideoDownloader() {
             type="button"
             onClick={openDownloadFolder}
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-sm text-white/70 hover:bg-white/[0.08] hover:text-white transition-all shadow-md shrink-0"
-            title="Open download folder"
-            aria-label="Open download folder"
+            title={t("videos.openDownloadFolder")}
+            aria-label={t("videos.openDownloadFolder")}
           >
             <FolderOpen size={18} />
             <span className="hidden sm:inline text-xs font-medium">
@@ -685,10 +687,10 @@ export function VideoDownloader() {
                     <Download size={15} strokeWidth={2} />
                     <span>
                       {activeCount >= 3
-                        ? "Queue full"
+                        ? t("videos.queueFull")
                         : isLibrariesMissing
-                          ? "Libraries Required"
-                          : "Download Video"}
+                          ? t("videos.librariesRequired")
+                          : t("videos.downloadVideo")}
                     </span>
                   </button>
                 </div>

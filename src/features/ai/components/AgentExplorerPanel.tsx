@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   ChevronDown,
   ChevronRight,
@@ -44,6 +45,7 @@ export default function AgentExplorerPanel({
   onOpenFileTab,
   onOpenProject,
 }: AgentExplorerPanelProps) {
+  const { t } = useTranslation();
   return (
     <aside className="flex w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/[0.08] bg-[#11100d]">
       {/* Panel title */}
@@ -54,7 +56,7 @@ export default function AgentExplorerPanel({
         <button
           type="button"
           onClick={onOpenProject}
-          title="Change folder"
+          title={t("ai.changeFolder")}
           className="text-white/25 hover:text-white transition-colors"
         >
           <FolderOpen size={12} />
@@ -68,7 +70,7 @@ export default function AgentExplorerPanel({
             <Loader2 size={12} className="animate-spin" /> Scanning…
           </div>
         ) : flatTree.length === 0 ? (
-          <p className="px-3 py-3 text-xs text-white/25">No files found.</p>
+          <p className="px-3 py-3 text-xs text-white/25">{t("ai.noFiles")}</p>
         ) : (
           flatTree.map((node) => {
             const isDir = node.kind === "directory";

@@ -1,12 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Download, ExternalLink, Image as ImageIcon, Maximize2 } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+import {
+  Download,
+  ExternalLink,
+  Image as ImageIcon,
+  Maximize2,
+} from "lucide-react";
 
 interface VideoGalleryProps {
   screenshots: string[];
   title?: string;
 }
 
-export default function VideoGallery({ screenshots, title }: VideoGalleryProps) {
+export default function VideoGallery({
+  screenshots,
+  title,
+}: VideoGalleryProps) {
+  const { t } = useTranslation();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
@@ -41,10 +51,11 @@ export default function VideoGallery({ screenshots, title }: VideoGalleryProps) 
       <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[#0F0D0B] shadow-lg group">
         <img
           src={activeImage}
-          alt={`${title || 'Video'} screenshot ${selectedIndex + 1}`}
+          alt={`${title || "Video"} screenshot ${selectedIndex + 1}`}
           className="w-full h-full object-contain transition-all duration-300"
           onError={(e) => {
-            e.currentTarget.src = 'https://placehold.co/640x360/1B1713/F2EDE6?text=Rasm+yuklanmadi';
+            e.currentTarget.src =
+              "https://placehold.co/640x360/1B1713/F2EDE6?text=Rasm+yuklanmadi";
           }}
         />
 
@@ -81,8 +92,8 @@ export default function VideoGallery({ screenshots, title }: VideoGalleryProps) 
               onClick={() => setSelectedIndex(index)}
               className={`group relative aspect-video overflow-hidden rounded-xl border transition-all cursor-pointer ${
                 isSelected
-                  ? 'border-[var(--accent)] ring-2 ring-[var(--accent)]/40 scale-[1.03] z-10'
-                  : 'border-[var(--border)] bg-[#14110E] hover:border-white/30 opacity-70 hover:opacity-100'
+                  ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/40 scale-[1.03] z-10"
+                  : "border-[var(--border)] bg-[#14110E] hover:border-white/30 opacity-70 hover:opacity-100"
               }`}
             >
               <img
@@ -111,7 +122,7 @@ export default function VideoGallery({ screenshots, title }: VideoGalleryProps) 
           <div className="relative max-w-5xl max-h-[90vh] flex flex-col items-center">
             <img
               src={fullscreenImage}
-              alt="Fullscreen Preview"
+              alt={t("videos.previewAlt")}
               className="max-w-full max-h-[85vh] object-contain rounded-2xl border border-white/10 shadow-2xl"
             />
             <div className="mt-4 flex items-center gap-4">

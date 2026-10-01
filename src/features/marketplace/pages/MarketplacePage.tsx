@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Download, AlertCircle, Check, FolderOpen } from 'lucide-react';
-import { invoke } from '@tauri-apps/api/core';
-import { PluginLoader, type DiscoveredPluginInfo } from '@/plugins';
-import { Button } from '@/shared/ui';
+import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { Download, AlertCircle, Check, FolderOpen } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
+import { PluginLoader, type DiscoveredPluginInfo } from "@/plugins";
+import { Button } from "@/shared/ui";
 
 interface PluginCard extends DiscoveredPluginInfo {
   installing?: boolean;
@@ -11,10 +12,11 @@ interface PluginCard extends DiscoveredPluginInfo {
 }
 
 export default function MarketplacePage() {
+  const { t } = useTranslation();
   const [plugins, setPlugins] = useState<PluginCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   // Discover plugins on mount
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function MarketplacePage() {
         );
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : 'Failed to discover plugins',
+          err instanceof Error ? err.message : "Failed to discover plugins",
         );
         console.error(err);
       } finally {
@@ -44,9 +46,9 @@ export default function MarketplacePage() {
   // Open plugins folder
   const handleOpenFolder = async () => {
     try {
-      await invoke('open_plugins_folder');
+      await invoke("open_plugins_folder");
     } catch (err) {
-      console.error('Failed to open plugins folder:', err);
+      console.error("Failed to open plugins folder:", err);
     }
   };
 
@@ -71,7 +73,7 @@ export default function MarketplacePage() {
       }, 2000);
     } catch (err) {
       const errorMsg =
-        err instanceof Error ? err.message : 'Installation failed';
+        err instanceof Error ? err.message : "Installation failed";
       const updated = [...plugins];
       updated[idx] = { ...updated[idx], installing: false, error: errorMsg };
       setPlugins(updated);
@@ -83,25 +85,25 @@ export default function MarketplacePage() {
   );
 
   return (
-    <div style={{ minHeight: '100%', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ minHeight: "100%", fontFamily: "var(--font-sans)" }}>
       {/* Header */}
       <header
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
           marginBottom: 32,
           paddingBottom: 24,
-          borderBottom: '1px solid var(--border)',
+          borderBottom: "1px solid var(--border)",
         }}
       >
         <div>
           <p
             style={{
               fontSize: 11,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: 'var(--accent)',
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "var(--accent)",
               marginBottom: 8,
               fontWeight: 600,
             }}
@@ -110,22 +112,22 @@ export default function MarketplacePage() {
           </p>
           <h1
             style={{
-              fontFamily: 'var(--font-serif)',
+              fontFamily: "var(--font-serif)",
               fontSize: 42,
               fontWeight: 500,
-              letterSpacing: '-0.01em',
+              letterSpacing: "-0.01em",
               margin: 0,
               marginBottom: 8,
               lineHeight: 1.05,
-              color: 'var(--text-primary)',
+              color: "var(--text-primary)",
             }}
           >
             Marketplace
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0 }}>
+          <p style={{ fontSize: 14, color: "var(--text-muted)", margin: 0 }}>
             {loading
-              ? 'Scanning…'
-              : `${filtered.length} plugin${filtered.length !== 1 ? 's' : ''} available`}
+              ? "Scanning…"
+              : `${filtered.length} plugin${filtered.length !== 1 ? "s" : ""} available`}
           </p>
         </div>
 
@@ -133,11 +135,11 @@ export default function MarketplacePage() {
         <Button
           variant="ghost"
           onClick={handleOpenFolder}
-          title="Open plugins folder"
+          title={t("marketplace.openFolder")}
           style={{
-            display: 'flex',
+            display: "flex",
             gap: 6,
-            alignItems: 'center',
+            alignItems: "center",
           }}
         >
           <FolderOpen size={16} strokeWidth={1.5} />
@@ -149,12 +151,12 @@ export default function MarketplacePage() {
       <div style={{ marginBottom: 28 }}>
         <input
           type="text"
-          placeholder="Search plugins…"
+          placeholder={t("marketplace.search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="form-input"
           style={{
-            width: '100%',
+            width: "100%",
             maxWidth: 360,
             paddingLeft: 14,
           }}
@@ -165,16 +167,16 @@ export default function MarketplacePage() {
       {error && (
         <div
           style={{
-            border: '1px solid rgba(220,80,80,0.3)',
-            background: 'rgba(220,80,80,0.07)',
-            color: '#F2A8A8',
+            border: "1px solid rgba(220,80,80,0.3)",
+            background: "rgba(220,80,80,0.07)",
+            color: "#F2A8A8",
             borderRadius: 12,
-            padding: '14px 18px',
+            padding: "14px 18px",
             marginBottom: 28,
             fontSize: 13,
-            display: 'flex',
+            display: "flex",
             gap: 10,
-            alignItems: 'center',
+            alignItems: "center",
           }}
         >
           <AlertCircle size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -186,8 +188,8 @@ export default function MarketplacePage() {
       {loading && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             gap: 24,
           }}
         >
@@ -197,9 +199,9 @@ export default function MarketplacePage() {
               style={{
                 height: 240,
                 borderRadius: 12,
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid var(--border)',
-                animation: 'pulse 2s ease-in-out infinite',
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid var(--border)",
+                animation: "pulse 2s ease-in-out infinite",
               }}
             />
           ))}
@@ -210,24 +212,24 @@ export default function MarketplacePage() {
       {!loading && filtered.length === 0 && (
         <div
           style={{
-            textAlign: 'center',
-            padding: '80px 20px',
-            color: 'var(--text-muted)',
-            border: '1px dashed var(--border)',
+            textAlign: "center",
+            padding: "80px 20px",
+            color: "var(--text-muted)",
+            border: "1px dashed var(--border)",
             borderRadius: 16,
           }}
         >
           <p
             style={{
               fontSize: 16,
-              color: 'var(--text-primary)',
+              color: "var(--text-primary)",
               marginBottom: 4,
             }}
           >
-            {search ? `No matches for "${search}"` : 'No plugins found'}
+            {search ? `No matches for "${search}"` : "No plugins found"}
           </p>
           <p style={{ fontSize: 13 }}>
-            {search ? 'Try a different search.' : 'Check your plugins folder.'}
+            {search ? "Try a different search." : "Check your plugins folder."}
           </p>
         </div>
       )}
@@ -236,8 +238,8 @@ export default function MarketplacePage() {
       {!loading && filtered.length > 0 && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             gap: 24,
           }}
         >
@@ -265,26 +267,26 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
     <div
       style={{
         borderRadius: 12,
-        border: '1px solid var(--border)',
-        background: 'var(--bg-elevated)',
+        border: "1px solid var(--border)",
+        background: "var(--bg-elevated)",
         padding: 20,
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
         gap: 16,
-        transition: 'all 0.2s ease',
-        cursor: 'pointer',
-        position: 'relative',
-        overflow: 'hidden',
+        transition: "all 0.2s ease",
+        cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
       }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)';
+        (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
         (e.currentTarget as HTMLElement).style.background =
-          'rgba(217,119,87,0.05)';
+          "rgba(217,119,87,0.05)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+        (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
         (e.currentTarget as HTMLElement).style.background =
-          'var(--bg-elevated)';
+          "var(--bg-elevated)";
       }}
     >
       {/* Icon area */}
@@ -294,16 +296,16 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
           height: 56,
           borderRadius: 10,
           background: `linear-gradient(135deg, rgba(217,119,87,0.2), rgba(217,119,87,0.05))`,
-          border: '1px solid rgba(217,119,87,0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          border: "1px solid rgba(217,119,87,0.15)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <Download
           size={24}
           strokeWidth={1.5}
-          style={{ color: 'var(--accent)' }}
+          style={{ color: "var(--accent)" }}
         />
       </div>
 
@@ -313,9 +315,9 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
           style={{
             fontSize: 16,
             fontWeight: 600,
-            color: 'var(--text-primary)',
-            margin: '0 0 4px 0',
-            wordBreak: 'break-word',
+            color: "var(--text-primary)",
+            margin: "0 0 4px 0",
+            wordBreak: "break-word",
           }}
         >
           {plugin.dir_name}
@@ -323,9 +325,9 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
         <p
           style={{
             fontSize: 12,
-            color: 'var(--text-faint)',
+            color: "var(--text-faint)",
             margin: 0,
-            fontFamily: 'monospace',
+            fontFamily: "monospace",
           }}
         >
           {plugin.entry_file}
@@ -337,9 +339,9 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
         <div
           style={{
             fontSize: 11,
-            color: '#F2A8A8',
-            background: 'rgba(220,80,80,0.1)',
-            padding: '8px 10px',
+            color: "#F2A8A8",
+            background: "rgba(220,80,80,0.1)",
+            padding: "8px 10px",
             borderRadius: 6,
             lineHeight: 1.4,
           }}
@@ -350,31 +352,31 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
 
       {/* Install button */}
       <Button
-        variant={plugin.installed ? 'primary' : 'ghost'}
+        variant={plugin.installed ? "primary" : "ghost"}
         onClick={onInstall}
         disabled={plugin.installing}
         style={{
-          width: '100%',
+          width: "100%",
           fontSize: 13,
           fontWeight: 600,
-          transition: 'all 0.2s ease',
-          position: 'relative',
-          overflow: 'hidden',
+          transition: "all 0.2s ease",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         {plugin.installing && (
           <span
             style={{
               opacity: 0.5,
-              display: 'flex',
+              display: "flex",
               gap: 6,
-              alignItems: 'center',
+              alignItems: "center",
             }}
           >
             <span
               style={{
-                display: 'inline-block',
-                animation: 'spin 1s linear infinite',
+                display: "inline-block",
+                animation: "spin 1s linear infinite",
               }}
             >
               ⚙️
@@ -383,13 +385,13 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
           </span>
         )}
         {plugin.installed && !plugin.installing && (
-          <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
             <Check size={14} strokeWidth={3} />
             Installed
           </span>
         )}
         {!plugin.installing && !plugin.installed && (
-          <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
             <Download size={14} strokeWidth={2} />
             Install
           </span>
@@ -400,12 +402,12 @@ function PluginCardItem({ plugin, onInstall }: PluginCardItemProps) {
       {plugin.installed && (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
             borderRadius: 12,
-            background: 'rgba(100,200,100,0.1)',
-            pointerEvents: 'none',
-            animation: 'pulse-success 0.6s ease-out',
+            background: "rgba(100,200,100,0.1)",
+            pointerEvents: "none",
+            animation: "pulse-success 0.6s ease-out",
           }}
         />
       )}

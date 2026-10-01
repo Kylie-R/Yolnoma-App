@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type ToolNavigationItem<T extends string> = [T, string, LucideIcon];
 
@@ -11,10 +12,11 @@ export default function ToolNavigation<T extends string>({
   active: T;
   onChange: (id: T) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <aside className="border border-white/[0.08] bg-[#111109] p-2">
       <div className="px-4 pb-3 pt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-        Workspace
+        {t("toolNavigation.workspace")}
       </div>
       <nav className="grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-5">
         {items.map(([id, label, Icon]) => (

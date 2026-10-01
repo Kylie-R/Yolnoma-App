@@ -1,6 +1,7 @@
 import { usePerformances } from "@/features/performance/hooks/usePerformances";
 import { useSystemStats } from "@/features/system-monitor/hooks/useSystemStats";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useTranslation } from "react-i18next";
 import { usePinnedTools } from "@/shared/hooks/usePinnedTools";
 import { useAccountConfigStore } from "@/shared/stores/accountConfigStore";
 import WeatherCard from "@/features/dashboard/components/WeatherCard";
@@ -10,6 +11,7 @@ import PinnedToolsSection from "@/features/dashboard/components/PinnedToolsSecti
 import RecentPerformancesSection from "@/features/dashboard/components/RecentPerformancesSection";
 
 export default function HomePage() {
+  const { t } = useTranslation("common");
   const { user } = useAuth();
   const isOwner = user?.role === "owner";
   const { pinnedTools, reorderPinnedTools } = usePinnedTools();
@@ -40,8 +42,13 @@ export default function HomePage() {
     user?.email?.split("@")[0] ||
     "there";
   const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greeting = t(
+    hour < 12
+      ? "dashboard.goodMorning"
+      : hour < 18
+        ? "dashboard.goodAfternoon"
+        : "dashboard.goodEvening",
+  );
 
   return (
     <div

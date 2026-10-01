@@ -1,12 +1,14 @@
+import { useTranslation } from "react-i18next";
 import { Wifi, WifiOff, Loader2 } from "lucide-react";
 
 export function SteamStatusBadge({ running }: { running: boolean | null }) {
+  const { t } = useTranslation();
   const label =
     running === null
-      ? "Checking Steam…"
+      ? t("steam.checking")
       : running
         ? "Steam Running"
-        : "Steam Offline";
+        : t("steam.offline");
   const color = running === null ? "#facc15" : running ? "#D97757" : "#f87171";
   const background =
     running === null

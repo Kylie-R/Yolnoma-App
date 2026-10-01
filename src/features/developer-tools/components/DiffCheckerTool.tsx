@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { Copy, FileDiff, RotateCcw } from "lucide-react";
 import { ToolCard, ToolTitle } from "./ToolShell";
@@ -21,6 +22,7 @@ function add(a, b) {
 export default add;`;
 
 export default function DiffCheckerTool() {
+  const { t } = useTranslation();
   const [left, setLeft] = useState(LEFT_INITIAL);
   const [right, setRight] = useState(RIGHT_INITIAL);
 
@@ -42,8 +44,8 @@ export default function DiffCheckerTool() {
     <ToolCard>
       <ToolTitle
         icon={FileDiff}
-        text="Diff Checker"
-        subtitle="Compare two text or code snippets with professional side-by-side split, word-wrap, and line alignment."
+        text={t("developerTools.diff")}
+        subtitle={t("developerTools.diffDesc")}
       />
 
       <div className="mt-4 flex items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
@@ -55,7 +57,8 @@ export default function DiffCheckerTool() {
           onClick={reset}
           className="inline-flex items-center gap-1.5 rounded border border-white/10 px-2.5 py-1 text-xs text-white/50 hover:border-white/20 hover:text-white transition-colors"
         >
-          <RotateCcw size={13} /> Reset
+          <RotateCcw size={13} />
+          {t("developerTools.reset")}
         </button>
       </div>
 
@@ -66,14 +69,15 @@ export default function DiffCheckerTool() {
               htmlFor="diff-left"
               className="text-[11px] font-semibold uppercase tracking-wider text-white/40"
             >
-              Original Text
+              {t("developerTools.originalText")}
             </label>
             <button
               type="button"
               onClick={() => void copy(left)}
               className="inline-flex items-center gap-1 text-[11px] text-white/40 hover:text-white transition-colors"
             >
-              <Copy size={12} /> Copy
+              <Copy size={12} />
+              {t("developerTools.copy")}
             </button>
           </div>
           <textarea
@@ -92,14 +96,15 @@ export default function DiffCheckerTool() {
               htmlFor="diff-right"
               className="text-[11px] font-semibold uppercase tracking-wider text-white/40"
             >
-              Updated Text
+              {t("developerTools.updatedText")}
             </label>
             <button
               type="button"
               onClick={() => void copy(right)}
               className="inline-flex items-center gap-1 text-[11px] text-white/40 hover:text-white transition-colors"
             >
-              <Copy size={12} /> Copy
+              <Copy size={12} />
+              {t("developerTools.copy")}
             </button>
           </div>
           <textarea

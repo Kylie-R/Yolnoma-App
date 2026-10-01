@@ -1,4 +1,5 @@
 import { Check, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import Button from "./Button";
 
@@ -11,6 +12,7 @@ const CATEGORY_LABELS = [
 ] as const;
 
 export default function ChangelogModal() {
+  const { t } = useTranslation();
   const { changelogOpen, changelogEntry, closeChangelog } = useUpdaterStore();
   if (!changelogOpen || !changelogEntry) return null;
 
@@ -26,7 +28,7 @@ export default function ChangelogModal() {
         <div className="flex items-start justify-between border-b border-white/[0.08] px-7 py-6 sm:px-9">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#f3b39c]">
-              What’s new
+              {t("updater.whatsNew")}
             </p>
             <h1
               id="changelog-title"
@@ -35,14 +37,14 @@ export default function ChangelogModal() {
               Yolnoma v{changelogEntry.version}
             </h1>
             <p className="mt-2 text-sm text-white/50">
-              Released {changelogEntry.date}
+              {t("updater.released")} {changelogEntry.date}
             </p>
           </div>
           <button
             type="button"
             onClick={closeChangelog}
             className="rounded-full p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
-            aria-label="Close changelog"
+            aria-label={t("updater.changelogClose")}
           >
             <X size={18} />
           </button>
@@ -54,9 +56,9 @@ export default function ChangelogModal() {
               const notes = changelogEntry.categories[category];
               if (!notes?.length) return null;
               return (
-                <section key={category}>
+                <section key={t(`updater.${category}`)}>
                   <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#f3b39c]">
-                    <Check size={14} /> {category}
+                    <Check size={14} /> {t(`updater.${category}`)}
                   </h2>
                   <ul className="mt-3 space-y-3">
                     {notes.map((note) => (
@@ -76,7 +78,7 @@ export default function ChangelogModal() {
 
         <div className="flex justify-end border-t border-white/[0.08] px-7 py-5 sm:px-9">
           <Button variant="primary" size="sm" onClick={closeChangelog}>
-            Continue to Yolnoma
+            {t("updater.continue")}
           </Button>
         </div>
       </div>

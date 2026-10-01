@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AlertCircle,
   AlertOctagon,
@@ -80,6 +81,8 @@ function saveState(mode: PositionMode, compact: boolean, custom: Point) {
 }
 
 export default function YolnomaTurbo() {
+  const { t } = useTranslation("common");
+
   const [compact, setCompact] = useState(
     () => readSavedState()?.compact ?? true,
   );
@@ -406,8 +409,8 @@ export default function YolnomaTurbo() {
       >
         <button
           type="button"
-          aria-label="Open Yolnoma Turbo DevTools"
-          title="Open Yolnoma Turbo DevTools (Drag to move)"
+          aria-label={t("turbo.open")}
+          title={t("turbo.openTitle")}
           onPointerDown={beginDrag}
           onPointerMove={moveDrag}
           onPointerUp={(e) => {
@@ -484,8 +487,8 @@ export default function YolnomaTurbo() {
         >
           <button
             type="button"
-            title="Reset position"
-            aria-label="Reset position"
+            title={t("turbo.resetPosition")}
+            aria-label={t("turbo.resetPosition")}
             onClick={resetCustomPosition}
             className="rounded-lg p-1.5 text-white/40 hover:bg-white/[0.08] hover:text-white transition"
           >
@@ -493,8 +496,8 @@ export default function YolnomaTurbo() {
           </button>
           <button
             type="button"
-            title="Compact mode"
-            aria-label="Compact mode"
+            title={t("turbo.compactMode")}
+            aria-label={t("turbo.compactMode")}
             onClick={() => setCompact(true)}
             className="rounded-lg p-1.5 text-white/40 hover:bg-white/[0.08] hover:text-white transition"
           >
@@ -515,7 +518,7 @@ export default function YolnomaTurbo() {
           }`}
         >
           <Layers size={13} />
-          Overview
+          {t("turbo.overview")}
         </button>
 
         <button
@@ -528,7 +531,7 @@ export default function YolnomaTurbo() {
           }`}
         >
           <AlertOctagon size={13} />
-          Errors
+          {t("turbo.errors")}
           {errors.length > 0 && (
             <span className="ml-0.5 rounded-full bg-red-500 px-1.5 py-0.2 text-[9px] font-bold text-white leading-none">
               {errors.length}
@@ -546,7 +549,7 @@ export default function YolnomaTurbo() {
           }`}
         >
           <Terminal size={13} />
-          Console
+          {t("turbo.console")}
           {logs.length > 0 && (
             <span className="ml-0.5 rounded-full bg-white/10 px-1.5 py-0.2 text-[9px] font-mono text-white/70 leading-none">
               {logs.length}
@@ -564,7 +567,7 @@ export default function YolnomaTurbo() {
           }`}
         >
           <Globe size={13} />
-          Network
+          {t("turbo.network")}
           {requests.length > 0 && (
             <span className="ml-0.5 rounded-full bg-white/10 px-1.5 py-0.2 text-[9px] font-mono text-white/70 leading-none">
               {requests.length}
@@ -582,7 +585,7 @@ export default function YolnomaTurbo() {
           }`}
         >
           <Sparkles size={13} />
-          Preview
+          {t("turbo.preview")}
         </button>
       </div>
 
@@ -595,17 +598,17 @@ export default function YolnomaTurbo() {
             <div className="rounded-xl border border-white/[0.08] bg-black/30 p-3">
               <div className="flex items-center justify-between text-[11px] mb-2">
                 <span className="text-white/50 uppercase tracking-wider font-mono">
-                  Runtime Environment
+                  {t("turbo.runtimeEnvironment")}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />{" "}
-                  Vite DEV Active
+                  {t("turbo.viteActive")}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/[0.06] text-center">
                 <div className="rounded-lg bg-black/40 p-2">
                   <span className="text-[10px] text-white/40 block">
-                    Errors
+                    {t("turbo.errors")}
                   </span>
                   <span
                     className={`text-base font-bold font-mono ${errors.length > 0 ? "text-red-400" : "text-white/80"}`}
@@ -636,7 +639,7 @@ export default function YolnomaTurbo() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono">
-                  Quick Actions
+                  {t("turbo.quickActions")}
                 </span>
                 <button
                   type="button"
@@ -744,7 +747,7 @@ export default function YolnomaTurbo() {
                 />
                 <input
                   type="text"
-                  placeholder="Search errors or stack trace..."
+                  placeholder={t("turbo.searchErrors")}
                   value={errorSearch}
                   onChange={(e) => setErrorSearch(e.target.value)}
                   className="w-full rounded-lg bg-black/40 border border-white/[0.08] py-1.5 pl-8 pr-2.5 text-[11px] text-white placeholder-white/30 focus:border-[#D97757]/50 focus:outline-none"
@@ -764,11 +767,10 @@ export default function YolnomaTurbo() {
             {filteredErrors.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center text-white/40 space-y-1.5">
                 <Check size={28} className="text-emerald-400/80 mb-1" />
-                <p className="font-medium text-white/70">No errors detected</p>
-                <p className="text-[11px]">
-                  Runtime exceptions, React crashes, and promise rejections will
-                  appear here.
+                <p className="font-medium text-white/70">
+                  {t("turbo.noErrors")}
                 </p>
+                <p className="text-[11px]">{t("turbo.errorsHint")}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -783,7 +785,7 @@ export default function YolnomaTurbo() {
                           ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
                           : "bg-blue-500/20 text-blue-300 border-blue-500/30";
 
-                  const fullText = `${err.type.toUpperCase()}: ${err.message}\n\nStack:\n${err.stack || "No stack"}\n\nComponent Stack:\n${err.componentStack || "N/A"}`;
+                  const fullText = `${err.type.toUpperCase()}: ${err.message}\n\nStack:\n${err.stack || t("turbo.noStack")}\n\nComponent Stack:\n${err.componentStack || t("turbo.na")}`;
 
                   return (
                     <div
@@ -811,7 +813,9 @@ export default function YolnomaTurbo() {
                           ) : (
                             <Copy size={11} />
                           )}
-                          {copiedId === err.id ? "Copied" : "Copy"}
+                          {copiedId === err.id
+                            ? t("turbo.copied")
+                            : t("turbo.copy")}
                         </button>
                       </div>
 
@@ -840,8 +844,8 @@ export default function YolnomaTurbo() {
                               <ChevronRight size={11} />
                             )}
                             {isExpanded
-                              ? "Hide Stack Trace"
-                              : "View Stack Trace"}
+                              ? t("turbo.hideStack")
+                              : t("turbo.viewStack")}
                           </button>
 
                           {isExpanded && (
@@ -849,7 +853,7 @@ export default function YolnomaTurbo() {
                               {err.stack && (
                                 <div>
                                   <span className="text-[9px] font-mono uppercase tracking-wider text-white/40 block mb-1">
-                                    Stack Trace
+                                    {t("turbo.stackTrace")}
                                   </span>
                                   <pre className="max-h-36 overflow-y-auto rounded-lg bg-black/60 p-2 font-mono text-[10px] text-white/70 whitespace-pre-wrap break-all border border-white/5">
                                     {err.stack}
@@ -859,7 +863,7 @@ export default function YolnomaTurbo() {
                               {err.componentStack && (
                                 <div>
                                   <span className="text-[9px] font-mono uppercase tracking-wider text-white/40 block mb-1">
-                                    React Component Stack
+                                    {t("turbo.componentStack")}
                                   </span>
                                   <pre className="max-h-36 overflow-y-auto rounded-lg bg-black/60 p-2 font-mono text-[10px] text-purple-300 whitespace-pre-wrap break-all border border-purple-500/10">
                                     {err.componentStack}
@@ -889,7 +893,7 @@ export default function YolnomaTurbo() {
                 />
                 <input
                   type="text"
-                  placeholder="Filter console..."
+                  placeholder={t("turbo.filterConsole")}
                   value={consoleSearch}
                   onChange={(e) => setConsoleSearch(e.target.value)}
                   className="w-full rounded-lg bg-black/40 border border-white/[0.08] py-1.5 pl-8 pr-2.5 text-[11px] text-white placeholder-white/30 focus:border-[#D97757]/50 focus:outline-none"
@@ -921,7 +925,7 @@ export default function YolnomaTurbo() {
                   type="button"
                   onClick={clearLogs}
                   className="rounded-lg border border-white/10 p-1.5 text-white/50 hover:text-white hover:bg-white/[0.06] transition"
-                  title="Clear Console"
+                  title={t("turbo.clearConsole")}
                 >
                   <Trash2 size={11} />
                 </button>
@@ -931,11 +935,10 @@ export default function YolnomaTurbo() {
             {filteredLogs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center text-white/40 space-y-1.5">
                 <Terminal size={24} className="text-white/20 mb-1" />
-                <p className="font-medium text-white/60">No console output</p>
-                <p className="text-[11px]">
-                  console.log, info, warn, and error calls will be captured here
-                  in real-time.
+                <p className="font-medium text-white/60">
+                  {t("turbo.noConsole")}
                 </p>
+                <p className="text-[11px]">{t("turbo.consoleHint")}</p>
               </div>
             ) : (
               <div className="space-y-1 rounded-xl border border-white/[0.08] bg-black/40 p-1 font-mono text-[11px] divide-y divide-white/[0.04]">
@@ -990,7 +993,7 @@ export default function YolnomaTurbo() {
                             copyToClipboard(log.formattedMessage, log.id)
                           }
                           className="p-1 text-white/30 hover:text-white shrink-0"
-                          title="Copy log"
+                          title={t("turbo.copyLog")}
                         >
                           {copiedId === log.id ? (
                             <Check size={10} className="text-emerald-400" />
@@ -1024,7 +1027,7 @@ export default function YolnomaTurbo() {
                 />
                 <input
                   type="text"
-                  placeholder="Filter URL or method..."
+                  placeholder={t("turbo.filterNetwork")}
                   value={networkSearch}
                   onChange={(e) => setNetworkSearch(e.target.value)}
                   className="w-full rounded-lg bg-black/40 border border-white/[0.08] py-1.5 pl-8 pr-2.5 text-[11px] text-white placeholder-white/30 focus:border-[#D97757]/50 focus:outline-none"
@@ -1056,7 +1059,7 @@ export default function YolnomaTurbo() {
                   type="button"
                   onClick={clearRequests}
                   className="rounded-lg border border-white/10 p-1.5 text-white/50 hover:text-white hover:bg-white/[0.06] transition shrink-0"
-                  title="Clear Requests"
+                  title={t("turbo.clearRequests")}
                 >
                   <Trash2 size={11} />
                 </button>
@@ -1066,10 +1069,10 @@ export default function YolnomaTurbo() {
             {filteredRequests.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center text-white/40 space-y-1.5">
                 <Globe size={24} className="text-white/20 mb-1" />
-                <p className="font-medium text-white/60">No network requests</p>
-                <p className="text-[11px]">
-                  Outgoing fetch and XMLHttpRequest calls will be recorded here.
+                <p className="font-medium text-white/60">
+                  {t("turbo.noNetwork")}
                 </p>
+                <p className="text-[11px]">{t("turbo.networkHint")}</p>
               </div>
             ) : (
               <div className="space-y-1.5 min-w-0">
@@ -1139,7 +1142,7 @@ export default function YolnomaTurbo() {
                         <div className="mt-2 pt-2 border-t border-white/[0.06] space-y-2 text-[10px] font-mono">
                           <div>
                             <span className="text-white/40 block mb-0.5">
-                              Request URL:
+                              {t("turbo.requestUrl")}
                             </span>
                             <span className="text-white/90 break-all select-all">
                               {req.url}
@@ -1149,7 +1152,7 @@ export default function YolnomaTurbo() {
                           {req.requestBody && (
                             <div>
                               <div className="flex items-center justify-between text-white/40 mb-0.5">
-                                <span>Request Body:</span>
+                                <span>{t("turbo.requestBody")}</span>
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -1161,8 +1164,8 @@ export default function YolnomaTurbo() {
                                   className="text-[9px] hover:text-white"
                                 >
                                   {copiedId === `req_${req.id}`
-                                    ? "Copied"
-                                    : "Copy"}
+                                    ? t("turbo.copied")
+                                    : t("turbo.copy")}
                                 </button>
                               </div>
                               <pre className="max-h-32 overflow-y-auto rounded bg-black/60 p-2 text-white/70 whitespace-pre-wrap break-all border border-white/5">
@@ -1175,9 +1178,9 @@ export default function YolnomaTurbo() {
                             <div>
                               <div className="flex items-center justify-between text-white/40 mb-0.5">
                                 <span>
-                                  Response Preview{" "}
+                                  {t("turbo.responsePreview")}{" "}
                                   {req.responseSize
-                                    ? `(${req.responseSize} bytes)`
+                                    ? `(${req.responseSize} {t("turbo.bytes")})`
                                     : ""}
                                   :
                                 </span>
@@ -1192,8 +1195,8 @@ export default function YolnomaTurbo() {
                                   className="text-[9px] hover:text-white"
                                 >
                                   {copiedId === `res_${req.id}`
-                                    ? "Copied"
-                                    : "Copy"}
+                                    ? t("turbo.copied")
+                                    : t("turbo.copy")}
                                 </button>
                               </div>
                               <pre className="max-h-36 overflow-y-auto rounded bg-black/60 p-2 text-white/70 whitespace-pre-wrap break-all border border-white/5">
@@ -1205,7 +1208,7 @@ export default function YolnomaTurbo() {
                           {req.error && (
                             <div className="text-red-400">
                               <span className="text-white/40 block mb-0.5">
-                                Network Error:
+                                {t("turbo.networkError")}
                               </span>
                               <span>{req.error}</span>
                             </div>
@@ -1231,7 +1234,7 @@ export default function YolnomaTurbo() {
             {/* Splash Screen Previews */}
             <div className="rounded-xl border border-white/[0.08] bg-black/30 p-3 space-y-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono block">
-                Splash Screen Visual Preview
+                {t("turbo.splashPreview")}
               </span>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -1249,8 +1252,8 @@ export default function YolnomaTurbo() {
                 >
                   <Sparkles size={13} className="text-[#D97757]" />
                   {splashPreview === "standard"
-                    ? "Close Splash"
-                    : "Splash (Standard)"}
+                    ? t("turbo.closeSplash")
+                    : t("turbo.splashStandard")}
                 </button>
 
                 <button
@@ -1268,8 +1271,8 @@ export default function YolnomaTurbo() {
                 >
                   <LoaderCircle size={13} className="text-[#D97757]" />
                   {splashPreview === "loading"
-                    ? "Close Splash"
-                    : "Splash (Loading)"}
+                    ? t("turbo.closeSplash")
+                    : t("turbo.splashLoading")}
                 </button>
               </div>
             </div>
@@ -1278,11 +1281,13 @@ export default function YolnomaTurbo() {
             <div className="rounded-xl border border-white/[0.08] bg-black/30 p-3 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono">
-                  Auto-Updater Previews
+                  {t("turbo.autoUpdater")}
                 </span>
                 {devPreview && (modalOpen || fullscreenOpen) && (
                   <span className="text-[10px] text-[#D97757] font-medium">
-                    {fullscreenOpen ? "Fullscreen Active" : "Modal Active"}
+                    {fullscreenOpen
+                      ? t("turbo.fullscreenActive")
+                      : t("turbo.modalActive")}
                   </span>
                 )}
               </div>
@@ -1294,13 +1299,13 @@ export default function YolnomaTurbo() {
               >
                 <Play size={13} />
                 {devPreview && (modalOpen || fullscreenOpen)
-                  ? "Close Updater Preview"
-                  : "Preview Complete Update Flow"}
+                  ? t("turbo.closeUpdater")
+                  : t("turbo.previewUpdate")}
               </button>
 
               <div className="pt-1">
                 <span className="text-[10px] text-white/40 block mb-1.5">
-                  Direct Stage Jump:
+                  {t("turbo.directStage")}
                 </span>
                 <div className="grid grid-cols-3 gap-1.5">
                   {UPDATER_STAGES.map((stage) => (
@@ -1310,7 +1315,7 @@ export default function YolnomaTurbo() {
                       onClick={() => handleToggleUpdaterStage(stage.value)}
                       className="rounded-lg border border-white/[0.08] bg-black/40 px-2 py-1.5 text-[10px] text-white/60 transition hover:border-white/20 hover:text-white"
                     >
-                      {stage.label}
+                      {t(`turbo.stage.${stage.value}`)}
                     </button>
                   ))}
                 </div>
@@ -1327,15 +1332,15 @@ export default function YolnomaTurbo() {
               >
                 <Check size={13} />
                 {changelogOpen
-                  ? "Close Changelog Preview"
-                  : "Preview Changelog"}
+                  ? t("turbo.closeChangelog")
+                  : t("turbo.previewChangelog")}
               </button>
             </div>
 
             {/* Route Loading Fallback Preview */}
             <div className="rounded-xl border border-white/[0.08] bg-black/30 p-3 space-y-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono block">
-                Lazy Load Route Fallback
+                {t("turbo.lazyFallback")}
               </span>
               <button
                 type="button"
@@ -1352,8 +1357,8 @@ export default function YolnomaTurbo() {
               >
                 <LoaderCircle size={13} />
                 {showRouteLoadingPreview
-                  ? "Close Lazy Load Preview"
-                  : "Preview Route Loading Fallback"}
+                  ? t("turbo.closeLazy")
+                  : t("turbo.previewRoute")}
               </button>
             </div>
 
@@ -1361,17 +1366,16 @@ export default function YolnomaTurbo() {
             <div className="rounded-xl border border-white/[0.08] bg-black/30 p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-white/40 font-mono">
-                  Authentication UI Preview
+                  {t("turbo.authPreview")}
                 </span>
                 {showLoginPreview && (
                   <span className="text-[10px] text-[#D97757] font-medium">
-                    Preview Active
+                    {t("turbo.previewActive")}
                   </span>
                 )}
               </div>
               <p className="text-[10px] leading-relaxed text-white/40">
-                Opens the login screen without changing the current route or
-                contacting the authentication service.
+                {t("turbo.loginDesc")}
               </p>
               <button
                 type="button"
@@ -1390,7 +1394,9 @@ export default function YolnomaTurbo() {
                 }`}
               >
                 <Globe size={13} />
-                {showLoginPreview ? "Close Login Preview" : "Preview Login UI"}
+                {showLoginPreview
+                  ? t("turbo.closeLogin")
+                  : t("turbo.previewLogin")}
               </button>
             </div>
           </div>
@@ -1401,9 +1407,9 @@ export default function YolnomaTurbo() {
       <div className="flex items-center justify-between border-t border-white/[0.08] bg-black/40 px-3 py-2 text-[10px] text-white/40 select-none">
         <span className="inline-flex items-center gap-1.5">
           <Info size={11} className="text-[#D97757]" />
-          Isolated Dev Layer
+          {t("turbo.isolated")}
         </span>
-        <span>Drag header to move</span>
+        <span>{t("turbo.dragMove")}</span>
       </div>
     </aside>
   );

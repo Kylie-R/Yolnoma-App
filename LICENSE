@@ -1,8 +1,11 @@
-Elastic License 2.0
+# Yolnoma Source-Available License 1.0
+
+Based on the Elastic License 2.0 (https://www.elastic.co/licensing/elastic-license).
+This is a modified, custom license. It is NOT the Elastic License 2.0, and it is
+not an open source license as defined by the Open Source Initiative.
 
 Copyright (c) 2026 Jasurbek Haydarov
-
-URL: https://www.elastic.co/licensing/elastic-license
+Founder URL: https://github.com/hexjasur
 
 ## Acceptance
 
@@ -17,17 +20,36 @@ the limitations and conditions below.
 
 ## Limitations
 
-You may not provide the software to third parties as a hosted or managed
-service, where the service provides users with access to any substantial set of
-the features or functionality of the software.
+**No selling and no paid services.** You may not sell, rent, or license the
+software or any derivative work for a fee, and you may not include it in any
+paid product, bundle, subscription, or paid service, or otherwise charge for
+access to it or to a substantial part of its features. Using the software
+internally in your own business, without selling or charging for it, is allowed.
 
-You may not move, change, disable, or circumvent the license key functionality
-in the software, and you may not remove or obscure any functionality in the
-software that is protected by the license key.
+**No hosted or managed service.** You may not provide the software to third
+parties as a hosted or managed service, whether paid or free, where the service
+provides users with access to any substantial set of the features or
+functionality of the software.
 
-You may not alter, remove, or obscure any licensing, copyright, or other notices
-of the licensor in the software. Any use of the licensor's trademarks is subject
-to applicable law.
+**No rebranding.** You may not rename, rebrand, or white-label the software, and
+you may not distribute it, in whole or in part, under a different name, logo, or
+product identity.
+
+**Notices and branding.** You may not alter, remove, or obscure any licensing,
+copyright, attribution, or other notices of the licensor in the software, nor the
+Yolnoma name, logo, or About/attribution screens. Any use of the licensor's
+trademarks is subject to the TRADEMARK.md file and applicable law.
+
+## Redistribution and Forks
+
+You may fork and redistribute the software, free of charge, provided that you:
+
+1. keep the Yolnoma name, logo, and attribution intact;
+2. include a copy of this license, THIRD-PARTY-NOTICES.md, and TRADEMARK.md;
+3. clearly state in the README and in the application's About screen that your
+   copy is a modified, unofficial version, if you have modified it; and
+4. do not suggest that your copy is the official Yolnoma or is endorsed by the
+   licensor.
 
 ## Patents
 
@@ -55,6 +77,14 @@ software prominent notices stating that you have modified the software.
 These terms do not imply any licenses other than those expressly granted in
 these terms.
 
+## Licensor's Rights and Contributions
+
+The licensor keeps all rights not granted here and may offer the software to
+anyone, including the licensor's own commercial versions, under different terms.
+Unless you state otherwise in writing, any contribution you intentionally submit
+to the software is licensed under these terms, and you grant the licensor the
+right to use and relicense that contribution under other terms.
+
 ## Termination
 
 If you use the software in violation of these terms, such use is not licensed,
@@ -67,10 +97,10 @@ to terminate automatically and permanently.
 
 ## No Liability
 
-*As far as the law allows, the software comes as is, without any warranty or
+As far as the law allows, the software comes as is, without any warranty or
 condition, and the licensor will not be liable to you for any damages arising
 out of these terms or the use or nature of the software, under any kind of
-legal claim.*
+legal claim.
 
 ## Definitions
 
@@ -85,7 +115,7 @@ organization that you work for, plus all organizations that have control over,
 are under the control of, or are under common control with that
 organization. **control** means ownership of substantially all the assets of an
 entity, or the power to direct its management and policies by vote, contract,
-or otherwise. **your company** includes direct and indirect control.
+or otherwise. Control can be direct or indirect.
 
 **your licenses** are all the licenses granted to you for the software under
 these terms.
@@ -97,6 +127,15 @@ these terms.
 ## Scope of this file
 
 This license applies to Yolnoma-App original code authored by Jasurbek Haydarov
-and contributors, except where a source file or the accompanying
-THIRD-PARTY-NOTICES.md identifies a different license. Third-party components
-retain their original licenses and notices.
+and contributors. It does not apply to the following, which keep their own
+licenses and notices:
+
+- `SteamUtility/` (Steam Game Idler by zevnda), licensed under the Elastic
+  License 2.0 (see `SteamUtility/LICENSE`);
+- SteamKit2 (LGPL-2.1), protobuf-net (Apache-2.0), and all other third-party
+  libraries, as listed in THIRD-PARTY-NOTICES.md;
+- any file whose header, or THIRD-PARTY-NOTICES.md, identifies a different
+  license.
+
+The restrictions in this license do not limit the rights that those third-party
+licenses give you for the third-party components themselves.

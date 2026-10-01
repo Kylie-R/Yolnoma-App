@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Check,
   CircleAlert,
@@ -14,6 +15,7 @@ import type { CleanupTask } from "../types";
 import styles from "./CleanerPage.module.css";
 
 function CleanerPage() {
+  const { t } = useTranslation();
   const {
     selected,
     runState,
@@ -37,7 +39,10 @@ function CleanerPage() {
         );
   const previewScript = selectedTasks.length
     ? selectedTasks
-        .map((task) => `# ── ${task.name} ──\n${task.script.trim()}`)
+        .map(
+          (task) =>
+            `# ── ${t(`cleaner.tasks.${task.id}.name`, { defaultValue: task.name })} ──\n${task.script.trim()}`,
+        )
         .join("\n\n")
     : "# Choose one or more tasks to inspect the exact script.";
 
@@ -50,8 +55,14 @@ function CleanerPage() {
       <section className={styles["cleaner-group"]} key={tasks[0]?.category}>
         <div className={styles["cleaner-group-heading"]}>
           <div>
-            <h2>{group?.title}</h2>
-            <p>{group?.description}</p>
+            <h2>
+              {t(`cleaner.groups.${group?.id}`, { defaultValue: group?.title })}
+            </h2>
+            <p>
+              {t(`cleaner.groupDescriptions.${group?.id}`, {
+                defaultValue: group?.description,
+              })}
+            </p>
           </div>
           <span className={styles["cleaner-group-count"]}>
             {groupSelection}/{tasks.length}
@@ -75,7 +86,9 @@ function CleanerPage() {
                 </span>
                 <span className={styles["cleaner-task-copy"]}>
                   <span className={styles["cleaner-task-title"]}>
-                    {task.name}
+                    {t(`cleaner.tasks.${task.id}.name`, {
+                      defaultValue: task.name,
+                    })}
                     {task.warning && (
                       <span className={styles["cleaner-warning"]}>
                         Permanent
@@ -83,11 +96,15 @@ function CleanerPage() {
                     )}
                   </span>
                   <span className={styles["cleaner-task-description"]}>
-                    {task.description}
+                    {t(`cleaner.tasks.${task.id}.description`, {
+                      defaultValue: task.description,
+                    })}
                   </span>
                   <span className={styles["cleaner-task-note"]}>
                     <CircleAlert size={11} />
-                    {task.note}
+                    {t(`cleaner.tasks.${task.id}.note`, {
+                      defaultValue: task.note,
+                    })}
                   </span>
                 </span>
                 <span className={styles["cleaner-check"]} aria-hidden="true">
@@ -108,7 +125,7 @@ function CleanerPage() {
           <p className={styles["cleaner-eyebrow"]}>
             <Sparkles size={12} /> System care
           </p>
-          <h1>Cleaner v0.3</h1>
+          <h1>{t("cleaner.title")}</h1>
           <p className={styles["cleaner-subtitle"]}>
             Choose what to clean. Review the script, then run it.
           </p>
@@ -121,8 +138,8 @@ function CleanerPage() {
           aria-describedby="cleaner-selection-status"
           title={
             selectedCount === 0
-              ? "Select a task first"
-              : "Run the selected cleanup tasks"
+              ? t("cleaner.selectFirst")
+              : t("cleaner.runTitle")
           }
         >
           {runState === "running" ? (
@@ -174,7 +191,7 @@ function CleanerPage() {
           </div>
           <div
             className={`${styles["cleaner-progress-track"]}${runState === "running" ? ` ${styles["is-running"]}` : ""}`}
-            aria-label={`${progress}% complete`}
+            aria-label={t("cleaner.progress", { percent: progress })}
           >
             <span style={{ width: `${Math.min(100, progress)}%` }} />
           </div>

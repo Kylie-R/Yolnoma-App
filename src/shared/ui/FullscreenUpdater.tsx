@@ -1,10 +1,12 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertCircle, X } from "lucide-react";
 import { useUpdaterStore } from "@/shared/stores/updaterStore";
 import Button from "./Button";
 import styles from "./FullscreenUpdater.module.css";
 
 export default function FullscreenUpdater() {
+  const { t } = useTranslation();
   const {
     status,
     progress,
@@ -65,7 +67,7 @@ export default function FullscreenUpdater() {
       className="updater-screen fixed inset-0 z-[110] flex min-h-screen items-center justify-center overflow-hidden bg-[#090a0f] px-6 py-10 text-white select-none"
       role="dialog"
       aria-modal="true"
-      aria-label="Yolnoma updater"
+      aria-label={t("updater.aria")}
     >
       <div className={`${styles.grid} pointer-events-none absolute inset-0`} />
       <div
@@ -90,7 +92,7 @@ export default function FullscreenUpdater() {
             type="button"
             onClick={closeFullscreen}
             className="absolute right-0 top-0 rounded-full p-2 text-white/40 transition hover:bg-white/10 hover:text-white"
-            aria-label="Close updater"
+            aria-label={t("updater.close")}
           >
             <X size={18} />
           </button>
@@ -107,7 +109,10 @@ export default function FullscreenUpdater() {
         </h1>
 
         <div className="mt-14 w-full max-w-xl">
-          <div className={styles.progressTrack} aria-label="Update progress">
+          <div
+            className={styles.progressTrack}
+            aria-label={t("updater.progress")}
+          >
             <div
               className={styles.progressValue}
               style={{ width: `${progressWidth}%` }}
@@ -120,7 +125,7 @@ export default function FullscreenUpdater() {
                   size={18}
                   className="mt-0.5 shrink-0 text-red-300"
                 />
-                <span>{error ?? "The update could not be installed."}</span>
+                <span>{error ?? t("updater.error")}</span>
               </div>
               <div className="mt-4 flex gap-3">
                 <Button

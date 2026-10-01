@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   ArrowUpDown,
@@ -18,6 +19,7 @@ import CurrencyChart from "@/features/currency/components/CurrencyChart";
 import { Button } from "@/shared/ui";
 
 export default function CurrencyConverterPage() {
+  const { t } = useTranslation();
   // State
   const [currencies, setCurrencies] = useState<CurrencyList>({});
 
@@ -208,7 +210,7 @@ export default function CurrencyConverterPage() {
           <div className="h-px flex-1 bg-white/[0.06]" />
           <button
             onClick={handleSwap}
-            title="Almashtirish"
+            title={t("currency.swap")}
             className="mx-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#1a1710] text-white/60 transition-transform hover:rotate-180 hover:text-[var(--accent)] active:scale-90"
           >
             <ArrowUpDown size={14} />
@@ -254,7 +256,9 @@ export default function CurrencyConverterPage() {
           <span>•</span>
           <span className="inline-flex items-center gap-1">
             <Clock size={11} />
-            {conversion?.lastUpdated ? conversion.lastUpdated : "Rasmiy kurs"}
+            {conversion?.lastUpdated
+              ? conversion.lastUpdated
+              : t("currency.officialRate")}
           </span>
         </div>
       </div>
@@ -299,7 +303,7 @@ export default function CurrencyConverterPage() {
               <input
                 type="text"
                 autoFocus
-                placeholder="Search by name, code, or symbol…"
+                placeholder={t("currency.search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white/[0.04] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-[var(--accent)] transition-colors"

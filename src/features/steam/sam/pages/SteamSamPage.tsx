@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -91,6 +92,7 @@ function appendAuditLog(
 // ────────────────────────────────────────────────────────────────────────────
 
 export default function SteamSamPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlAppId = searchParams.get("appId")
     ? Number(searchParams.get("appId"))
@@ -433,7 +435,7 @@ export default function SteamSamPage() {
         );
       }
     } catch (err: unknown) {
-      toast.error(String(err) || "Failed to unlock achievements");
+      toast.error(String(err) || t("steam.unlockFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -522,7 +524,7 @@ export default function SteamSamPage() {
         );
       }
     } catch (err: unknown) {
-      toast.error(String(err) || "Failed to lock achievements");
+      toast.error(String(err) || t("steam.lockFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -553,10 +555,10 @@ export default function SteamSamPage() {
           failed: 0,
         }),
       );
-      toast.success("Statistics successfully updated in Steam!");
+      toast.success(t("steam.statsUpdated"));
       loadSamData(selectedGame.appId);
     } catch (err: unknown) {
-      toast.error(String(err) || "Failed to update statistics");
+      toast.error(String(err) || t("steam.statsUpdateFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -578,10 +580,10 @@ export default function SteamSamPage() {
           failed: 0,
         }),
       );
-      toast.success("Statistics reset to zero.");
+      toast.success(t("steam.statsReset"));
       loadSamData(selectedGame.appId);
     } catch (err: unknown) {
-      toast.error(String(err) || "Failed to reset statistics");
+      toast.error(String(err) || t("steam.statsResetFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -742,10 +744,10 @@ export default function SteamSamPage() {
             >
               {steamRunning ? <Wifi size={14} /> : <WifiOff size={14} />}
               {steamRunning === null
-                ? "Checking Steam..."
+                ? t("steam.checking")
                 : steamRunning
-                  ? "Steam Connected"
-                  : "Steam Offline"}
+                  ? t("steam.connected")
+                  : t("steam.offline")}
             </div>
           </div>
         </div>
@@ -783,7 +785,7 @@ export default function SteamSamPage() {
             className={`gap-2 ${canRefreshGames ? "text-[#D97757]" : ""}`}
           >
             {!gamesRefreshing && <RefreshCw size={14} />}
-            {gamesRefreshing ? "Refreshing Library..." : "Refresh Library"}
+            {gamesRefreshing ? t("steam.refreshingLibrary") : "Refresh Library"}
           </Button>
         </div>
       </div>
@@ -909,7 +911,7 @@ export default function SteamSamPage() {
               />
               <input
                 type="text"
-                placeholder="Search games..."
+                placeholder={t("steam.searchGames")}
                 value={gameSearch}
                 onChange={(e) => setGameSearch(e.target.value)}
                 style={{
@@ -1434,7 +1436,7 @@ export default function SteamSamPage() {
                       {/* Search input */}
                       <input
                         type="text"
-                        placeholder="Search achievements..."
+                        placeholder={t("steam.searchAchievements")}
                         value={achSearch}
                         onChange={(e) => setAchSearch(e.target.value)}
                         style={{
@@ -1539,7 +1541,7 @@ export default function SteamSamPage() {
                           cursor: "pointer",
                           marginLeft: 4,
                         }}
-                        title="Reload"
+                        title={t("steam.reload")}
                       >
                         <RefreshCw size={13} />
                       </button>
@@ -2011,8 +2013,7 @@ export default function SteamSamPage() {
                                     WebkitBoxOrient: "vertical",
                                   }}
                                 >
-                                  {ach.description ||
-                                    "No description available"}
+                                  {ach.description || t("steam.noDescription")}
                                 </p>
 
                                 {ach.protectedAchievement && (
@@ -2229,7 +2230,7 @@ export default function SteamSamPage() {
                               />
                               {s.incrementOnly && (
                                 <span
-                                  title="Increment Only"
+                                  title={t("steam.incrementOnly")}
                                   style={{ color: "#fbbf24" }}
                                 >
                                   <Lock size={14} />
@@ -2365,7 +2366,7 @@ export default function SteamSamPage() {
         open={showResetStatsConfirm}
         onClose={() => setShowResetStatsConfirm(false)}
         onConfirm={handleExecuteResetStats}
-        title="Reset All Statistics"
+        title={t("steam.resetAllStats")}
         description={
           <>
             Are you sure you want to reset all statistics for{" "}

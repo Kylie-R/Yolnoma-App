@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Check, Code2, Copy } from "lucide-react";
 import { Button } from "@/shared/ui";
 import styles from "../pages/CleanerPage.module.css";
+import { useTranslation } from "react-i18next";
 
 const COMMANDS = new Set([
   "Clear-RecycleBin",
@@ -71,6 +72,7 @@ function highlightLine(line: string): ReactNode[] {
 }
 
 export function ScriptPreview({ script }: { script: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const lines = script.split("\n");
 
@@ -93,18 +95,18 @@ export function ScriptPreview({ script }: { script: string }) {
         <span>{lines.length} lines</span>
       </summary>
       <div className={styles["preview-toolbar"]}>
-        <span>PowerShell · Same as the executable code</span>
+        <span>{t("cleaner.sameScript")}</span>
         <Button
           variant="ghost"
           size="sm"
           onClick={copyScript}
-          title="Copy the script"
+          title={t("cleaner.copyScript")}
         >
           {copied ? <Check size={14} /> : <Copy size={14} />}
           {copied ? "Copied" : "Copy"}
         </Button>
       </div>
-      <pre aria-label="PowerShell script preview">
+      <pre aria-label={t("cleaner.scriptAria")}>
         <code>
           {lines.map((line, index) => (
             <span className={styles["code-line"]} key={`${index}-${line}`}>

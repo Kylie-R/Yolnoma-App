@@ -8,6 +8,7 @@ import {
   Check,
 } from "lucide-react";
 import { reportError } from "@/shared/lib/errors";
+import { i18n } from "@/shared/i18n";
 
 interface Props {
   children: ReactNode;
@@ -96,8 +97,7 @@ export class AppErrorBoundary extends Component<Props, State> {
               Something went wrong
             </h1>
             <p className="mt-2 text-sm text-white/60">
-              An unexpected error occurred in the application. You can try to
-              reset the current view or reload the app.
+              {i18n.t("appShell.errorDesc")}
             </p>
 
             {error && (
@@ -123,7 +123,7 @@ export class AppErrorBoundary extends Component<Props, State> {
                 className="px-4 py-2 rounded-xl text-xs font-medium bg-[#D97757] hover:bg-[#c96a48] text-white transition-all inline-flex items-center gap-2 cursor-pointer shadow-lg shadow-[#D97757]/20"
               >
                 <RefreshCw size={13} />
-                Reload Application
+                {i18n.t("appShell.reloadApp")}
               </button>
             </div>
 
@@ -142,15 +142,15 @@ export class AppErrorBoundary extends Component<Props, State> {
                   <ChevronDown size={14} />
                 )}
                 {showDetails
-                  ? "Hide technical details"
-                  : "Show technical details"}
+                  ? i18n.t("appShell.hideTech")
+                  : i18n.t("appShell.showTech")}
               </button>
 
               {showDetails && (
                 <div className="mt-3 text-left">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-[11px] font-mono text-white/40 uppercase tracking-wider">
-                      Stack Trace
+                      {i18n.t("appShell.stack")}
                     </span>
                     <button
                       type="button"
@@ -162,11 +162,13 @@ export class AppErrorBoundary extends Component<Props, State> {
                       ) : (
                         <Copy size={12} />
                       )}
-                      {copied ? "Copied" : "Copy"}
+                      {copied
+                        ? i18n.t("appShell.copied")
+                        : i18n.t("appShell.copy")}
                     </button>
                   </div>
                   <pre className="max-h-48 overflow-y-auto text-[11px] font-mono text-white/50 bg-black/60 p-3 rounded-lg border border-white/5 whitespace-pre-wrap break-all select-all">
-                    {error?.stack || "No stack trace available."}
+                    {error?.stack || i18n.t("appShell.noStack")}
                   </pre>
                 </div>
               )}

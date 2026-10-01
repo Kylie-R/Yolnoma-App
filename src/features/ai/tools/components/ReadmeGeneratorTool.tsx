@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -179,6 +180,7 @@ async function requestReadme(
 }
 
 export default function ReadmeGeneratorTool() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [rootPath, setRootPath] = useState("");
   const [entries, setEntries] = useState<FileEntry[]>([]);
@@ -301,7 +303,7 @@ export default function ReadmeGeneratorTool() {
           setModel(foundModels[0].id);
         }
       }
-      toast.success(`Folder scanned: ${found.length} entries`);
+      toast.success(t("aiTools.folderScanned", { count: found.length }));
     } catch (scanError) {
       setError(
         scanError instanceof Error
@@ -315,7 +317,7 @@ export default function ReadmeGeneratorTool() {
 
   const generate = async () => {
     if (!context || !rootPath) {
-      setError("Avval loyiha folderini tanlang.");
+      setError(t("aiTools.projectRequired"));
       return;
     }
     if (!apiKey) {
@@ -371,7 +373,7 @@ export default function ReadmeGeneratorTool() {
           .replace(/```\s*$/i, "")
           .trim(),
       );
-      toast.success("README generated — review it before applying.");
+      toast.success(t("aiTools.readmeGenerated"));
     } catch (generationError) {
       setError(
         generationError instanceof Error
@@ -393,7 +395,7 @@ export default function ReadmeGeneratorTool() {
         relativePath: "README.md",
         content: `${readme.trim()}\n`,
       });
-      toast.success("README.md added to the project folder");
+      toast.success(t("aiTools.readmeAdded"));
     } catch (writeError) {
       setError(
         writeError instanceof Error
@@ -419,7 +421,7 @@ export default function ReadmeGeneratorTool() {
       <ToolTitle
         icon={WandSparkles}
         text="README Generator"
-        subtitle="Scan a real project, build deep context, and generate a project-specific README with OpenRouter AI."
+        subtitle={t("aiTools.scanDescription")}
       />
       <div className="mt-5 grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="border border-white/[0.08] bg-black/10 p-4">
@@ -457,13 +459,17 @@ export default function ReadmeGeneratorTool() {
                   <p className="text-lg font-semibold text-white">
                     {fileCount}
                   </p>
-                  <p className="text-[10px] text-white/35">files found</p>
+                  <p className="text-[10px] text-white/35">
+                    {t("aiTools.filesFound")}
+                  </p>
                 </div>
                 <div className="border border-white/[0.07] p-2">
                   <p className="text-lg font-semibold text-white">
                     {imageFiles.length}
                   </p>
-                  <p className="text-[10px] text-white/35">assets</p>
+                  <p className="text-[10px] text-white/35">
+                    {t("aiTools.assets")}
+                  </p>
                 </div>
               </div>
               <label className="block text-[10px] text-white/35">
@@ -566,7 +572,7 @@ export default function ReadmeGeneratorTool() {
                 value={customPrompt}
                 onChange={(event) => setCustomPrompt(event.target.value)}
                 rows={3}
-                placeholder="For example: the README should be in English, and you should provide detailed instructions for deployment and environment setup…"
+                placeholder={t("aiTools.promptPlaceholder")}
                 className="mt-2 w-full resize-y border border-white/10 bg-white/[0.025] px-3 py-2.5 text-xs leading-5 text-white outline-none placeholder:text-white/25 focus:border-[var(--accent-border)]"
               />
             </label>
@@ -583,7 +589,7 @@ export default function ReadmeGeneratorTool() {
                   onChange={(event) => setReadme(event.target.value)}
                   className="min-h-[430px] w-full resize-y border border-white/10 bg-black/20 p-4 font-mono text-xs leading-6 text-white/75 outline-none focus:border-[var(--accent-border)]"
                   spellCheck={false}
-                  aria-label="Generated README Markdown code"
+                  aria-label={t("aiTools.generatedCode")}
                 />
               )
             ) : (

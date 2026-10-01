@@ -1,5 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Keyboard, X, Command, Compass, Wrench, Layout, Sparkles } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Keyboard,
+  X,
+  Command,
+  Compass,
+  Wrench,
+  Layout,
+  Sparkles,
+} from "lucide-react";
 
 type ShortcutItem = {
   keys: string[];
@@ -14,72 +23,126 @@ type ShortcutSection = {
 
 const SHORTCUT_SECTIONS: ShortcutSection[] = [
   {
-    title: 'General & Navigation',
+    title: "General & Navigation",
     icon: Compass,
     items: [
-      { keys: ['Ctrl', 'K'], description: 'Command Palette — Quick search and instant desktop actions' },
-      { keys: ['Ctrl', '/'], description: 'Keyboard Shortcuts — Open this reference cheat-sheet' },
-      { keys: ['Ctrl', 'B'], description: 'Toggle Sidebar — Collapse or expand navigation panel' },
-      { keys: ['Alt', '← / →'], description: 'Navigate Back / Forward in history' },
-      { keys: ['Ctrl', 'R'], description: 'Reload — Refresh current page (F5)' },
+      {
+        keys: ["Ctrl", "K"],
+        description:
+          "Command Palette — Quick search and instant desktop actions",
+      },
+      {
+        keys: ["Ctrl", "/"],
+        description: "Keyboard Shortcuts — Open this reference cheat-sheet",
+      },
+      {
+        keys: ["Ctrl", "B"],
+        description: "Toggle Sidebar — Collapse or expand navigation panel",
+      },
+      {
+        keys: ["Alt", "← / →"],
+        description: "Navigate Back / Forward in history",
+      },
+      {
+        keys: ["Ctrl", "R"],
+        description: "Reload — Refresh current page (F5)",
+      },
     ],
   },
   {
-    title: 'Direct Tool Shortcuts',
+    title: "Direct Tool Shortcuts",
     icon: Wrench,
     items: [
-      { keys: ['Ctrl', 'Shift', 'I'], description: 'Steam Idler & SAM — Jump to idling workspace' },
-      { keys: ['Ctrl', 'Shift', 'G'], description: 'Git Workspace — Open commit generator & history' },
-      { keys: ['Ctrl', 'Shift', 'J'], description: 'JSON Tool — Open JSON editor & visualizer' },
-      { keys: ['Ctrl', 'Shift', 'D'], description: 'Global Dropzone — Quick file upload & tool routing' },
-      { keys: ['Ctrl', 'Shift', 'A'], description: 'AI Agent — Launch standalone assistant window' },
+      {
+        keys: ["Ctrl", "Shift", "I"],
+        description: "Steam Idler & SAM — Jump to idling workspace",
+      },
+      {
+        keys: ["Ctrl", "Shift", "G"],
+        description: "Git Workspace — Open commit generator & history",
+      },
+      {
+        keys: ["Ctrl", "Shift", "J"],
+        description: "JSON Tool — Open JSON editor & visualizer",
+      },
+      {
+        keys: ["Ctrl", "Shift", "D"],
+        description: "Global Dropzone — Quick file upload & tool routing",
+      },
+      {
+        keys: ["Ctrl", "Shift", "A"],
+        description: "AI Agent — Launch standalone assistant window",
+      },
     ],
   },
   {
-    title: 'Tabs & Multi-Window',
+    title: "Tabs & Multi-Window",
     icon: Layout,
     items: [
-      { keys: ['Ctrl', 'T'], description: 'New Tab — Open home in a new standalone tab' },
-      { keys: ['Ctrl', 'W'], description: 'Close Tab — Close currently active tab' },
-      { keys: ['Ctrl', 'Tab'], description: 'Cycle Tabs — Switch to the next open tab' },
-      { keys: ['Ctrl', '1..9'], description: 'Select Tab — Switch directly to tab by position' },
+      {
+        keys: ["Ctrl", "T"],
+        description: "New Tab — Open home in a new standalone tab",
+      },
+      {
+        keys: ["Ctrl", "W"],
+        description: "Close Tab — Close currently active tab",
+      },
+      {
+        keys: ["Ctrl", "Tab"],
+        description: "Cycle Tabs — Switch to the next open tab",
+      },
+      {
+        keys: ["Ctrl", "1..9"],
+        description: "Select Tab — Switch directly to tab by position",
+      },
     ],
   },
   {
-    title: 'Controls & Dialogs',
+    title: "Controls & Dialogs",
     icon: Sparkles,
     items: [
-      { keys: ['Esc'], description: 'Dismiss — Close active modal, palette, or overlay' },
-      { keys: ['↑', '↓', 'Enter'], description: 'List Navigation — Move selection and execute' },
+      {
+        keys: ["Esc"],
+        description: "Dismiss — Close active modal, palette, or overlay",
+      },
+      {
+        keys: ["↑", "↓", "Enter"],
+        description: "List Navigation — Move selection and execute",
+      },
     ],
   },
 ];
 
 export default function KeyboardShortcutsModal() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger shortcuts if user is typing in an input/textarea (except Ctrl+/)
       const target = e.target as HTMLElement | null;
-      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      const isInput =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
 
       // Ctrl+/ or Cmd+/ opens shortcuts modal
-      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "/") {
         e.preventDefault();
         setIsOpen((prev) => !prev);
         return;
       }
 
       // '?' key opens shortcuts if not in input
-      if (!isInput && e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (!isInput && e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         setIsOpen(true);
         return;
       }
 
       // Esc closes
-      if (isOpen && e.key === 'Escape') {
+      if (isOpen && e.key === "Escape") {
         e.preventDefault();
         setIsOpen(false);
         return;
@@ -88,25 +151,25 @@ export default function KeyboardShortcutsModal() {
       // Direct Jump Shortcuts:
       if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
         const key = e.key.toUpperCase();
-        if (key === 'I') {
+        if (key === "I") {
           e.preventDefault();
-          window.location.hash = '#/tools/steam/steam-idler';
-        } else if (key === 'G') {
+          window.location.hash = "#/tools/steam/steam-idler";
+        } else if (key === "G") {
           e.preventDefault();
-          window.location.hash = '#/tools/git';
-        } else if (key === 'J') {
+          window.location.hash = "#/tools/git";
+        } else if (key === "J") {
           e.preventDefault();
-          window.location.hash = '#/tools/json';
-        } else if (key === 'D') {
+          window.location.hash = "#/tools/json";
+        } else if (key === "D") {
           e.preventDefault();
-          window.dispatchEvent(new CustomEvent('yolnoma:open-dropzone'));
+          window.dispatchEvent(new CustomEvent("yolnoma:open-dropzone"));
         }
       }
 
       // Ctrl+B sidebar toggle
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "b" || e.key === "B")) {
         e.preventDefault();
-        window.dispatchEvent(new CustomEvent('yolnoma:toggle-sidebar'));
+        window.dispatchEvent(new CustomEvent("yolnoma:toggle-sidebar"));
       }
     };
 
@@ -114,15 +177,39 @@ export default function KeyboardShortcutsModal() {
       setIsOpen(true);
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('yolnoma:open-shortcuts', handleCustomOpen);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("yolnoma:open-shortcuts", handleCustomOpen);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('yolnoma:open-shortcuts', handleCustomOpen);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("yolnoma:open-shortcuts", handleCustomOpen);
     };
   }, [isOpen]);
 
+  const sectionKeys: Record<string, string> = {
+    "General & Navigation": "general",
+    "Direct Tool Shortcuts": "direct",
+    "Tabs & Multi-Window": "tabs",
+    "Controls & Dialogs": "controls",
+  };
+  const descriptionKeys: Record<string, string> = {
+    "Command Palette — Quick search and instant desktop actions": "command",
+    "Keyboard Shortcuts — Open this reference cheat-sheet": "shortcuts",
+    "Toggle Sidebar — Collapse or expand navigation panel": "sidebar",
+    "Navigate Back / Forward in history": "history",
+    "Reload — Refresh current page (F5)": "reload",
+    "Steam Idler & SAM — Jump to idling workspace": "steam",
+    "Git Workspace — Open commit generator & history": "git",
+    "JSON Tool — Open JSON editor & visualizer": "json",
+    "Global Dropzone — Quick file upload & tool routing": "dropzone",
+    "AI Agent — Launch standalone assistant window": "agent",
+    "New Tab — Open home in a new standalone tab": "newTab",
+    "Close Tab — Close currently active tab": "closeTab",
+    "Cycle Tabs — Switch to the next open tab": "cycleTabs",
+    "Select Tab — Switch directly to tab by position": "selectTab",
+    "Dismiss — Close active modal, palette, or overlay": "dismissAction",
+    "List Navigation — Move selection and execute": "listNav",
+  };
   if (!isOpen) return null;
 
   return (
@@ -135,7 +222,7 @@ export default function KeyboardShortcutsModal() {
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="Keyboard Shortcuts"
+        aria-label={t("shortcuts.title")}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.08] pb-4 shrink-0">
@@ -145,13 +232,13 @@ export default function KeyboardShortcutsModal() {
             </div>
             <div>
               <h2 className="text-base font-semibold text-white tracking-wide flex items-center gap-2">
-                <span>Keyboard Shortcuts</span>
+                <span>{t("shortcuts.title")}</span>
                 <span className="text-[11px] font-normal px-2 py-0.5 rounded-full bg-white/[0.06] text-white/50">
-                  Cheat-Sheet
+                  {t("shortcuts.cheat")}
                 </span>
               </h2>
               <p className="text-xs text-white/40 mt-0.5">
-                Quick reference for navigation, workspaces, and window management
+                {t("shortcuts.desc")}
               </p>
             </div>
           </div>
@@ -159,7 +246,7 @@ export default function KeyboardShortcutsModal() {
             type="button"
             onClick={() => setIsOpen(false)}
             className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.06] transition"
-            aria-label="Close"
+            aria-label={t("shortcuts.close")}
           >
             <X size={18} />
           </button>
@@ -173,7 +260,9 @@ export default function KeyboardShortcutsModal() {
               <div key={section.title} className="space-y-2.5">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">
                   <Icon size={14} />
-                  <span>{section.title}</span>
+                  <span>
+                    {t(`shortcuts.${sectionKeys[section.title] ?? "general"}`)}
+                  </span>
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04] overflow-hidden">
                   {section.items.map((item, idx) => (
@@ -181,14 +270,19 @@ export default function KeyboardShortcutsModal() {
                       key={idx}
                       className="flex items-center justify-between gap-4 px-4 py-2.5 hover:bg-white/[0.02] transition"
                     >
-                      <span className="text-xs text-white/70 font-medium">{item.description}</span>
+                      <span className="text-xs text-white/70 font-medium">
+                        {t(
+                          `shortcuts.${descriptionKeys[item.description] ?? "desc"}`,
+                          { defaultValue: item.description },
+                        )}
+                      </span>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {item.keys.map((k, kIdx) => (
                           <kbd
                             key={kIdx}
                             className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-md bg-[#221c17] border border-white/[0.12] text-[11px] font-mono font-semibold text-white/90 shadow-sm"
                           >
-                            {k === 'Ctrl' ? (
+                            {k === "Ctrl" ? (
                               <span className="flex items-center gap-0.5">
                                 <Command size={10} className="sm:hidden" />
                                 <span>Ctrl</span>
@@ -209,10 +303,10 @@ export default function KeyboardShortcutsModal() {
 
         {/* Footer */}
         <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-white/35 shrink-0">
-          <span>Press Esc or click outside to dismiss</span>
+          <span>{t("shortcuts.dismiss")}</span>
           <span className="flex items-center gap-1 text-[var(--accent)] font-medium">
-            <span>Tip:</span>
-            <span className="text-white/60">Press Ctrl + / at any time</span>
+            <span>{t("shortcuts.tip")}</span>
+            <span className="text-white/60">{t("shortcuts.tipText")}</span>
           </span>
         </div>
       </div>

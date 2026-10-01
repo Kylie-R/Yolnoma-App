@@ -2,6 +2,7 @@ import type { FormEvent, RefObject } from "react";
 import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import { Button } from "@/shared/ui";
 import type { VisionImage } from "../vision";
+import { useTranslation } from "react-i18next";
 
 interface ChatComposerProps {
   prompt: string;
@@ -26,6 +27,7 @@ export default function ChatComposer({
   onAttachImage,
   onRemoveImage,
 }: ChatComposerProps) {
+  const { t } = useTranslation();
   const resize = (element: HTMLTextAreaElement) => {
     element.style.height = "auto";
     element.style.height = `${Math.min(element.scrollHeight, 192)}px`;
@@ -51,7 +53,7 @@ export default function ChatComposer({
               type="button"
               onClick={onRemoveImage}
               disabled={loading}
-              aria-label="Remove attached image"
+              aria-label={t("ai.removeImage")}
               className="rounded-md p-1 text-white/45 hover:bg-white/[0.08] hover:text-white disabled:opacity-40"
             >
               <X size={14} />
@@ -69,8 +71,8 @@ export default function ChatComposer({
               void onSubmit(event);
             }
           }}
-          title="Press Enter to send. Press Ctrl+Enter or Shift+Enter for a new line."
-          placeholder="Write a message..."
+          title={t("ai.sendHint")}
+          placeholder={t("ai.writeMessage")}
           className="form-textarea max-h-48 min-h-[46px] w-full resize-none overflow-y-auto border-0 bg-transparent px-3 py-2 shadow-none focus:border-0 focus:bg-transparent"
           rows={1}
           disabled={loading}
@@ -80,8 +82,8 @@ export default function ChatComposer({
             type="button"
             onClick={onAttachImage}
             disabled={loading || imageLoading}
-            aria-label="Attach image"
-            title="Attach PNG, JPG, JPEG, or WEBP"
+            aria-label={t("ai.attachImage")}
+            title={t("ai.attachFormats")}
             className="rounded-lg p-2 text-white/45 transition-colors hover:bg-white/[0.08] hover:text-[var(--accent)] disabled:opacity-40"
           >
             {imageLoading ? (
@@ -94,7 +96,7 @@ export default function ChatComposer({
             type="submit"
             size="lg"
             loading={loading}
-            aria-label="Send message"
+            aria-label={t("ai.send")}
             className="mt-2 w-full justify-center"
           >
             <span className="flex items-center justify-center gap-1.5 text-sm font-semibold text-white">

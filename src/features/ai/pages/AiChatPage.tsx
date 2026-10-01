@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
@@ -53,6 +54,7 @@ import {
 } from "../storage";
 
 export default function AiChatPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedSessionId = searchParams.get("sessionId");
@@ -636,7 +638,7 @@ export default function AiChatPage() {
               type="button"
               onClick={() => setSidebarOpenMobile((v) => !v)}
               className="rounded-lg p-2 text-white/50 hover:bg-white/[0.08] hover:text-white lg:hidden"
-              aria-label="Toggle sidebar"
+              aria-label={t("ai.toggleSidebar")}
             >
               <MessageSquare size={16} />
             </button>
@@ -688,7 +690,7 @@ export default function AiChatPage() {
           accept="image/png,image/jpeg,image/webp"
           onChange={(event) => void handleImageSelection(event)}
           className="hidden"
-          aria-label="Choose an image for AI Chat"
+          aria-label={t("ai.chooseImage")}
         />
       </main>
 
@@ -731,7 +733,9 @@ export default function AiChatPage() {
                   Choose a model
                 </div>
                 {modelsLoading && (
-                  <span className="text-[10px] text-white/30">Loading…</span>
+                  <span className="text-[10px] text-white/30">
+                    {t("ai.loading")}
+                  </span>
                 )}
               </div>
               <div className="mb-4 grid shrink-0 grid-cols-3 gap-1 rounded-xl border border-white/[0.06] bg-black/10 p-1">
@@ -811,7 +815,7 @@ export default function AiChatPage() {
                   type="button"
                   onClick={() => void newChat()}
                   className="rounded-lg p-1.5 text-[var(--accent)] hover:bg-white/[0.08]"
-                  title="New chat"
+                  title={t("ai.newChat")}
                 >
                   <Plus size={16} />
                 </button>
@@ -821,7 +825,7 @@ export default function AiChatPage() {
                 <input
                   value={sessionSearch}
                   onChange={(event) => setSessionSearch(event.target.value)}
-                  placeholder="Search sessions"
+                  placeholder={t("ai.searchSessions")}
                   className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/25"
                 />
               </div>
@@ -875,7 +879,7 @@ export default function AiChatPage() {
                         )
                       }
                       className="shrink-0 rounded-md p-1 text-white/30 hover:bg-white/[0.08] hover:text-white"
-                      aria-label="Session actions"
+                      aria-label={t("ai.sessionActions")}
                     >
                       <MoreHorizontal size={15} />
                     </button>
@@ -905,7 +909,7 @@ export default function AiChatPage() {
                 ))}
                 {!sessions.length && (
                   <p className="py-5 text-center text-xs text-white/30">
-                    No sessions yet.
+                    {t("ai.noSessions")}
                   </p>
                 )}
               </div>
@@ -925,9 +929,7 @@ export default function AiChatPage() {
             />
           </div>
           <p className="mt-3 text-xs leading-relaxed text-white/40">
-            {apiKey
-              ? "Connected and ready to chat."
-              : "Required before starting a chat."}
+            {apiKey ? t("ai.connected") : t("ai.required")}
           </p>
           <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
             <Button
@@ -942,11 +944,10 @@ export default function AiChatPage() {
               size="sm"
               variant="danger"
               iconOnly
-              title="Remove API key"
-              aria-label="Remove API key"
+              title={t("ai.removeKey")}
+              aria-label={t("ai.removeKey")}
               onClick={async () => {
-                if (!window.confirm("Remove the saved OpenRouter API key?"))
-                  return;
+                if (!window.confirm(t("ai.removeConfirm"))) return;
                 await removeApiKey(user?.id ?? "");
                 setApiKey("");
                 setDraftKey("");
@@ -957,7 +958,8 @@ export default function AiChatPage() {
             </Button>
           </div>
           <p className="mt-3 flex gap-2 text-[11px] leading-relaxed text-white/35">
-            <ShieldCheck size={14} className="shrink-0" /> Stored locally on
+            <ShieldCheck size={14} className="shrink-0" />{" "}
+            {t("ai.storedLocally")}
             this device.
           </p>
         </section>

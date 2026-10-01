@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { Loader2, MessageSquare, Send, Sparkles } from "lucide-react";
 import type { OpenRouterModel } from "../types";
 import { getShortModelName } from "../api/openRouterApi";
+import { useTranslation } from "react-i18next";
 
 interface AgentChatPanelProps {
   messages: Array<{ role: "user" | "assistant"; content: string }>;
@@ -36,6 +37,7 @@ export default function AgentChatPanel({
   onPromptChange,
   onSendPrompt,
 }: AgentChatPanelProps) {
+  const { t } = useTranslation();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function AgentChatPanel({
             type="password"
             value={draftKey}
             onChange={(e) => onDraftKeyChange(e.target.value)}
-            placeholder="API key"
+            placeholder={t("ai.apiKey")}
             className="min-w-0 flex-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[11px] text-white outline-none focus:border-[var(--accent-border)]"
           />
           <button
@@ -100,7 +102,7 @@ export default function AgentChatPanel({
               className="mx-auto mb-3 text-[var(--accent)]/40"
               size={20}
             />
-            <p className="text-xs text-white/50">Ask Yolnoma Agent</p>
+            <p className="text-xs text-white/50">{t("ai.askAgent")}</p>
             <p className="mt-2 text-[10px] leading-relaxed text-white/25">
               Reads files · searches codebase · writes edits
               <br />
@@ -146,7 +148,7 @@ export default function AgentChatPanel({
                 onSendPrompt();
               }
             }}
-            placeholder="Ask about or edit this project…"
+            placeholder={t("ai.askProject")}
             rows={3}
             className="w-full resize-none bg-transparent px-3 py-2.5 text-[11px] leading-relaxed text-white outline-none placeholder:text-white/20"
           />

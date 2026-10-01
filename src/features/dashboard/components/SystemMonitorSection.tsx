@@ -1,4 +1,5 @@
 import { Activity, Cpu, HardDrive, Layers, Monitor } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { SystemStats } from "@/features/system-monitor/hooks/useSystemStats";
 import ResourceMetricCard from "@/features/dashboard/components/ResourceMetricCard";
 
@@ -17,6 +18,7 @@ export default function SystemMonitorSection({
   statsLoading,
   isPaused,
 }: SystemMonitorSectionProps) {
+  const { t } = useTranslation("common");
   return (
     <section className="rounded-3xl border border-white/[0.08] bg-[#111109] p-7 md:p-8 shadow-2xl relative overflow-hidden">
       {/* Glow ambient background */}
@@ -33,12 +35,12 @@ export default function SystemMonitorSection({
           </div>
           <div>
             <h2 className="text-base font-semibold text-white">
-              System Resources (Local System)
+              {t("dashboard.systemResources")}
             </h2>
             <p className="text-xs text-white/40 truncate max-w-md">
               {monitoringEnabled
-                ? stats?.cpuModel || "Protsessor va operativ xotira holati"
-                : "Monitoring disabled (press the button on the right to enable)"}
+                ? stats?.cpuModel || t("dashboard.systemResourcesSummary")
+                : t("dashboard.monitoringDisabledHint")}
             </p>
           </div>
         </div>
@@ -65,10 +67,10 @@ export default function SystemMonitorSection({
               }
             >
               {!monitoringEnabled
-                ? "Disabled"
+                ? t("dashboard.disabled")
                 : isPaused
-                  ? "Paused (background)"
-                  : "Real-time (2s)"}
+                  ? t("dashboard.pausedBackground")
+                  : t("dashboard.realTime")}
             </span>
           </div>
 
@@ -83,9 +85,11 @@ export default function SystemMonitorSection({
                 ? "bg-[var(--accent)]"
                 : "bg-white/10 hover:bg-white/15"
             }`}
-            title={
-              monitoringEnabled ? "Disable monitoring" : "Enable monitoring"
-            }
+            title={t(
+              monitoringEnabled
+                ? "dashboard.disableMonitoring"
+                : "dashboard.enableMonitoring",
+            )}
           >
             <span
               className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -101,14 +105,14 @@ export default function SystemMonitorSection({
         {/* CPU Card */}
         <ResourceMetricCard
           icon={<Cpu size={18} />}
-          name="CPU"
+          name={t("dashboard.cpu")}
           value={statsLoading ? "—" : stats ? `${stats.cpuPercent}%` : "—"}
           detail={
             stats?.cpuCores
               ? `${stats.cpuCores} cores`
               : monitoringEnabled
-                ? "Usage"
-                : "inactive"
+                ? t("dashboard.usage")
+                : t("dashboard.inactive")
           }
           percent={stats?.cpuPercent ?? 0}
           color="from-amber-500 to-orange-500"
@@ -118,14 +122,14 @@ export default function SystemMonitorSection({
         {/* RAM Card */}
         <ResourceMetricCard
           icon={<Layers size={18} />}
-          name="RAM"
+          name={t("dashboard.ram")}
           value={statsLoading ? "—" : stats ? `${stats.ramUsedGb} GB` : "—"}
           detail={
             stats?.ramTotalGb
               ? `${stats.ramUsedGb} / ${stats.ramTotalGb} GB`
               : monitoringEnabled
-                ? "Memory"
-                : "inactive"
+                ? t("dashboard.memory")
+                : t("dashboard.inactive")
           }
           percent={
             stats
@@ -139,14 +143,14 @@ export default function SystemMonitorSection({
         {/* DISK Card */}
         <ResourceMetricCard
           icon={<HardDrive size={18} />}
-          name="DISK"
+          name={t("dashboard.disk")}
           value={statsLoading ? "—" : stats ? `${stats.diskUsedGb} GB` : "—"}
           detail={
             stats?.diskTotalGb
               ? `${stats.diskUsedGb} / ${stats.diskTotalGb} GB`
               : monitoringEnabled
-                ? "Storage"
-                : "inactive"
+                ? t("dashboard.storage")
+                : t("dashboard.inactive")
           }
           percent={
             stats
@@ -160,22 +164,22 @@ export default function SystemMonitorSection({
         {/* GPU / Plugin Card */}
         <ResourceMetricCard
           icon={<Monitor size={18} />}
-          name="GPU"
+          name={t("dashboard.gpu")}
           value={
             statsLoading
               ? "—"
               : stats?.gpuPercent != null
                 ? `${stats.gpuPercent}%`
                 : monitoringEnabled
-                  ? "N/A"
+                  ? t("dashboard.notAvailable")
                   : "—"
           }
           detail={
             stats?.gpuPercent != null
-              ? "Active"
+              ? t("dashboard.active")
               : monitoringEnabled
-                ? "Integrated / Standby"
-                : "inactive"
+                ? t("dashboard.integratedStandby")
+                : t("dashboard.inactive")
           }
           percent={stats?.gpuPercent ?? 0}
           color="from-emerald-500 to-teal-500"

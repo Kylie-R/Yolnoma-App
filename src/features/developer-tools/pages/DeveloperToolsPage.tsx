@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeftRight,
   Binary,
@@ -46,23 +47,23 @@ type Tab =
   | "url-encoder";
 type TabDefinition = [Tab, string, LucideIcon];
 
-const tabs: TabDefinition[] = [
-  ["json-formatter", "JSON Formatter", Braces],
-  ["jwt-decoder", "JWT Decoder", ShieldCheck],
-  ["uuid-generator", "UUID Generator", Hash],
-  ["markdown-studio", "Markdown Studio", Code2],
-  ["base64", "Base64 Encoder", Binary],
-  ["qr-generator", "QR Generator", QrCode],
-  ["curl-converter", "cURL → Code", Terminal],
-  ["regex-visualizer", "Regex Visualizer", Regex],
-  ["lorem-ipsum", "Lorem Ipsum", FileText],
-  ["ip-lookup", "IP Lookup", Globe2],
-  ["bcrypt", "Bcrypt Tool", LockKeyhole],
-  ["diff-checker", "Diff Checker", ArrowLeftRight],
-  ["url-encoder", "URL Encoder / Decoder", Link2],
-];
-
 export default function DeveloperToolsPage() {
+  const { t } = useTranslation();
+  const tabs: TabDefinition[] = [
+    ["json-formatter", t("developerTools.json"), Braces],
+    ["jwt-decoder", t("developerTools.jwt"), ShieldCheck],
+    ["uuid-generator", t("developerTools.uuid"), Hash],
+    ["markdown-studio", t("developerTools.markdown"), Code2],
+    ["base64", t("developerTools.base64"), Binary],
+    ["qr-generator", t("developerTools.qr"), QrCode],
+    ["curl-converter", t("developerTools.curl"), Terminal],
+    ["regex-visualizer", t("developerTools.regex"), Regex],
+    ["lorem-ipsum", t("developerTools.lorem"), FileText],
+    ["ip-lookup", t("developerTools.ip"), Globe2],
+    ["bcrypt", t("developerTools.bcrypt"), LockKeyhole],
+    ["diff-checker", t("developerTools.diff"), ArrowLeftRight],
+    ["url-encoder", t("developerTools.url"), Link2],
+  ];
   const [tab, selectTab] = useHashTab(
     tabs.map(([id]) => id),
     "json-formatter",
@@ -73,20 +74,20 @@ export default function DeveloperToolsPage() {
     <div className="mx-auto min-h-full max-w-7xl pb-16 text-[var(--text-primary)]">
       <header className="border-b border-white/[0.08] pb-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-          Developer Tools
+          {t("developerTools.eyebrow")}
         </p>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
             <h1 className="font-serif text-4xl font-medium tracking-tight text-white md:text-5xl">
-              A sharper workspace for everyday code
+              {t("developerTools.title")}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-white/45">
-              Format data, inspect tokens, write Markdown, generate IDs, pick
-              colors, and create QR codes without leaving Yolnoma.
+              {t("developerTools.desc")}
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs text-white/35">
-            <span className="h-2 w-2 bg-emerald-400" /> Local-first tools
+            <span className="h-2 w-2 bg-emerald-400" />{" "}
+            {t("developerTools.local")}
           </div>
         </div>
       </header>

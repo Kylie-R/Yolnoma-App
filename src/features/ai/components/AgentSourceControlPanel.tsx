@@ -1,5 +1,6 @@
 import { FileDiff, Loader2, RefreshCw } from "lucide-react";
 import type { GitChange } from "@/features/git/types";
+import { useTranslation } from "react-i18next";
 
 function gitStatusColor(s: string) {
   if (s === "??" || s === "A") return "text-emerald-400";
@@ -35,6 +36,7 @@ export default function AgentSourceControlPanel({
   onOpenDiffTab,
   onRefresh,
 }: AgentSourceControlPanelProps) {
+  const { t } = useTranslation();
   return (
     <aside className="flex w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/[0.08] bg-[#11100d]">
       {/* Panel title */}
@@ -45,7 +47,7 @@ export default function AgentSourceControlPanel({
         <button
           type="button"
           onClick={onRefresh}
-          title="Refresh Git status"
+          title={t("ai.refreshGit")}
           className="text-white/25 hover:text-white transition-colors"
         >
           <RefreshCw size={12} />

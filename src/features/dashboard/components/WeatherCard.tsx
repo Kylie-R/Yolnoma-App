@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Cloud,
@@ -34,14 +35,15 @@ type WeatherResponse = {
 
 type Location = { latitude: number; longitude: number; label: string };
 
-const weatherLabel = (code: number) => {
-  if (code === 0) return "Open Sky";
-  if (code <= 3) return "Cloudy";
-  if (code <= 48) return "Foggy";
-  if (code <= 67 || (code >= 80 && code <= 82)) return "Rainy";
-  if (code >= 71 && code <= 77) return "Snowy";
-  if (code >= 95) return "Thunderstorm";
-  return "Variable";
+const weatherLabel = (code: number, translate: (key: string) => string) => {
+  if (code === 0) return translate("dashboard.openSky");
+  if (code <= 3) return translate("dashboard.cloudy");
+  if (code <= 48) return translate("dashboard.foggy");
+  if (code <= 67 || (code >= 80 && code <= 82))
+    return translate("dashboard.rainy");
+  if (code >= 71 && code <= 77) return translate("dashboard.snowy");
+  if (code >= 95) return translate("dashboard.thunderstorm");
+  return translate("dashboard.variable");
 };
 
 const weatherIcon = (code: number, size = 22) => {
@@ -53,14 +55,20 @@ const weatherIcon = (code: number, size = 22) => {
   return <CloudRain size={size} />;
 };
 
-const dayLabel = (date: string, index: number) => {
-  if (index === 0) return "Bugun";
-  return new Intl.DateTimeFormat("uz-UZ", { weekday: "short" }).format(
+const dayLabel = (
+  date: string,
+  index: number,
+  todayLabel: string,
+  locale: string,
+) => {
+  if (index === 0) return todayLabel;
+  return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
     new Date(`${date}T12:00:00`),
   );
 };
 
 export default function WeatherCard() {
+  const { t, i18n } = useTranslation("common");
   const savedLocation = useAccountConfigStore(
     (state) => state.config.weatherLocation,
   );
@@ -95,11 +103,11 @@ export default function WeatherCard() {
       if (!response.ok) throw new Error("Weather service returned an error");
       setWeather((await response.json()) as WeatherResponse);
     } catch {
-      setError("Unable to load weather information. Please try again.");
+      setError(t("dashboard.weatherError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (location) void loadWeather(location);
@@ -107,7 +115,7 @@ export default function WeatherCard() {
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
-      setError("This device does not have geolocation.");
+      setError(t("dashboard.geolocationError"));
       return;
     }
     setUsingGps(true);
@@ -124,9 +132,7 @@ export default function WeatherCard() {
       },
       () => {
         setUsingGps(false);
-        setError(
-          "Location access denied. Allow location access to load weather.",
-        );
+        setError(t("dashboard.locationAccessDenied"));
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
     );
@@ -152,16 +158,16 @@ export default function WeatherCard() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-              <CloudSun size={14} /> Weekly weather
+              <CloudSun size={14} /> {t("dashboard.weeklyWeather")}
             </p>
             <div className="mt-2 flex items-center gap-2">
               <MapPin size={16} className="text-[var(--accent)]" />
               <h2 className="text-xl font-semibold text-white">
-                {location?.label ?? "Location not set"}
+                {location?.label ?? t("dashboard.locationNotSet")}
               </h2>
             </div>
             <p className="mt-1 text-xs text-white/40">
-              Open-Meteo · No API key required
+              {t("dashboard.weatherProvider")}
             </p>
           </div>
           <div className="flex gap-2">
@@ -170,20 +176,22 @@ export default function WeatherCard() {
               onClick={requestLocation}
               disabled={usingGps}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-medium text-white/70 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
-              title="GPS orqali joylashuvni aniqlash"
+              title={t("dashboard.refreshLocation")}
             >
               <LocateFixed
                 size={14}
                 className={usingGps ? "animate-pulse" : ""}
               />{" "}
-              {usingGps ? "Determining" : "My location"}
+              {usingGps
+                ? t("dashboard.determining")
+                : t("dashboard.myLocation")}
             </button>
             <button
               type="button"
               onClick={requestLocation}
               disabled={loading || usingGps}
               className="rounded-xl border border-white/10 bg-white/[0.05] p-2 text-white/60 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
-              title="Refresh location"
+              title={t("dashboard.refreshLocation")}
             >
               <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
             </button>
@@ -202,9 +210,11 @@ export default function WeatherCard() {
               size={28}
               className="mx-auto mb-3 text-[var(--accent)]"
             />
-            <p className="text-sm font-medium text-white">Location needed</p>
+            <p className="text-sm font-medium text-white">
+              {t("dashboard.locationNeeded")}
+            </p>
             <p className="mx-auto mt-1 max-w-md text-xs text-white/45">
-              Confirm your location to display the weather.
+              {t("dashboard.confirmLocation")}
             </p>
             <button
               type="button"
@@ -212,7 +222,9 @@ export default function WeatherCard() {
               disabled={usingGps}
               className="mt-4 rounded-xl bg-[var(--accent)] px-4 py-2 text-xs font-semibold text-[#14110E] disabled:opacity-50"
             >
-              {usingGps ? "Determining…" : "Allow my location"}
+              {usingGps
+                ? t("dashboard.determiningEllipsis")
+                : t("dashboard.allowLocation")}
             </button>
           </div>
         ) : loading && !weather ? (
@@ -229,8 +241,10 @@ export default function WeatherCard() {
                     {Math.round(current.temperature_2m)}°
                   </p>
                   <p className="text-sm text-white/60">
-                    {weatherLabel(current.weather_code)} · being felt{" "}
-                    {Math.round(current.apparent_temperature)}°
+                    {weatherLabel(current.weather_code, t)} ·{" "}
+                    {t("dashboard.beingFelt", {
+                      value: Math.round(current.apparent_temperature),
+                    })}
                   </p>
                 </div>
               </div>
@@ -238,17 +252,17 @@ export default function WeatherCard() {
                 <div>
                   <Thermometer size={14} className="mb-1 text-rose-300" />
                   <span>{Math.round(current.apparent_temperature)}°</span>
-                  <p>Being felt</p>
+                  <p>{t("dashboard.feelsLikeLabel")}</p>
                 </div>
                 <div>
                   <Droplets size={14} className="mb-1 text-cyan-300" />
                   <span>{current.relative_humidity_2m}%</span>
-                  <p>Humidity</p>
+                  <p>{t("dashboard.humidity")}</p>
                 </div>
                 <div>
                   <Wind size={14} className="mb-1 text-emerald-300" />
                   <span>{Math.round(current.wind_speed_10m)} km/s</span>
-                  <p>Wind</p>
+                  <p>{t("dashboard.wind")}</p>
                 </div>
               </div>
             </div>
@@ -259,7 +273,12 @@ export default function WeatherCard() {
                   className="rounded-2xl border border-white/[0.06] bg-black/10 px-2 py-3 text-center transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-glow)]"
                 >
                   <p className="text-[11px] font-semibold capitalize text-white/60">
-                    {dayLabel(day.date, days.indexOf(day))}
+                    {dayLabel(
+                      day.date,
+                      days.indexOf(day),
+                      t("dashboard.today"),
+                      i18n.language,
+                    )}
                   </p>
                   <div className="my-2 flex justify-center text-[var(--accent)]">
                     {weatherIcon(day.code, 20)}
@@ -271,7 +290,7 @@ export default function WeatherCard() {
                     </span>
                   </p>
                   <p className="mt-1 text-[10px] text-cyan-300/70">
-                    {day.rain}% rain
+                    {day.rain}% {t("dashboard.rain")}
                   </p>
                 </div>
               ))}

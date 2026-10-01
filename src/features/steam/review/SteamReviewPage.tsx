@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useTranslation } from "react-i18next";
+import { useMemo, useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -6,153 +7,154 @@ import {
   RotateCcw,
   ExternalLink,
   CheckCircle2,
-} from 'lucide-react';
+} from "lucide-react";
 
 const reviewData = [
   {
-    id: 'graphics',
-    title: 'Graphics',
+    id: "graphics",
+    title: "Graphics",
     options: [
-      'You forget what reality is',
-      'Beautiful',
-      'Good',
-      'Decent',
-      'Bad',
+      "You forget what reality is",
+      "Beautiful",
+      "Good",
+      "Decent",
+      "Bad",
       "Don't look too long at it",
-      'MS-DOS',
+      "MS-DOS",
     ],
   },
   {
-    id: 'gameplay',
-    title: 'Gameplay',
+    id: "gameplay",
+    title: "Gameplay",
     options: [
-      'Very good',
-      'Good',
+      "Very good",
+      "Good",
       "It's just gameplay",
-      'Mehh',
-      'Watch paint dry instead',
+      "Mehh",
+      "Watch paint dry instead",
       "Just don't",
     ],
   },
   {
-    id: 'audio',
-    title: 'Audio',
+    id: "audio",
+    title: "Audio",
     options: [
-      'Eargasm',
-      'Very good',
-      'Good',
-      'Not too bad',
-      'Bad',
+      "Eargasm",
+      "Very good",
+      "Good",
+      "Not too bad",
+      "Bad",
       "I'm now deaf",
     ],
   },
   {
-    id: 'audience',
-    title: 'Audience',
-    options: ['Kids', 'Teens', 'Adults', 'Grandpa'],
+    id: "audience",
+    title: "Audience",
+    options: ["Kids", "Teens", "Adults", "Grandpa"],
   },
   {
-    id: 'requirements',
-    title: 'PC Requirements',
+    id: "requirements",
+    title: "PC Requirements",
     options: [
-      'Check if you can run paint',
-      'Potato',
-      'Decent',
-      'Fast',
-      'Rich boi',
-      'Ask NASA if they have a spare computer',
+      "Check if you can run paint",
+      "Potato",
+      "Decent",
+      "Fast",
+      "Rich boi",
+      "Ask NASA if they have a spare computer",
     ],
   },
   {
-    id: 'size',
-    title: 'Game Size',
+    id: "size",
+    title: "Game Size",
     options: [
-      'Floppy Disk (0-50MB)',
-      'CD (50-700MB)',
-      'DVD (700MB-4GB)',
-      'Normal (4GB-20GB)',
-      'Big (20GB-100GB)',
-      'Huge (100GB+)',
+      "Floppy Disk (0-50MB)",
+      "CD (50-700MB)",
+      "DVD (700MB-4GB)",
+      "Normal (4GB-20GB)",
+      "Big (20GB-100GB)",
+      "Huge (100GB+)",
     ],
   },
   {
-    id: 'difficulty',
-    title: 'Difficulty',
+    id: "difficulty",
+    title: "Difficulty",
     options: [
       "Just press 'W'",
-      'Easy',
-      'Easy to learn / Hard to master',
-      'Significant brain usage',
-      'Difficult',
-      'Dark Souls',
+      "Easy",
+      "Easy to learn / Hard to master",
+      "Significant brain usage",
+      "Difficult",
+      "Dark Souls",
     ],
   },
   {
-    id: 'grind',
-    title: 'Grind',
+    id: "grind",
+    title: "Grind",
     options: [
-      'Nothing to grind',
-      'Only if u care about leaderboards/ranks',
+      "Nothing to grind",
+      "Only if u care about leaderboards/ranks",
       "Isn't necessary to progress",
-      'Average grind level',
-      'Too much grind',
+      "Average grind level",
+      "Too much grind",
       "You'll need a second life for grinding",
     ],
   },
   {
-    id: 'story',
-    title: 'Story',
+    id: "story",
+    title: "Story",
     options: [
-      'No Story',
-      'Some lore',
-      'Average',
-      'Good',
-      'Lovely',
+      "No Story",
+      "Some lore",
+      "Average",
+      "Good",
+      "Lovely",
       "It'll replace your life",
     ],
   },
   {
-    id: 'gametime',
-    title: 'Game Time',
+    id: "gametime",
+    title: "Game Time",
     options: [
-      'Long enough for a cup of coffee',
-      'Short',
-      'Average',
-      'Long',
-      'To infinity and beyond',
+      "Long enough for a cup of coffee",
+      "Short",
+      "Average",
+      "Long",
+      "To infinity and beyond",
     ],
   },
   {
-    id: 'price',
-    title: 'Price',
+    id: "price",
+    title: "Price",
     options: [
       "It's free!",
-      'Worth the price',
+      "Worth the price",
       "If it's on sale",
-      'If u have some spare money left',
-      'Not recommended',
-      'You could also just burn your money',
+      "If u have some spare money left",
+      "Not recommended",
+      "You could also just burn your money",
     ],
   },
   {
-    id: 'bugs',
-    title: 'Bugs',
+    id: "bugs",
+    title: "Bugs",
     options: [
-      'Never heard of',
-      'Minor bugs',
-      'Can get annoying',
-      'ARK: Survival Evolved',
-      'The game itself is a big terrarium for bugs',
+      "Never heard of",
+      "Minor bugs",
+      "Can get annoying",
+      "ARK: Survival Evolved",
+      "The game itself is a big terrarium for bugs",
     ],
   },
   {
-    id: 'rating',
-    title: 'Rating ?/10',
-    options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+    id: "rating",
+    title: "Rating ?/10",
+    options: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
   },
 ];
 
 export default function SteamReviewPage() {
+  const { t } = useTranslation();
   const [selections, setSelections] = useState<Record<string, Set<number>>>(
     () => {
       const initial: Record<string, Set<number>> = {};
@@ -166,9 +168,9 @@ export default function SteamReviewPage() {
   const [showToast, setShowToast] = useState(false);
 
   const previewText = useMemo(() => {
-    let output = '';
-    const checkedBox = '☑';
-    const uncheckedBox = '☐';
+    let output = "";
+    const checkedBox = "☑";
+    const uncheckedBox = "☐";
 
     const visibleCategories = reviewData.filter(
       (cat) => !hiddenCategories.has(cat.id),
@@ -184,12 +186,12 @@ export default function SteamReviewPage() {
       });
 
       if (catIndex < visibleCategories.length - 1) {
-        output += '\n';
+        output += "\n";
       }
     });
 
     if (visibleCategories.length > 0) {
-      output += '\n\n';
+      output += "\n\n";
     }
     output += `---{ Author }---\nhttps://steamcommunity.com/id/ROCKSTAR_TTV`;
 
@@ -237,7 +239,7 @@ export default function SteamReviewPage() {
         setTimeout(() => setShowToast(false), 2000);
       })
       .catch((err) => {
-        console.error('Failed to copy text: ', err);
+        console.error("Failed to copy text: ", err);
       });
   };
 
@@ -323,7 +325,7 @@ export default function SteamReviewPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {reviewData.map((category) => {
               const isHidden = hiddenCategories.has(category.id);
-              const isRating = category.id === 'rating';
+              const isRating = category.id === "rating";
 
               return (
                 <div
@@ -339,10 +341,10 @@ export default function SteamReviewPage() {
                       onClick={() => toggleVisibility(category.id)}
                       className={`p-1 rounded transition-colors ${
                         isHidden
-                          ? 'text-white/20 hover:text-white/40'
-                          : 'text-white/35 hover:text-[#D97757]'
+                          ? "text-white/20 hover:text-white/40"
+                          : "text-white/35 hover:text-[#D97757]"
                       }`}
-                      title="Toggle category visibility"
+                      title={t("steam.reviewTitle")}
                     >
                       {isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -350,7 +352,7 @@ export default function SteamReviewPage() {
 
                   <div
                     className={`transition-opacity duration-150 ${
-                      isHidden ? 'opacity-25 pointer-events-none' : ''
+                      isHidden ? "opacity-25 pointer-events-none" : ""
                     }`}
                   >
                     {isRating ? (
@@ -367,8 +369,8 @@ export default function SteamReviewPage() {
                               }
                               className={`h-8 rounded-md text-xs font-medium border transition-colors ${
                                 isChecked
-                                  ? 'bg-[#D97757]/15 border-[#D97757]/50 text-[#D97757]'
-                                  : 'border-white/[0.08] text-white/45 hover:border-white/20 hover:text-white/70'
+                                  ? "bg-[#D97757]/15 border-[#D97757]/50 text-[#D97757]"
+                                  : "border-white/[0.08] text-white/45 hover:border-white/20 hover:text-white/70"
                               }`}
                             >
                               {option}
@@ -397,7 +399,7 @@ export default function SteamReviewPage() {
                               />
                               <span
                                 className={`text-[13px] leading-tight transition-colors ${
-                                  isChecked ? 'text-[#F2EDE6]' : 'text-white/50'
+                                  isChecked ? "text-[#F2EDE6]" : "text-white/50"
                                 }`}
                               >
                                 {option}
@@ -431,7 +433,7 @@ export default function SteamReviewPage() {
                 className="w-full h-full text-[#F2EDE6]/85 font-mono text-[12.5px] leading-5 p-3.5 rounded-lg
                            border border-white/[0.06] focus:outline-none focus:border-[#D97757]/40
                            resize-none overflow-y-auto whitespace-pre-wrap"
-                style={{ background: '#0F0D0B' }}
+                style={{ background: "#0F0D0B" }}
               />
             </div>
 
@@ -458,7 +460,7 @@ export default function SteamReviewPage() {
                 <div
                   className="toast-pop absolute -top-11 left-1/2 flex items-center gap-2 px-3.5 py-2 rounded-lg
                              bg-[#181410] border border-[#D97757]/35 text-[#D97757] text-xs font-medium shadow-xl"
-                  style={{ boxShadow: '0 12px 30px -8px rgba(0,0,0,0.6)' }}
+                  style={{ boxShadow: "0 12px 30px -8px rgba(0,0,0,0.6)" }}
                 >
                   <CheckCircle2 size={13} />
                   Copied to clipboard

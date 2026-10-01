@@ -1,6 +1,7 @@
-import { Check, ExternalLink, KeyRound, ShieldCheck, X } from 'lucide-react';
-import { openUrl } from '@tauri-apps/plugin-opener';
-import { Button, Input } from '@/shared/ui';
+import { Check, ExternalLink, KeyRound, ShieldCheck, X } from "lucide-react";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { Button, Input } from "@/shared/ui";
+import { useTranslation } from "react-i18next";
 
 interface ApiKeyModalProps {
   draftKey: string;
@@ -15,6 +16,7 @@ export default function ApiKeyModal({
   onSave,
   onDismiss,
 }: ApiKeyModalProps) {
+  const { t } = useTranslation();
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-md"
@@ -51,7 +53,7 @@ export default function ApiKeyModal({
             type="button"
             onClick={onDismiss}
             className="rounded-lg p-2 text-white/40 hover:bg-white/[0.08] hover:text-white"
-            aria-label="Close API key guide"
+            aria-label={t("ai.closeGuide")}
           >
             <X size={18} />
           </button>
@@ -61,16 +63,13 @@ export default function ApiKeyModal({
             How to get an OpenRouter key
           </p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-xs leading-relaxed">
-            <li>Open OpenRouter and create an account.</li>
-            <li>
-              Go to <strong className="text-white">Keys</strong> and select{' '}
-              <strong className="text-white">Create Key</strong>.
-            </li>
-            <li>Copy the key and paste it below. Keep it private.</li>
+            <li>{t("ai.openRouterStep")}</li>
+            <li>{t("ai.keysStep")}</li>
+            <li>{t("ai.copyKeyStep")}</li>
           </ol>
           <button
             type="button"
-            onClick={() => void openUrl('https://openrouter.ai/keys')}
+            onClick={() => void openUrl("https://openrouter.ai/keys")}
             className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[var(--accent)] hover:underline"
           >
             OpenRouter Keys <ExternalLink size={13} />
@@ -82,7 +81,7 @@ export default function ApiKeyModal({
           type="password"
           value={draftKey}
           onChange={(event) => onDraftKeyChange(event.target.value)}
-          placeholder="sk-or-v1-..."
+          placeholder={t("ai.keyPlaceholder")}
           autoComplete="off"
           autoFocus
         />

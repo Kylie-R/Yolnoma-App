@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import {
   AlertCircle,
@@ -31,9 +32,11 @@ const iconColors = [
   "from-[#51b98f] to-[#32765f]",
 ];
 
-function locationLabel(app: StartupApp) {
+function locationLabel(app: StartupApp, translate: (key: string) => string) {
   if (app.kind === "folder") return app.location;
-  return app.location.startsWith("HKLM") ? "All users" : "Current user";
+  return app.location.startsWith("HKLM")
+    ? translate("startup.allUsers")
+    : translate("startup.currentUser");
 }
 
 function iconLetter(name: string) {
@@ -69,6 +72,7 @@ function StartupAppIcon({ name }: { name: string }) {
 }
 
 export default function StartUpAppsPage() {
+  const { t } = useTranslation();
   const [apps, setApps] = useState<StartupApp[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -136,10 +140,11 @@ export default function StartUpAppsPage() {
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-(--main-color)">
             Windows utility
           </p>
-          <h1 className="font-serif text-3xl text-white">Startup Apps</h1>
+          <h1 className="font-serif text-3xl text-white">
+            {t("startup.title")}
+          </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45">
-            Choose which apps start with Windows. Changes apply to Registry Run
-            entries and Startup folders.
+            {t("startup.description")}
           </p>
         </div>
         <Button
@@ -149,7 +154,7 @@ export default function StartUpAppsPage() {
           disabled={loading}
         >
           <RefreshCw size={15} className={loading ? "animate-spin" : ""} />{" "}
-          Refresh
+          {t("startup.refresh")}
         </Button>
       </header>
 
@@ -163,9 +168,14 @@ export default function StartUpAppsPage() {
       <section className="overflow-hidden select-none">
         <div className="flex flex-col gap-4  px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-white">Startup apps</h2>
+            <h2 className="text-sm font-semibold text-white">
+              {t("startup.sectionTitle")}
+            </h2>
             <p className="mt-1 text-xs text-white/40">
-              {apps.length} detected · {enabledCount} enabled
+              {t("startup.counts", {
+                detected: apps.length,
+                enabled: enabledCount,
+              })}
             </p>
           </div>
           <label className="flex min-w-0 items-center gap-2 rounded-lg border border-white/[0.09] bg-black/20 px-3 py-2 sm:w-72">
@@ -173,7 +183,7 @@ export default function StartUpAppsPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search apps"
+              placeholder={t("startup.search")}
               className="min-w-0 flex-1 bg-transparent text-xs text-white outline-none placeholder:text-white/30"
             />
           </label>
@@ -181,19 +191,17 @@ export default function StartUpAppsPage() {
 
         {loading ? (
           <div className="flex items-center justify-center gap-2 px-4 py-20 text-sm text-white/40">
-            <Loader2 size={17} className="animate-spin" /> Reading Windows
-            startup entries…
+            <Loader2 size={17} className="animate-spin" />{" "}
+            {t("startup.loading")}
           </div>
         ) : !filteredApps.length ? (
           <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
             <FolderOpen size={28} className="mb-3 text-white/25" />
             <p className="text-sm text-white/55">
-              {apps.length
-                ? "No matching startup apps"
-                : "No startup apps detected"}
+              {apps.length ? t("startup.noMatches") : t("startup.none")}
             </p>
             <p className="mt-1 text-xs text-white/30">
-              Try refreshing or changing your search.
+              {t("startup.emptyHint")}
             </p>
           </div>
         ) : (
@@ -211,7 +219,7 @@ export default function StartUpAppsPage() {
                         {app.name}
                       </h3>
                       {app.requiresAdmin && (
-                        <span title="Changing this entry may require administrator permission">
+                        <span title={t("startup.adminHint")}>
                           <ShieldAlert
                             size={14}
                             className="shrink-0 text-amber-300/65"
@@ -223,7 +231,7 @@ export default function StartUpAppsPage() {
                       className="mt-1 truncate text-xs text-white/55"
                       title={app.command}
                     >
-                      {locationLabel(app)}{" "}
+                      {locationLabel(app, t)}{" "}
                       <span className="px-1 text-white/25">|</span>{" "}
                       {commandLabel(app.command)}
                     </p>
@@ -233,7 +241,7 @@ export default function StartUpAppsPage() {
                   <span
                     className={`w-8 text-right text-sm font-medium ${app.enabled ? "text-white" : "text-white/80"}`}
                   >
-                    {app.enabled ? "On" : "Off"}
+                    {app.enabled ? t("startup.on") : t("startup.off")}
                   </span>
                   <Toggle
                     checked={app.enabled}
@@ -243,8 +251,8 @@ export default function StartUpAppsPage() {
                   />
                   <button
                     type="button"
-                    title="Startup entry details"
-                    aria-label={`Details for ${app.name}`}
+                    title={t("startup.details")}
+                    aria-label={t("startup.detailsFor", { name: app.name })}
                     className="rounded-md p-1.5 text-white/55 transition-colors hover:bg-white/[0.08] hover:text-white"
                   >
                     {app.kind === "folder" ? (
@@ -261,8 +269,7 @@ export default function StartUpAppsPage() {
       </section>
 
       <div className="flex items-center gap-2 text-xs leading-5 text-white/30">
-        <Power size={13} /> System-wide entries may require administrator
-        permission to change.
+        <Power size={13} /> {t("startup.systemHint")}
       </div>
     </div>
   );

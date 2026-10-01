@@ -1,5 +1,6 @@
 import { images } from "@/shared/assets/images";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -12,6 +13,7 @@ export default function SplashScreen({
   preview = false,
   loadingPreview = false,
 }: SplashScreenProps) {
+  const { t } = useTranslation();
   const [progress, setProgress] = useState(0);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -194,10 +196,10 @@ export default function SplashScreen({
           }}
         >
           {progress < 60
-            ? "Loading..."
+            ? t("appShell.splashLoading")
             : progress < 100
-              ? "Almost ready..."
-              : "Ready!"}
+              ? t("appShell.splashAlmost")
+              : t("appShell.splashReady")}
         </p>
       </div>
 

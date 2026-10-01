@@ -18,10 +18,9 @@ import {
   WandSparkles,
   Palette,
   Trees,
-  Rocket,
-} from "lucide-react";
-import ViIcon from "@/assets/VI.svg";
-import { isAndroidApp } from "@/shared/lib/platform";
+	  Rocket,
+	} from "lucide-react";
+	import { isAndroidApp } from "@/shared/lib/platform";
 
 export type RouteStatus = "stable" | "dev" | "test";
 export type RouteComponent = ComponentType;
@@ -125,10 +124,9 @@ const DnsRecordsPage = lazyPage(
 const ArchiveExplorerPage = lazyPage(
   () => import("@/features/archive-explorer/pages/ArchiveExplorerPage"),
 );
-const AiChatPage = lazyPage(() => import("@/features/ai/pages/AiChatPage"));
-const AiAgentPage = lazyPage(() => import("@/features/ai/pages/AiAgentPage"));
-const ViCountdown = lazyPage(() => import("@/features/vi/pages/ViCountdown"));
-const World3DPage = lazyPage(
+	const AiChatPage = lazyPage(() => import("@/features/ai/pages/AiChatPage"));
+	const AiAgentPage = lazyPage(() => import("@/features/ai/pages/AiAgentPage"));
+	const World3DPage = lazyPage(
   () => import("@/features/world3d/pages/World3DPage"),
 );
 const DeveloperToolsPage = lazyPage(
@@ -392,18 +390,8 @@ export const ROUTE_CONFIG: readonly RouteDefinition[] = [
     navGroup: "tools",
     pinnable: true,
   },
-  {
-    id: "vi",
-    path: "/vi",
-    component: ViCountdown,
-    label: "VI COUNTDOWN",
-    description: "Countdown GTA VI",
-    icon: ViIcon,
-    navGroup: "tools",
-    pinnable: true,
-  },
-  {
-    id: "steam-sam",
+	{
+	  id: "steam-sam",
     path: "/tools/steam/sam",
     component: SteamSamPage,
     label: "Steam / SAM",

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Columns, AlignJustify, FileDiff, WrapText } from "lucide-react";
 
 export type SideBySideRow =
@@ -114,6 +115,7 @@ export default function SideBySideDiffViewer({
   diff,
   status = "M",
 }: SideBySideDiffViewerProps) {
+  const { t } = useTranslation("common");
   const [viewMode, setViewMode] = useState<"split" | "inline">("split");
   const [wordWrap, setWordWrap] = useState(true);
 
@@ -134,7 +136,7 @@ export default function SideBySideDiffViewer({
         <FileDiff size={40} className="mb-3 opacity-30" />
         <p className="text-sm font-medium text-white/70">{fileName}</p>
         <p className="mt-1 text-xs text-white/35">
-          {diff || "No textual changes recorded in this revision."}
+          {diff || t("diffViewer.noChanges")}
         </p>
       </div>
     );
@@ -172,9 +174,9 @@ export default function SideBySideDiffViewer({
                 ? "border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--accent)]"
                 : "border-white/10 bg-white/[0.03] text-white/40 hover:text-white"
             }`}
-            title="Word Wrap (Qatorlarni avtomatik pastga o'rash)"
+            title={t("diffViewer.wordWrap")}
           >
-            <WrapText size={12} /> Wrap
+            <WrapText size={12} /> {t("diffViewer.wrap")}
           </button>
 
           <div className="flex items-center gap-1 rounded bg-black/40 p-0.5 border border-white/[0.06]">
@@ -186,9 +188,9 @@ export default function SideBySideDiffViewer({
                   ? "bg-[var(--accent)] text-[#1b120e]"
                   : "text-white/40 hover:text-white"
               }`}
-              title="Yonma-yon (Side-by-side)"
+              title={t("diffViewer.splitTitle")}
             >
-              <Columns size={12} /> Split
+              <Columns size={12} /> {t("diffViewer.split")}
             </button>
             <button
               type="button"
@@ -198,9 +200,9 @@ export default function SideBySideDiffViewer({
                   ? "bg-[var(--accent)] text-[#1b120e]"
                   : "text-white/40 hover:text-white"
               }`}
-              title="Qatorma-qator (Inline)"
+              title={t("diffViewer.inlineTitle")}
             >
-              <AlignJustify size={12} /> Inline
+              <AlignJustify size={12} /> {t("diffViewer.inline")}
             </button>
           </div>
         </div>
@@ -212,16 +214,20 @@ export default function SideBySideDiffViewer({
           <div className="flex items-center justify-between border-r border-white/[0.08] px-3 py-1 text-white/45">
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400/80" />
-              Original (HEAD / Old)
+              {t("diffViewer.original")}
             </span>
-            <span className="text-[10px] text-white/25">Read-only</span>
+            <span className="text-[10px] text-white/25">
+              {t("diffViewer.readOnly")}
+            </span>
           </div>
           <div className="flex items-center justify-between px-3 py-1 text-white/45">
             <span className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
-              Working Tree (Modified / New)
+              {t("diffViewer.workingTree")}
             </span>
-            <span className="text-[10px] text-white/25">Current file</span>
+            <span className="text-[10px] text-white/25">
+              {t("diffViewer.currentFile")}
+            </span>
           </div>
         </div>
       )}
@@ -239,7 +245,7 @@ export default function SideBySideDiffViewer({
                     className="sticky top-0 z-10 flex items-center gap-2 border-y border-white/[0.08] bg-[#182030]/90 backdrop-blur-sm px-4 py-0.5 text-[10.5px] text-blue-300/80 font-mono select-none"
                   >
                     <span className="rounded bg-blue-500/20 px-1 py-0.2 text-[9px] font-bold">
-                      Hunk
+                      {t("diffViewer.hunk")}
                     </span>
                     <span>{row.content}</span>
                   </div>
