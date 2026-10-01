@@ -2,6 +2,12 @@
 
 All notable Yolnoma releases are documented here. This file is the source of truth for updater release notes.
 
+## [1.2.6] - 2026-10-01
+
+### Improved
+
+- Russian localization enhacements.
+
 ## [1.2.5] - 2026-09-30
 
 ### Improved
